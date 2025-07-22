@@ -2,19 +2,26 @@ import React, { useEffect} from 'react';
 import { IconX, IconExclamationCircle, IconCheck, IconAlertCircle, IconInfoCircle } from '@tabler/icons-react';
 import Button from '../common/Button';
 import { useAlert } from '../../contexts/alertContext';
+import { playSound } from '../../utils/sound';
 
 const Alert: React.FC = () => {
     const { alert, setAlert } = useAlert();
 
-    useEffect(() => {
-        if (alert) {
-            const timeout = setTimeout(() => {
-                setAlert(null);
-            }, 5000); // Auto close after 5 seconds
 
-            return () => clearTimeout(timeout);
-        }
-    }, [alert, setAlert]);
+  useEffect(() => {
+    if (alert) {
+      // ✅ Use your centralized sound util
+      if (alert.type === 'error') playSound('error');
+      else if (alert.type === 'warning' || alert.type === 'info') playSound('alert');
+      else if (alert.type === 'success') playSound('success');
+
+      const timeout = setTimeout(() => {
+        setAlert(null);
+      }, 5000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [alert, setAlert]);
 
 
     if (!alert) return null;

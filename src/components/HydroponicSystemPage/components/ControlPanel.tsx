@@ -2,6 +2,7 @@
 import React from 'react';
 import type { SystemStatus } from '../../../models/interfaces/HydroSystem';
 import Button from '../../common/Button';
+import { playSound } from '../../../utils/sound';
 
 interface ControlPanelProps {
   systemStatus: SystemStatus | null;
@@ -24,6 +25,32 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 }) => {
    // 👇 Log the current system status
   console.log('ControlPanel - systemStatus:', systemStatus);
+
+ const handlePumpControl = (turnOn: boolean) => {
+    playSound(turnOn ? 'on' : 'off');
+    onPumpControl(turnOn);
+  };
+
+  const handleLightControl = (turnOn: boolean) => {
+    playSound(turnOn ? 'on' : 'off');
+    onLightControl(turnOn);
+  };
+
+  const handleStartScheduler = () => {
+    playSound('success');
+    onStartScheduler();
+  };
+
+  const handleStopScheduler = () => {
+    playSound('off');
+    onStopScheduler();
+  };
+
+  const handleRestartScheduler = () => {
+    playSound('on');
+    onRestartScheduler();
+  };
+
   return (
     <div>
       <h2 className="text-base font-semibold text-gray-800 mb-4">System Controls</h2>
@@ -51,7 +78,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           <div className="flex space-x-2 items-center justify-between">
             <Button
               label='Turn On'
-              onClick={() => onPumpControl(true)}
+              onClick={() => handlePumpControl(true)}
               disabled={loading || systemStatus?.devices.pump_state}
               className={`flex-1 ${systemStatus?.devices.pump_state
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -61,7 +88,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             />
             <Button
               label='Turn Off'
-              onClick={() => onPumpControl(false)}
+              onClick={() => handlePumpControl(false)}
               disabled={loading || !systemStatus?.devices.pump_state}
               className={`flex-1 ${!systemStatus?.devices.pump_state
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -93,7 +120,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           <div className="flex space-x-2 items-center justify-between">
             <Button
               label='Turn On'
-              onClick={() => onLightControl(true)}
+              onClick={() => handleLightControl(true)}
               disabled={loading || systemStatus?.devices.light_state}
               className={`flex-1 ${systemStatus?.devices.light_state
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -103,7 +130,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             />
             <Button
               label='Turn Off'
-              onClick={() => onLightControl(false)}
+              onClick={() => handleLightControl(false)}
               disabled={loading || !systemStatus?.devices.light_state}
               className={`flex-1 ${!systemStatus?.devices.light_state
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -141,21 +168,21 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             <div className="flex items-center justify-between space-x-2">
               <Button
                 label="Start"
-                onClick={onStartScheduler}
+                onClick={handleStartScheduler}
                 disabled={loading}
                 className="bg-green-500 hover:bg-green-600 text-white flex-1"
                 size='xs'
               />
               <Button
                 label="Stop"
-                onClick={onStopScheduler}
+                onClick={handleStopScheduler}
                 disabled={loading}
                 className="bg-red-500 hover:bg-red-600 text-white flex-1"
                 size='xs'
               />
               <Button
                 label="Restart"
-                onClick={onRestartScheduler}
+                onClick={handleRestartScheduler}
                 disabled={loading}
                 className="bg-yellow-500 hover:bg-yellow-600 text-white flex-1"
                 size='xs'
