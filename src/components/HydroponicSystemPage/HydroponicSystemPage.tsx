@@ -187,13 +187,12 @@ const HydroponicSystemPage: React.FC = () => {
       {activeTab === 'charts' && (
         <div className="space-y-6">
           <SensorChart
-  data={sensorData}
-  type="water_level"
-  title="Water Level"
-  unit="cm"
-  color="#6366f1" // Indigo
-/>
-
+            data={sensorData}
+            type="water_level"
+            title="Water Level"
+            unit="cm"
+            color="#6366f1" // Indigo
+          />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <SensorChart
               data={sensorData}

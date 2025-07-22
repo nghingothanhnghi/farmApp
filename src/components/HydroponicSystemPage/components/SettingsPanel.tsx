@@ -5,6 +5,7 @@ import type { SystemThresholds as Thresholds } from '../../../models/interfaces/
 import Button from '../../common/Button';
 import NumberInput from '../../common/NumberInput';
 import { useAlert } from '../../../contexts/alertContext';
+import { defaultThresholds } from '../../../constants/defaultThresholds';
 
 interface SettingsPanelProps {
   thresholds: Thresholds | null;
@@ -18,11 +19,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   loading = false
 }) => {
   const { setAlert } = useAlert();
-  const [localThresholds, setLocalThresholds] = useState<Thresholds>({
-    moisture_min: 30,
-    light_min: 300,
-    temperature_max: 28
-  });
+  const [localThresholds, setLocalThresholds] = useState<Thresholds>(defaultThresholds);
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
@@ -128,6 +125,57 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           </span>
         </div>
       </FormGroup>
+      <hr role="presentation" className="my-10 w-full border-t border-zinc-950/5 dark:border-white/5"></hr>
+      {/* Water Level Minimum */}
+      <FormGroup className='grid gap-x-8 gap-y-6 sm:grid-cols-2'>
+        <div className='space-y-1'>
+          <FormLabel htmlFor="water_level_min">Minimum Water Level</FormLabel>
+          <p className="text-base/6 text-zinc-500 sm:text-sm/6 dark:text-zinc-400">
+            Alert when water level drops below this level
+          </p>
+        </div>
+        <div className="relative w-50">
+          <NumberInput
+            id="water_level_min"
+            value={localThresholds.water_level_min}
+            onChange={(value) => handleThresholdChange('water_level_min', value)}
+            min={0}
+            max={100}
+            step={1}
+            className="w-full"
+          />
+          <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
+            cm
+          </span>
+        </div>
+      </FormGroup>
+      <hr role="presentation" className="my-10 w-full border-t border-zinc-950/5 dark:border-white/5"></hr>
+
+      {/* Water Level Critical */}
+      <FormGroup className='grid gap-x-8 gap-y-6 sm:grid-cols-2'>
+        <div className='space-y-1'>
+          <FormLabel htmlFor="water_level_critical">Critical Water Level</FormLabel>
+          <p className="text-base/6 text-zinc-500 sm:text-sm/6 dark:text-zinc-400">
+            Trigger immediate alert when water level is critically low
+          </p>
+        </div>
+        <div className="relative w-50">
+          <NumberInput
+            id="water_level_critical"
+            value={localThresholds.water_level_critical}
+            onChange={(value) => handleThresholdChange('water_level_critical', value)}
+            min={0}
+            max={100}
+            step={1}
+            className="w-full"
+          />
+          <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
+            cm
+          </span>
+        </div>
+      </FormGroup>
+
+
       <hr role="presentation" className="my-10 w-full border-t border-zinc-950/5 dark:border-white/5"></hr>
       {/* System Information */}
       <div>

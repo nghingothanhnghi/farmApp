@@ -21,6 +21,8 @@ import type {
   SystemThresholds as Thresholds
 } from '../models/interfaces/HydroSystem';
 
+import { handleControlAction } from '../utils/controlActions';
+
 export const useHydroSystem = () => {
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [sensorData, setSensorData] = useState<SensorReading[]>([]);
@@ -70,16 +72,6 @@ export const useHydroSystem = () => {
 
     const newAlerts: SystemAlert[] = [];
     const { sensors } = status;
-
-    // if (status.temperature > thresholds.temperature_max) {
-    //   newAlerts.push({
-    //     id: `temp-${Date.now()}`,
-    //     type: 'warning',
-    //     message: `Temperature too high: ${status.temperature}°C (max: ${thresholds.temperature_max}°C)`,
-    //     timestamp: new Date().toISOString(),
-    //     resolved: false
-    //   });
-    // }
 
     if (sensors.temperature > thresholds.temperature_max) {
       newAlerts.push({
