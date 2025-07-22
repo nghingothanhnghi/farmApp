@@ -1,0 +1,113 @@
+.ar-camera-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.camera-view {
+  position: relative;
+  width: 100%;
+  background-color: #000;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.camera-view video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.detection-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.bounding-box {
+  position: absolute;
+  border: 2px solid #00ff00;
+  background-color: rgba(0, 255, 0, 0.1);
+  pointer-events: none;
+}
+
+.label {
+  position: absolute;
+  top: -25px;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 2px 6px;
+  font-size: 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.error-message {
+  background-color: #ffdddd;
+  color: #ff0000;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.annotated-image {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.annotated-image h3 {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.annotated-image img {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+/* Controls for camera */
+.camera-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  gap: 10px;
+}
+
+.camera-controls button {
+  padding: 8px 16px;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.camera-controls button:hover {
+  background-color: #3367d6;
+}
+
+.camera-controls button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .ar-camera-container {
+    max-width: 100%;
+  }
+  
+  .label {
+    font-size: 10px;
+    top: -20px;
+  }
+}

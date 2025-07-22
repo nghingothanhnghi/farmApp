@@ -1,0 +1,55 @@
+
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+
+.form-group input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 5px;
+  color: #666;
+  font-size: 14px;
+}
+
+.training-progress {
+  margin: 20px 0;
+}
+
+.progress-bar {
+  height: 20px;
+  background-color: #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4caf50;
+  transition: width 0.3s ease;
+}
+
+.progress-message {
+  text-align: center;
+  color: #666;
+}
+
+.form-actions {
+  display: flex;
+  justify-content:end;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+
+
+
