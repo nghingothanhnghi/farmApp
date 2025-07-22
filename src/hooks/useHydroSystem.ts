@@ -21,8 +21,6 @@ import type {
   SystemThresholds as Thresholds
 } from '../models/interfaces/HydroSystem';
 
-import { handleControlAction } from '../utils/controlActions';
-
 export const useHydroSystem = () => {
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [sensorData, setSensorData] = useState<SensorReading[]>([]);

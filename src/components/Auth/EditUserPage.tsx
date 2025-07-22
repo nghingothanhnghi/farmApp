@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams } from 'react-router';
 import Form, { FormGroup, FormLabel, FormInput, FormActions } from '../common/Form';
 import Button from '../common/Button';
 import PageTitle from '../common/PageTitle';
@@ -12,7 +12,6 @@ const EditUserPage: React.FC = () => {
   const { user, getUser, setShowLoginModal } = useAuth();
   const { setAlert } = useAlert();
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     username: '',
