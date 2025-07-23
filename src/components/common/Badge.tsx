@@ -1,10 +1,11 @@
 import React from 'react';
 
 type BadgeProps = {
-  label: string;
+  label?: string;
   variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'gray';
   size?: 'small' | 'medium' | 'large';
   className?: string;
+  children?: React.ReactNode;
 };
 
 const variantClasses = {
@@ -28,6 +29,7 @@ const Badge: React.FC<BadgeProps> = ({
   variant = 'gray',
   size = 'small',
   className = '',
+  children,
 }) => {
   const variantClass = variantClasses[variant] || variantClasses.gray;
   const sizeClass = sizeClasses[size] || sizeClasses.small;
@@ -36,7 +38,7 @@ const Badge: React.FC<BadgeProps> = ({
     <span
       className={`inline-flex items-center rounded-full font-medium ${variantClass} ${sizeClass} ${className}`}
     >
-      {label}
+      {children || label}
     </span>
   );
 };

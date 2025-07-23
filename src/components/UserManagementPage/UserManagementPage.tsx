@@ -14,6 +14,7 @@ import ActionButtons from '../common/dataGrid/actionButton';
 import Button from '../common/Button';
 import Modal from '../common/Modal';
 import Badge from '../common/Badge';
+import UserPermissionList from './components/UserPermissionList';
 import { IconMinus, IconAlertCircle } from '@tabler/icons-react';
 
 const UserManagementPage: React.FC = () => {
@@ -157,9 +158,8 @@ const UserManagementPage: React.FC = () => {
       width: 230, // allow it to grow to fit
       cellRenderer: ({ data }: any) => {
         if (!data?.roles?.length) return <Badge label="No roles" variant="secondary" />;
-
         return data.roles.map((role: Role) => (
-          <div key={role.id} className="flex items-center gap-2">
+          <div key={role.id} className="flex items-center gap-2">        
             <ModeToggle
               isActive={role.is_active ?? false}
               onToggle={() => handleToggle(role.id)}
@@ -183,6 +183,32 @@ const UserManagementPage: React.FC = () => {
         ));
       },
       autoHeight: true,
+    },
+    {
+      headerName: 'Permissions',
+      field: 'permissions',
+      filter: false,
+      resizable: false,
+      pinned: 'right',
+      width: 250,
+      autoHeight: true,
+      cellRenderer: ({ data }: any) => {
+        if (!data?.roles?.length) {
+          return <Badge label="No permissions" variant="secondary" />;
+        }
+
+        return (
+          <div className="flex flex-col gap-2">
+            {data.roles.map((role: Role) => (
+              <UserPermissionList
+                key={role.id}
+                permissions={role.permissions || []}
+                isActive={role.is_active}
+              />
+            ))}
+          </div>
+        );
+      },
     },
     {
       headerName: 'Assign Role',
