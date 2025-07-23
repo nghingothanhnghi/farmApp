@@ -24,8 +24,8 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
     onChange
 }) => {
     const [isOpen, setIsOpen] = useState(false);
-      const buttonRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
+    const buttonRef = useRef<HTMLDivElement>(null);
+    const [position, setPosition] = useState({ top: 0, left: 0 });
     const [selectedValues, setSelectedValues] = useState<string[]>(() =>
         options.filter((o) => o.checked).map((o) => o.value)
     );
@@ -48,23 +48,23 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         setSelectedValues(options.filter((o) => o.checked).map((o) => o.value));
     }, [options]);
 
-      useEffect(() => {
-    if (isOpen && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setPosition({
-        top: rect.bottom + 4,
-        left: rect.left
-      });
-    }
-  }, [isOpen]);
+    useEffect(() => {
+        if (isOpen && buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            setPosition({
+                top: rect.bottom + 4,
+                left: rect.left
+            });
+        }
+    }, [isOpen]);
 
     const dropdownContent = (
         <div className="z-50 fixed w-64 max-h-72 overflow-y-auto rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
-        style={{ top: position.top, left: position.left }}
+            style={{ top: position.top, left: position.left }}
         >
-            <ul className="py-1 px-2 space-y-1">
+            <ul>
                 {options.map((option, idx) => (
-                    <li key={idx} className="flex items-center gap-2">
+                    <li key={idx} className="gap-2 flex items-center px-4 py-2 cursor-pointer text-sm bg-gray-100 hover:bg-gray-200">
                         <input
                             type="checkbox"
                             checked={selectedValues.includes(option.value)}
@@ -87,7 +87,8 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         <div className="relative inline-block text-left">
             <Button
                 type="button"
-                 size={size}
+                variant='secondary'
+                size={size}
                 onClick={toggleDropdown}
                 disabled={disabled}
                 label=""
@@ -95,9 +96,8 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                     <div className="flex items-center gap-2">
                         {title}
                         <svg
-                            className={`w-4 h-4 ml-1 transform transition-transform duration-200 ${
-                                isOpen ? 'rotate-180' : 'rotate-0'
-                            }`}
+                            className={`w-4 h-4 ml-1 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'
+                                }`}
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"

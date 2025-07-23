@@ -31,18 +31,16 @@ const UserPermissionList: React.FC<UserPermissionProps> = ({
     // ✨ Use dropdown for better UX
     if (useDropdown || permissions.length > 3) {
         return (
-            <div className="mt-2">
-                <MultiSelectDropdown
-                    size="xs"
-                    options={options}
-                    title={`Permissions (${permissions.length})`}
-                    disabled={!isActive}
-                    onChange={(selectedPermissions) => {
-                        console.log("Selected permissions:", selectedPermissions);
-                        // You could call a save function or update local state here
-                    }}
-                />
-            </div>
+            <MultiSelectDropdown
+                size="xs"
+                options={options}
+                title={`Permissions (${permissions.length})`}
+                disabled={!isActive}
+                onChange={(selectedPermissions) => {
+                    console.log("Selected permissions:", selectedPermissions);
+                    // You could call a save function or update local state here
+                }}
+            />
         );
     }
 

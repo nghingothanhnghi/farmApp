@@ -1,5 +1,5 @@
 // src/components/layout/SideMenu.tsx
-import { IconDeviceMobileCheck, IconCamera, IconBrain, IconPlant, IconUserShield } from '@tabler/icons-react';
+import { IconDeviceMobileCheck, IconCamera, IconBrain, IconPlant, IconUserShield, IconCalendarCheck } from '@tabler/icons-react';
 import ListLink from '../common/ListLink';
 import { APP_NAME } from '../../config/constants';
 import Header from './Header';
@@ -37,6 +37,7 @@ export default function SideMenu({ open = false, onClose }: SideMenuProps) {
                         <ListLink to="/model-training" onClick={onClose} icon={<IconBrain size={16} />} label="Train YOLOv8 Model" />
                         <ListLink to="/hydroponic-system" onClick={onClose} icon={<IconPlant size={16} />} label="Hydroponic System" />
                         <ListLink to="/users" onClick={onClose} icon={<IconUserShield size={16} />} label="Users" />
+                        <ListLink to="/scheduler-health" onClick={onClose} icon={<IconCalendarCheck size={16} />} label="Scheduler Health" />
                     </div>
                     <Footer />
                 </div>
