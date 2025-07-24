@@ -246,6 +246,8 @@ frontend/
 
 ![Screenshot](public/screenshot/chart-realtime-hydro.png)
 
+![Screenshot](public/screenshot/overview-realtime-hydro.png)
+
 ## Key Architecture Patterns
 
 ### 🏗️ **Component Organization**
