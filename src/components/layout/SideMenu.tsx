@@ -1,5 +1,5 @@
 // src/components/layout/SideMenu.tsx
-import { IconDeviceMobileCheck, IconCamera, IconBrain, IconPlant, IconUserShield, IconCalendarCheck } from '@tabler/icons-react';
+import { IconDeviceMobileCheck, IconCamera, IconBrain, IconPlant, IconUserShield, IconCalendarCheck, IconAnalyze } from '@tabler/icons-react';
 import ListLink from '../common/ListLink';
 import { APP_NAME } from '../../config/constants';
 import Header from './Header';
@@ -10,6 +10,12 @@ interface SideMenuProps {
     onClose?: () => void;
 }
 export default function SideMenu({ open = false, onClose }: SideMenuProps) {
+        // Only close on mobile
+    const handleLinkClick = () => {
+        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+            onClose?.();
+        }
+    };
     return (
         <>
             {/* Backdrop for mobile */}
@@ -18,7 +24,6 @@ export default function SideMenu({ open = false, onClose }: SideMenuProps) {
                     }`}
                 onClick={onClose}
             />
-
             <aside
                 className={`
                     fixed inset-y-0 left-0 z-30 w-64
@@ -33,12 +38,13 @@ export default function SideMenu({ open = false, onClose }: SideMenuProps) {
                 <div className='flex h-full min-h-0 flex-col'>
                     <Header appName={APP_NAME} onClose={onClose}/>
                     <div className="flex flex-1 flex-col overflow-y-auto p-4">
-                        <ListLink to="/" onClick={onClose} icon={<IconDeviceMobileCheck size={16} />} label="Device Controller" />
-                        <ListLink to="/ar-detection" onClick={onClose} icon={<IconCamera size={16} />} label="AR Object Detection" />
-                        <ListLink to="/model-training" onClick={onClose} icon={<IconBrain size={16} />} label="Train YOLOv8 Model" />
-                        <ListLink to="/hydroponic-system" onClick={onClose} icon={<IconPlant size={16} />} label="Hydroponic System" />
-                        <ListLink to="/users" onClick={onClose} icon={<IconUserShield size={16} />} label="Users" />
-                        <ListLink to="/scheduler-health" onClick={onClose} icon={<IconCalendarCheck size={16} />} label="Scheduler Health" />
+                        <ListLink to="/scheduler-health" onClick={handleLinkClick} icon={<IconCalendarCheck size={16} />} label="Scheduler Health" />
+                        <ListLink to="/" onClick={handleLinkClick} icon={<IconDeviceMobileCheck size={16} />} label="Device Controller" />
+                        <ListLink to="/ar-detection" onClick={handleLinkClick} icon={<IconCamera size={16} />} label="AR Object Detection" />
+                        <ListLink to="/model-training" onClick={handleLinkClick} icon={<IconBrain size={16} />} label="Train YOLOv8 Model" />
+                        <ListLink to="/hydroponic-system" onClick={handleLinkClick} icon={<IconPlant size={16} />} label="Hydroponic System" />
+                        <ListLink to="/users" onClick={handleLinkClick} icon={<IconUserShield size={16} />} label="Users" />
+                        <ListLink to="/migrate" onClick={handleLinkClick} icon={<IconAnalyze size={16} />} label="Data Migration" />
                     </div>
                     <Footer />
                 </div>

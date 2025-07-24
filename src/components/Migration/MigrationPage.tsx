@@ -1,9 +1,10 @@
 // src/components/Migration/MigrationPage.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import RawDataForm from "./components/RawDataForm";
 import TemplateList from "./components/TemplateList";
 import TemplateSelector from "./components/TemplateSelector";
 import TemplateCreator from "./components/TemplateCreator";
+import PageTitle from '../common/PageTitle';
 import { getAllTemplates } from "../../services/templateService";
 import type { Template } from "../../models/types/Template";
 
@@ -13,7 +14,7 @@ const MigrationPage = () => {
 
   const reloadTemplates = async () => {
     const all = await getAllTemplates();
-     console.log("Fetched templates:", all);
+    console.log("Fetched templates:", all);
     setTemplates(all);
   };
 
@@ -24,8 +25,10 @@ const MigrationPage = () => {
   const triggerReload = () => setReloadFlag((prev) => prev + 1);
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Submit Data Template</h1>
+    <div>
+      <PageTitle
+        title="Data Migration "
+      />
       <RawDataForm />
       <TemplateSelector templates={templates} />
       <TemplateList templates={templates} />

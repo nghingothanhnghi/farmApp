@@ -3,6 +3,8 @@ import React from 'react';
 interface ButtonProps {
   label?: string;
   onClick?: () => void;
+    onMouseEnter?: () => void; // ✅ add this
+  onMouseLeave?: () => void; // ✅ add this
   variant?: 'primary' | 'secondary' | 'danger' | 'link';
   disabled?: boolean;
   fullWidth?: boolean;
@@ -17,6 +19,8 @@ interface ButtonProps {
 const Button: React.FC<ButtonProps> = ({
   label,
   onClick,
+  onMouseEnter,
+  onMouseLeave,
   variant = 'primary',
   disabled = false,
   fullWidth = false,
@@ -55,6 +59,8 @@ const Button: React.FC<ButtonProps> = ({
       type={type}
       className={`${baseStyles} ${variantStyles[variant]} ${sizeClass} ${widthStyles} ${disabledStyles} ${iconOnlyStyles} ${className}`}
       onClick={onClick}
+        onMouseEnter={onMouseEnter}
+  onMouseLeave={onMouseLeave}
       disabled={disabled}
       title={iconOnly && typeof label === 'string' ? label : undefined}
     >

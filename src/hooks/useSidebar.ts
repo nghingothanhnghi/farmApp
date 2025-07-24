@@ -1,3 +1,4 @@
+// src/hooks/useSidebar.ts
 import { useEffect, useState } from 'react';
 
 export function useSidebar(defaultOpenDesktop = true) {
