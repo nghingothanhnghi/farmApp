@@ -248,6 +248,9 @@ frontend/
 
 ![Screenshot](public/screenshot/overview-realtime-hydro.png)
 
+![Screenshot](public/screenshot/schedule-job-automation.png)
+
+
 ## Key Architecture Patterns
 
 ### 🏗️ **Component Organization**
