@@ -3,15 +3,22 @@ import { createTemplate } from '../../../services/templateService';
 import { useAlert } from '../../../contexts/alertContext';
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
+import Form, { FormGroup, FormLabel, FormInput, FormActions } from "../../common/Form";
+import Button from '../../common/Button';
 
-const TemplateCreator: React.FC = () => {
+interface TemplateCreatorProps {
+  onTemplateCreated?: () => void;
+}
+
+const TemplateCreator: React.FC<TemplateCreatorProps> = ({ onTemplateCreated }) => {
     const { setAlert } = useAlert();
 
     const [clientId, setClientId] = useState('');
     const [jsonInput, setJsonInput] = useState('{}');
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
         let parsed;
         try {
             parsed = JSON.parse(jsonInput);
@@ -30,6 +37,7 @@ const TemplateCreator: React.FC = () => {
             setAlert({ type: 'success', message: 'Template created successfully!' });
             setClientId('');
             setJsonInput('{}');
+            onTemplateCreated?.(); // 🟢 tell parent to reload
         } catch (err: any) {
             console.error(err);
             const message =
@@ -41,41 +49,48 @@ const TemplateCreator: React.FC = () => {
     };
 
     return (
-        <div className="space-y-4">
+        <Form onSubmit={handleSubmit} className="space-y-6 max-w-xl mx-auto">
             <h2 className="text-xl font-semibold text-gray-800">Add New Template</h2>
-            <p className="text-sm text-gray-500 mb-1">
-                Please enter valid JSON like: <code>{"{\"source_key\": \"target_key\"}"}</code>
+            <p className="text-sm text-gray-500">
+                Please enter valid JSON like: <code>{'{"source_key": "target_key"}'}</code>
             </p>
-            <div>
-                <label className="block mb-1 font-medium">Client ID</label>
-                <input
+
+            <FormGroup>
+                <FormLabel htmlFor="client_id">Client ID</FormLabel>
+                <FormInput
+                    id="client_id"
+                    name="client_id"
                     type="text"
                     value={clientId}
                     onChange={(e) => setClientId(e.target.value)}
-                    className="w-full px-3 py-2 border rounded"
                     placeholder="Enter client ID"
+                    required
                 />
-            </div>
+            </FormGroup>
 
-            <div>
-                <label className="block mb-1 font-medium">Template Mapping (JSON)</label>
-                <CodeMirror
-                    value={jsonInput}
-                    height="200px"
-                    extensions={[json()]}
-                    onChange={(val) => setJsonInput(val)}
-                    className="border rounded"
+            <FormGroup>
+                <FormLabel htmlFor="template_mapping">Template Mapping (JSON)</FormLabel>
+                <div className="border rounded-md overflow-hidden">
+                    <CodeMirror
+                        value={jsonInput}
+                        height="200px"
+                        extensions={[json()]}
+                        onChange={(val) => setJsonInput(val)}
+                        theme="light"
+                    />
+                </div>
+            </FormGroup>
+
+            <FormActions>
+                <Button
+                    type="submit"
+                    label={loading ? 'Creating...' : 'Create Template'}
+                    disabled={loading || !clientId}
+                    variant="primary"
+                    fullWidth={true}
                 />
-            </div>
-
-            <button
-                onClick={handleSubmit}
-                disabled={loading || !clientId}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-            >
-                {loading ? 'Creating...' : 'Create Template'}
-            </button>
-        </div>
+            </FormActions>
+        </Form>
     );
 };
 

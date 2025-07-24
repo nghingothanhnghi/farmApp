@@ -2,6 +2,8 @@
 import React, { useRef, useState } from "react";
 import { ingestRawData } from "../../../services/migrationService";
 import FileInput from "../../common/FileInput";
+import Form, { FormGroup, FormLabel, FormInput, FormActions } from "../../common/Form";
+import Button from "../../common/Button";
 import { useAlert } from '../../../contexts/alertContext';
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
@@ -59,48 +61,54 @@ const RawDataForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
-      <div>
-        <label className="block mb-1">Client ID</label>
-        <input
+    <Form onSubmit={handleSubmit} className="space-y-6 max-w-xl mx-auto">
+      <FormGroup>
+        <FormLabel htmlFor="client_id">Client ID</FormLabel>
+        <FormInput
+          id="client_id"
+          name="client_id"
           type="text"
           value={clientId}
           onChange={(e) => setClientId(e.target.value)}
-          className="border px-2 py-1 w-full"
           required
         />
-      </div>
+      </FormGroup>
 
-      <div>
+      <FormGroup>
+        <FormLabel htmlFor="json-upload">Upload JSON File</FormLabel>
         <FileInput
           id="json-upload"
           onChange={handleFileChange}
           inputRef={fileInputRef}
           accept=".json"
           multiple={false}
-          label="Upload JSON File"
+          label="Choose file"
         />
-      </div>
+      </FormGroup>
 
-      <div>
-        <label className="block mb-1">Payload (Editable JSON)</label>
-        <CodeMirror
-          value={payload}
-          height="300px"
-          extensions={[json()]}
-          onChange={(val) => setPayload(val)}
-          theme="light"
+      <FormGroup>
+        <FormLabel htmlFor="payload">Payload (Editable JSON)</FormLabel>
+        <div className="border rounded-md overflow-hidden">
+          <CodeMirror
+            value={payload}
+            height="300px"
+            extensions={[json()]}
+            onChange={(val) => setPayload(val)}
+            theme="light"
+          />
+        </div>
+      </FormGroup>
+
+      <FormActions>
+        <Button
+          type="submit"
+          label={isSubmitting ? "Submitting..." : "Submit Raw Data"}
+          disabled={isSubmitting}
+          variant="primary"
+          fullWidth={true}
         />
-      </div>
-
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
-      >
-        {isSubmitting ? "Submitting..." : "Submit Raw Data"}
-      </button>
-    </form>
+      </FormActions>
+    </Form>
   );
 };
 

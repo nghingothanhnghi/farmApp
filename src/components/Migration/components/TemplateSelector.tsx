@@ -1,66 +1,54 @@
 import React, { useEffect, useState } from 'react';
-import { getAllTemplates, getTemplateByClientId } from '../../../services/templateService';
+import { getTemplateByClientId } from '../../../services/templateService';
 import type { Template } from '../../../models/types/Template';
 import DropdownButton from '../../common/DropdownButton';
 import { useAlert } from '../../../contexts/alertContext';
+
+
 
 interface DropdownItem {
   label: React.ReactNode;
   value: string;
 }
 
-const TemplateSelector: React.FC = () => {
+interface TemplateSelectorProps {
+  templates: Template[];
+}
+
+const TemplateSelector: React.FC<TemplateSelectorProps> = ({ templates }) => {
   const { setAlert } = useAlert();
   const [clientIds, setClientIds] = useState<DropdownItem[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string>('');
-  const [templates, setTemplates] = useState<Template[]>([]);
+    const [visibleTemplates, setVisibleTemplates] = useState<Template[]>([]);
 
   useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        const allTemplates = await getAllTemplates();
+    const uniqueClientIds = Array.from(
+      new Set(templates.map((t) => t.client_id))
+    );
 
-        const uniqueClientIds = Array.from(
-          new Set(allTemplates.map((t) => t.client_id))
-        );
+    const dropdownItems: DropdownItem[] = [
+      { label: 'All Clients', value: '' },
+      ...uniqueClientIds.map((id) => ({ label: id, value: id })),
+    ];
 
-        const dropdownItems: DropdownItem[] = [
-          { label: 'All Clients', value: '' },
-          ...uniqueClientIds.map((id) => ({ label: id, value: id })),
-        ];
-
-        setClientIds(dropdownItems);
-        setTemplates(allTemplates); // default: show all
-      } catch (error) {
-        console.error(error);
-        setAlert({ type: 'error', message: 'Failed to load templates.' });
-      }
-    };
-
-    fetchInitialData();
-  }, [setAlert]);
+    setClientIds(dropdownItems);
+    setVisibleTemplates(templates);
+  }, [templates]);
 
   const handleClientSelect = async (item: DropdownItem) => {
     setSelectedClientId(item.value);
 
     if (!item.value) {
-      // Show all if "All Clients" selected
-      try {
-        const allTemplates = await getAllTemplates();
-        setTemplates(allTemplates);
-      } catch (error) {
-        setTemplates([]);
-        setAlert({ type: 'error', message: 'Failed to load templates.' });
-      }
+      setVisibleTemplates(templates);
       return;
     }
 
     try {
       const template = await getTemplateByClientId(item.value);
-      setTemplates([template]); // Wrap in array for consistent rendering
+      setVisibleTemplates([template]);
     } catch (err) {
       console.error(err);
-      setTemplates([]);
+      setVisibleTemplates([]);
       setAlert({ type: 'error', message: `No template found for "${item.value}".` });
     }
   };
@@ -77,8 +65,8 @@ const TemplateSelector: React.FC = () => {
         />
       </div>
 
-      {templates.length > 0 ? (
-        templates.map((template) => (
+    {visibleTemplates.length > 0 ? (
+        visibleTemplates.map((template) => (
           <div key={template.id} className="border rounded p-3 bg-gray-50">
             <h3 className="font-semibold text-gray-800 mb-2">
               Template for <span className="text-blue-600">{template.client_id}</span>
