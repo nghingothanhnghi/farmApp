@@ -1,4 +1,4 @@
-// components/Migration/RawDataForm.tsx
+// components/Migration/components/RawDataForm.tsx
 import React, { useRef, useState } from "react";
 import { ingestRawData } from "../../../services/migrationService";
 import FileInput from "../../common/FileInput";
@@ -8,7 +8,7 @@ import { useAlert } from '../../../contexts/alertContext';
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 
-const RawDataForm = () => {
+const RawDataForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   const { setAlert } = useAlert();
   const [clientId, setClientId] = useState("");
   const [payload, setPayload] = useState("{}");
@@ -49,6 +49,8 @@ const RawDataForm = () => {
       setTimeout(() => {
         if (fileInputRef.current) fileInputRef.current.value = "";
       }, 0);
+      // ✅ Move to next step
+      if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);
       setAlert({
@@ -105,7 +107,6 @@ const RawDataForm = () => {
           label={isSubmitting ? "Submitting..." : "Submit Raw Data"}
           disabled={isSubmitting}
           variant="primary"
-          fullWidth={true}
         />
       </FormActions>
     </Form>

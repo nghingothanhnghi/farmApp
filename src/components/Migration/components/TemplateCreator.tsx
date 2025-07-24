@@ -1,3 +1,4 @@
+// src/components/Migration/components/TemplateCreator.tsx
 import React, { useState } from 'react';
 import { createTemplate } from '../../../services/templateService';
 import { useAlert } from '../../../contexts/alertContext';
@@ -7,10 +8,11 @@ import Form, { FormGroup, FormLabel, FormInput, FormActions } from "../../common
 import Button from '../../common/Button';
 
 interface TemplateCreatorProps {
-  onTemplateCreated?: () => void;
+    onTemplateCreated?: () => void;
+    goBack?: () => void;
 }
 
-const TemplateCreator: React.FC<TemplateCreatorProps> = ({ onTemplateCreated }) => {
+const TemplateCreator: React.FC<TemplateCreatorProps> = ({ onTemplateCreated, goBack }) => {
     const { setAlert } = useAlert();
 
     const [clientId, setClientId] = useState('');
@@ -80,14 +82,18 @@ const TemplateCreator: React.FC<TemplateCreatorProps> = ({ onTemplateCreated }) 
                     />
                 </div>
             </FormGroup>
-
             <FormActions>
+                <Button
+                    type="button"
+                    label="Back"
+                    variant="secondary"
+                    onClick={goBack}
+                />
                 <Button
                     type="submit"
                     label={loading ? 'Creating...' : 'Create Template'}
                     disabled={loading || !clientId}
                     variant="primary"
-                    fullWidth={true}
                 />
             </FormActions>
         </Form>

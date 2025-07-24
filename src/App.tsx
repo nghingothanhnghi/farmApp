@@ -12,7 +12,7 @@ import ModelTrainingPage from "./components/ModelTraining";
 import HydroponicSystemPage from "./components/HydroponicSystemPage/HydroponicSystemPage";
 import RoleAssignmentForm from "./components/RoleAssignment";
 import SchedulerPage from "./components/SchedulerPage";
-import MigrationPage from "./components/Migration";
+import { MigrationPage, MigrationWizardPage } from "./components/Migration";
 import PrivateRoute from "./components/common/PrivateRoute";
 
 function App() {
@@ -57,6 +57,8 @@ function App() {
         />
         
         <Route path="/migrate" element={<MigrationPage />} />
+        <Route path="/add-transform-data" element={<MigrationWizardPage />} />
+        
         <Route path="/ar-detection" element={<ARDetectionPage />} />
         <Route path="/model-training" element={<ModelTrainingPage />} />
         <Route path="/hydroponic-system" element={<HydroponicSystemPage />} />

@@ -1,5 +1,5 @@
 // src/hooks/useSidebar.ts
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 export function useSidebar(defaultOpenDesktop = true) {
   const [menuOpen, setMenuOpen] = useState(() => {
@@ -11,6 +11,8 @@ export function useSidebar(defaultOpenDesktop = true) {
     return false;
   });
 
+  const isUserToggled = useRef(false);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('sidebarOpen', JSON.stringify(menuOpen));
@@ -20,10 +22,13 @@ export function useSidebar(defaultOpenDesktop = true) {
   useEffect(() => {
     const handleResize = () => {
       const isDesktop = window.innerWidth >= 1024;
-      if (isDesktop && !menuOpen) {
-        setMenuOpen(true);
-      } else if (!isDesktop && menuOpen) {
-        setMenuOpen(false);
+      if (isDesktop) {
+        if (!isUserToggled.current) {
+          setMenuOpen(true); // Only auto-open if user hasn't manually toggled
+        }
+      } else {
+        setMenuOpen(false); // Always close on mobile
+        isUserToggled.current = false; // Reset manual flag on mobile
       }
     };
     window.addEventListener('resize', handleResize);
@@ -33,6 +38,8 @@ export function useSidebar(defaultOpenDesktop = true) {
   const handleMenuClose = () => {
     if (typeof window !== 'undefined') {
       const isDesktop = window.innerWidth >= 1024;
+      isUserToggled.current = true; // 👈 Mark as manual toggle
+
       if (isDesktop) {
         setMenuOpen(!menuOpen); // toggle
       } else {
