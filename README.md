@@ -242,6 +242,9 @@ frontend/
 ├── tsconfig.node.json                   # TypeScript Node.js configuration
 └── vite.config.ts                       # Vite build configuration
 ```
+## UI Overview
+
+![Screenshot](public/screenshot/chart-realtime-hydro.png)
 
 ## Key Architecture Patterns
 
