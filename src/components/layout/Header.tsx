@@ -54,6 +54,7 @@ const Header: React.FC<HeaderProps> = ({ brandUrl, appName, onClose }) => {
             className='bg-transparent'
             onClick={handleOpenModal}
           />
+          {/* Close button for mobile and desktop screens */}
           <Button
             variant="secondary"
             icon={<IconLayoutSidebarLeftCollapse size={18} />}

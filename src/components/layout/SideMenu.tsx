@@ -24,9 +24,10 @@ export default function SideMenu({ open = false, onClose }: SideMenuProps) {
                     fixed inset-y-0 left-0 z-30 w-64
                     bg-white dark:bg-zinc-900 lg:bg-transparent lg:dark:bg-transparent
                     transition-transform duration-300
-                    lg:translate-x-0
-                    max-lg:transform max-lg:transition-transform
-                    ${open ? 'translate-x-0' : '-translate-x-full'}
+                    transform
+                    
+                    ${open ? 'translate-x-0' : 'lg:-translate-x-64 -translate-x-full'}
+
                 `}
             >
                 <div className='flex h-full min-h-0 flex-col'>

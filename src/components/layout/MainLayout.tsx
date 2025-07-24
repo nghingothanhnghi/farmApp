@@ -1,22 +1,30 @@
 /* components/layout/MainLayout.tsx*/
-import React, { useState } from 'react';
+import React from 'react';
 import type { ReactNode } from 'react';
 import SideMenu from './SideMenu';
 import MobileTopBar from './MobileTopBar';
+import DesktopSidebarToggleButton from './DesktopSidebarToggleButton';
+import { useSidebar } from '../../hooks/useSidebar';
 
 interface MainLayoutProps {
   children: ReactNode;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { menuOpen, setMenuOpen, handleMenuClose } = useSidebar();
+
   return (
     <div className="min-h-screen bg-gray-200">
       <div className="flex flex-col lg:flex lg:flex-1 min-h-screen">
         {/* Mobile toggle button */}
         <MobileTopBar onMenuClick={() => setMenuOpen(true)} />
-        <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
-        <div className="flex flex-1 flex-col pb-2 lg:min-w-0 lg:pt-2 lg:pr-2 lg:pl-64">
+        <SideMenu open={menuOpen} onClose={handleMenuClose} />
+        {  /* open menu on desktop */}
+        {!menuOpen && (
+          <DesktopSidebarToggleButton onClick={() => setMenuOpen(true)} />
+        )}
+
+        <div className={`flex flex-1 flex-col pb-2 lg:min-w-0 lg:pt-2 lg:pr-2 transition-all duration-300 ${menuOpen ? 'lg:pl-64' : 'lg:pl-18'}`}>
           <div className='grow p-6 lg:rounded-3xl lg:bg-white lg:p-10 lg:shadow-xs lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900 dark:lg:ring-white/10'>
             {children}
           </div>
