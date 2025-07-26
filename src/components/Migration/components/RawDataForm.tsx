@@ -63,33 +63,47 @@ const RawDataForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   };
 
   return (
-    <Form onSubmit={handleSubmit} className="space-y-6 max-w-xl mx-auto">
-      <FormGroup>
-        <FormLabel htmlFor="client_id">Client ID</FormLabel>
-        <FormInput
-          id="client_id"
-          name="client_id"
-          type="text"
-          value={clientId}
-          onChange={(e) => setClientId(e.target.value)}
-          required
-        />
+    <Form onSubmit={handleSubmit} className="mx-auto max-w-4xl">
+      <FormGroup className='grid gap-x-8 gap-y-6 sm:grid-cols-2'>
+        <div className='space-y-1'>
+          <FormLabel htmlFor="client_id">Client ID</FormLabel>
+          <p className="text-base/6 text-zinc-500 sm:text-sm/6 dark:text-zinc-400">Used to name and save your trained model.</p>
+        </div>
+        <div>
+          <FormInput
+            id="client_id"
+            name="client_id"
+            type="text"
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+            required
+          />
+        </div>
       </FormGroup>
 
-      <FormGroup>
-        <FormLabel htmlFor="json-upload">Upload JSON File</FormLabel>
-        <FileInput
-          id="json-upload"
-          onChange={handleFileChange}
-          inputRef={fileInputRef}
-          accept=".json"
-          multiple={false}
-          label="Choose file"
-        />
+      <FormGroup className='grid gap-x-8 gap-y-6 sm:grid-cols-2'>
+        <div className='space-y-1'>
+          <FormLabel htmlFor="json-upload">Upload JSON File</FormLabel>
+          <p className="text-base/6 text-zinc-500 sm:text-sm/6 dark:text-zinc-400">Used to name and save your trained model.</p>
+        </div>
+        <div>
+          <FileInput
+            id="json-upload"
+            onChange={handleFileChange}
+            inputRef={fileInputRef}
+            accept=".json"
+            multiple={false}
+            label="Choose file"
+          />
+        </div>
       </FormGroup>
+      <hr role="presentation" className="my-10 w-full border-t border-zinc-950/5 dark:border-white/5"></hr>
+      <FormGroup className='grid gap-x-8 gap-y-6 sm:grid-cols-2'>
+        <div className='space-y-1'>
+          <FormLabel htmlFor="payload">Payload (Editable JSON)</FormLabel>
+          <p className="text-base/6 text-zinc-500 sm:text-sm/6 dark:text-zinc-400">Used to name and save your trained model.</p>
+        </div>
 
-      <FormGroup>
-        <FormLabel htmlFor="payload">Payload (Editable JSON)</FormLabel>
         <div className="border rounded-md overflow-hidden">
           <CodeMirror
             value={payload}
@@ -100,13 +114,15 @@ const RawDataForm = ({ onSuccess }: { onSuccess?: () => void }) => {
           />
         </div>
       </FormGroup>
-
-      <FormActions>
+      <hr role="presentation" className="my-10 w-full border-t border-zinc-950/5 dark:border-white/5"></hr>
+      <FormActions className='lg:static fixed bottom-0 left-0 right-0 p-4 bg-white grid grid-cols-1 md:grid-cols-2 gap-4'>
         <Button
           type="submit"
           label={isSubmitting ? "Submitting..." : "Submit Raw Data"}
           disabled={isSubmitting}
           variant="primary"
+          className="md:w-auto"
+          fullWidth={true}
         />
       </FormActions>
     </Form>

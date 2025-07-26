@@ -5,6 +5,7 @@ import LinearProgress from '../common/LinearProgress';
 import { useHydroSystem } from '../../hooks/useHydroSystem';
 
 // Import dashboard components
+import LocationPanel from './components/LocationPanel';
 import StatusCard from './components/StatusCard';
 import ControlPanel from './components/ControlPanel';
 import SensorChart from './components/SensorChart';
@@ -119,37 +120,56 @@ const HydroponicSystemPage: React.FC = () => {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
-          {/* Status Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatusCard
-              title="Temperature"
-              value={systemStatus?.sensors?.temperature?.toFixed(1) || '--'}
-              unit="°C"
-              status={getTemperatureStatus()}
-              icon="🌡️"
-            />
-            <StatusCard
-              title="Humidity"
-              value={systemStatus?.sensors?.humidity?.toFixed(1) || '--'}
-              unit="%"
-              status="normal"
-              icon="💧"
-            />
-            <StatusCard
-              title="Moisture"
-              value={sensorData[sensorData.length - 1]?.moisture?.toFixed(1) || '--'}
-              unit="%"
-              status={getMoistureStatus()}
-              icon="🌱"
-            />
-            <StatusCard
-              title="Light"
-              value={sensorData[sensorData.length - 1]?.light?.toFixed(0) || '--'}
-              unit="lux"
-              status={getLightStatus()}
-              icon="☀️"
-            />
+          <div className='flex gap-6'>
+            <div className='w-full lg:w-[800px]'>
+              {/* Status Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                <StatusCard
+                  title="Temperature"
+                  value={systemStatus?.sensors?.temperature?.toFixed(1) || '--'}
+                  unit="°C"
+                  status={getTemperatureStatus()}
+                  icon="🌡️"
+                />
+                <StatusCard
+                  title="Humidity"
+                  value={systemStatus?.sensors?.humidity?.toFixed(1) || '--'}
+                  unit="%"
+                  status="normal"
+                  icon="💧"
+                />
+                <StatusCard
+                  title="Moisture"
+                  value={sensorData[sensorData.length - 1]?.moisture?.toFixed(1) || '--'}
+                  unit="%"
+                  status={getMoistureStatus()}
+                  icon="🌱"
+                />
+                <StatusCard
+                  title="Light"
+                  value={sensorData[sensorData.length - 1]?.light?.toFixed(0) || '--'}
+                  unit="lux"
+                  status={getLightStatus()}
+                  icon="☀️"
+                />
+              </div>
+            </div>
+            <div className='flex-1'>
+              <LocationPanel/>
+              {/* Control Panel */}
+              <ControlPanel
+                systemStatus={systemStatus}
+                onPumpControl={actions.controlPump}
+                onLightControl={actions.controlLight}
+                onStartScheduler={actions.startSystemScheduler}
+                onStopScheduler={actions.stopSystemScheduler}
+                onRestartScheduler={actions.restartSystemScheduler}
+
+                loading={loading}
+              />
+            </div>
           </div>
+
 
           {/* Main Dashboard Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -53,7 +53,6 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 
   return (
     <div>
-      <h2 className="text-base font-semibold text-gray-800 mb-4">System Controls</h2>
       <div className="space-y-4">
         {/* Pump Controls */}
         <div className="border rounded-lg p-4">
