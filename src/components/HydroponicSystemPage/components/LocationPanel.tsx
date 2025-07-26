@@ -15,9 +15,9 @@ const LocationPanel: React.FC<LocationPanelProps> = ({ title, description, image
         className="w-20 rounded object-cover"
       />
       <div>
-        <h3 className="text-sm font-medium text-gray-700">{title}</h3>
+        <h3 className="text-sm font-medium text-gray-700 line-clamp-1">{title}</h3>
 
-        <p className="text-[0.625rem] mt-0.5 text-gray-700">
+        <p className="text-[0.625rem] mt-0.5 text-gray-700 line-clamp-3">
           {description}
         </p>
       </div>

@@ -122,6 +122,25 @@ const HydroponicSystemPage: React.FC = () => {
         <div className="space-y-6">
           <div className='flex gap-6'>
             <div className='flex-1'>
+
+            </div>
+            <div className='lg:w-[350px] space-y-0.5'>
+              <LocationPanel title='Location A' description='A location have 3 sensor devices, as: water pump, temperator sensor...' />
+              {/* Control Panel */}
+              <ControlPanel
+                systemStatus={systemStatus}
+                onPumpControl={actions.controlPump}
+                onLightControl={actions.controlLight}
+                onStartScheduler={actions.startSystemScheduler}
+                onStopScheduler={actions.stopSystemScheduler}
+                onRestartScheduler={actions.restartSystemScheduler}
+                loading={loading}
+              />
+            </div>
+          </div>
+          {/* Main Dashboard Grid */}
+          <div className='flex gap-6'>
+            <div className='flex-1'>
               {/* Status Cards */}
               <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">
                 <StatusCard
@@ -154,35 +173,14 @@ const HydroponicSystemPage: React.FC = () => {
                 />
               </div>
             </div>
-            <div className='lg:w-[350px] space-y-0.5'>
-              <LocationPanel title='Location A' description='A location have 3 sensor devices, as: water pump, temperator sensor...'/>
-              {/* Control Panel */}
-              <ControlPanel
-                systemStatus={systemStatus}
-                onPumpControl={actions.controlPump}
-                onLightControl={actions.controlLight}
-                onStartScheduler={actions.startSystemScheduler}
-                onStopScheduler={actions.stopSystemScheduler}
-                onRestartScheduler={actions.restartSystemScheduler}
-                loading={loading}
-              />
-            </div>
-          </div>
-
-
-          {/* Main Dashboard Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Alerts Panel */}
-            <div className="lg:col-span-1">
+            <div className='lg:w-[350px] space-y-4'>
+              {/* Activity Log */}
+              <ActivityLog actions={controlActions} />
+              {/* Alerts Panel */}
               <AlertsPanel
                 alerts={alerts}
                 onResolveAlert={actions.resolveAlert}
               />
-            </div>
-
-            {/* Activity Log */}
-            <div className="lg:col-span-1">
-              <ActivityLog actions={controlActions} />
             </div>
           </div>
         </div>

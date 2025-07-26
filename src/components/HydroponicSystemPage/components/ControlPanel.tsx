@@ -74,7 +74,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             </div>
           </div>
           <div className="flex items-center justify-between space-x-5">
-            <div className="flex-1 text-[0.625rem] text-gray-600">
+            <div className="flex-1 text-[0.625rem] text-gray-600 line-clamp-2">
 
             </div>
             <div className="w-[180px] flex space-x-2 items-center justify-between">
@@ -121,7 +121,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             </div>
           </div>
           <div className="flex items-center justify-between space-x-5">
-            <div className="flex-1 text-[0.625rem] text-gray-600">
+            <div className="flex-1 text-[0.625rem] text-gray-600 line-clamp-2">
               Start automated watering and lighting schedule
             </div>
             <div className="w-[180px] flex space-x-2 items-center justify-between">
@@ -168,7 +168,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           </div>
 
           <div className="flex items-center justify-between space-x-5">
-            <div className="flex-1 text-[0.625rem] text-gray-600">
+            <div className="flex-1 text-[0.625rem] text-gray-600 line-clamp-2">
               Start automated watering and lighting schedule
             </div>
             <div className="w-[180px] flex items-center justify-between space-x-2">
