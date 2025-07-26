@@ -23,10 +23,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   onRestartScheduler,
   loading = false
 }) => {
-   // 👇 Log the current system status
+  // 👇 Log the current system status
   console.log('ControlPanel - systemStatus:', systemStatus);
 
- const handlePumpControl = (turnOn: boolean) => {
+  const handlePumpControl = (turnOn: boolean) => {
     playSound(turnOn ? 'on' : 'off');
     onPumpControl(turnOn);
   };
@@ -53,10 +53,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 
   return (
     <div>
-      <div className="space-y-4">
+      <div className="space-y-0.5">
         {/* Pump Controls */}
-        <div className="border rounded-lg p-4">
-          <div className='flex items-center justify-between mb-3'>
+        <div className="bg-gray-100 rounded-lg p-4">
+          <div className='flex items-center justify-between mb-1'>
             <h3 className="text-sm font-medium text-gray-700">Water Pump</h3>
             <div className="flex items-center space-x-2">
               <div
@@ -64,7 +64,6 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                   }`}
               ></div>
               <span className="text-xs text-gray-600">
-                Status: {' '}
                 <span
                   className={`font-medium ${systemStatus?.devices.pump_state ? 'text-green-600' : 'text-gray-400'
                     }`}
@@ -74,39 +73,44 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
               </span>
             </div>
           </div>
-          <div className="flex space-x-2 items-center justify-between">
-            <Button
-              label='Turn On'
-              onClick={() => handlePumpControl(true)}
-              disabled={loading || systemStatus?.devices.pump_state}
-              className={`flex-1 ${systemStatus?.devices.pump_state
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-green-500 hover:bg-green-600 text-white'
-                }`}
-              size='xs'
-            />
-            <Button
-              label='Turn Off'
-              onClick={() => handlePumpControl(false)}
-              disabled={loading || !systemStatus?.devices.pump_state}
-              className={`flex-1 ${!systemStatus?.devices.pump_state
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-red-500 hover:bg-red-600 text-white'
-                }`}
-              size='xs'
-            />
+          <div className="flex items-center justify-between space-x-5">
+            <div className="flex-1 text-[0.625rem] text-gray-600">
+
+            </div>
+            <div className="w-[180px] flex space-x-2 items-center justify-between">
+              <Button
+                label='Turn On'
+                onClick={() => handlePumpControl(true)}
+                disabled={loading || systemStatus?.devices.pump_state}
+                className={`flex-1 ${systemStatus?.devices.pump_state
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-green-500 hover:bg-green-600 text-white'
+                  }`}
+                size='xs'
+              />
+              <Button
+                label='Turn Off'
+                onClick={() => handlePumpControl(false)}
+                disabled={loading || !systemStatus?.devices.pump_state}
+                className={`flex-1 ${!systemStatus?.devices.pump_state
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-red-500 hover:bg-red-600 text-white'
+                  }`}
+                size='xs'
+              />
+            </div>
           </div>
+
         </div>
 
         {/* Light Controls */}
-        <div className="border rounded-lg p-4">
-          <div className='flex items-center justify-between mb-3'>
+        <div className="bg-gray-100 rounded-lg p-4">
+          <div className='flex items-center justify-between mb-1'>
             <h3 className="text-sm font-medium text-gray-700">Grow Lights</h3>
             <div className="flex items-center space-x-2">
               <div className={`w-2 h-2 rounded-full ${systemStatus?.devices.light_state ? 'bg-yellow-500' : 'bg-gray-400'
                 }`}></div>
               <span className="text-xs text-gray-600">
-                Status: {' '}
                 <span
                   className={`font-medium ${systemStatus?.devices.light_state ? 'text-yellow-500' : 'text-gray-400'
                     }`}
@@ -116,40 +120,43 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
               </span>
             </div>
           </div>
-          <div className="flex space-x-2 items-center justify-between">
-            <Button
-              label='Turn On'
-              onClick={() => handleLightControl(true)}
-              disabled={loading || systemStatus?.devices.light_state}
-              className={`flex-1 ${systemStatus?.devices.light_state
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-yellow-400 hover:bg-yellow-500 text-white'
-                }`}
-              size='xs'
-            />
-            <Button
-              label='Turn Off'
-              onClick={() => handleLightControl(false)}
-              disabled={loading || !systemStatus?.devices.light_state}
-              className={`flex-1 ${!systemStatus?.devices.light_state
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-red-500 hover:bg-red-600 text-white'
-                }`}
-              size='xs'
-            />
+          <div className="flex items-center justify-between space-x-5">
+            <div className="flex-1 text-[0.625rem] text-gray-600">
+              Start automated watering and lighting schedule
+            </div>
+            <div className="w-[180px] flex space-x-2 items-center justify-between">
+              <Button
+                label='Turn On'
+                onClick={() => handleLightControl(true)}
+                disabled={loading || systemStatus?.devices.light_state}
+                className={`flex-1 ${systemStatus?.devices.light_state
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-yellow-400 hover:bg-yellow-500 text-white'
+                  }`}
+                size='xs'
+              />
+              <Button
+                label='Turn Off'
+                onClick={() => handleLightControl(false)}
+                disabled={loading || !systemStatus?.devices.light_state}
+                className={`flex-1 ${!systemStatus?.devices.light_state
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-red-500 hover:bg-red-600 text-white'
+                  }`}
+                size='xs'
+              />
+            </div>
           </div>
-
         </div>
 
         {/* Scheduler Controls */}
-        <div className="border rounded-lg p-4">
-          <div className='flex items-center justify-between mb-3'>
+        <div className="bg-gray-100 rounded-lg p-4">
+          <div className='flex items-center justify-between mb-1'>
             <h3 className="text-sm font-medium text-gray-700">Automation</h3>
             <div className="flex items-center space-x-2">
               <div className={`w-2 h-2 rounded-full ${systemStatus?.system.scheduler_state ? 'bg-green-600' : 'bg-gray-400'
                 }`}></div>
               <span className="text-xs text-gray-600">
-                Status: {' '}
                 <span
                   className={` font-medium ${systemStatus?.system.scheduler_state ? 'text-green-600' : 'text-gray-400'
                     }`}
@@ -161,10 +168,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           </div>
 
           <div className="flex items-center justify-between space-x-5">
-            <div className="text-xs text-gray-600">
+            <div className="flex-1 text-[0.625rem] text-gray-600">
               Start automated watering and lighting schedule
             </div>
-            <div className="flex items-center justify-between space-x-2">
+            <div className="w-[180px] flex items-center justify-between space-x-2">
               <Button
                 label="Start"
                 onClick={handleStartScheduler}

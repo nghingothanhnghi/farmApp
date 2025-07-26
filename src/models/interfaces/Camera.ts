@@ -1,3 +1,4 @@
+// src/models/interfaces/Camera.ts
 export interface Detection {
   class: string;
   confidence: number;

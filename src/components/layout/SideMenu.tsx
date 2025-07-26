@@ -10,7 +10,7 @@ interface SideMenuProps {
     onClose?: () => void;
 }
 export default function SideMenu({ open = false, onClose }: SideMenuProps) {
-        // Only close on mobile
+    // Only close on mobile
     const handleLinkClick = () => {
         if (typeof window !== 'undefined' && window.innerWidth < 1024) {
             onClose?.();
@@ -28,16 +28,15 @@ export default function SideMenu({ open = false, onClose }: SideMenuProps) {
                 className={`
                     fixed inset-y-0 left-0 z-30 w-64
                     bg-white dark:bg-zinc-900 lg:bg-transparent lg:dark:bg-transparent
-                    transition-transform duration-300
-                    transform
-                    
-                    ${open ? 'translate-x-0' : 'lg:-translate-x-64 -translate-x-full'}
+                    transition-all duration-300 ease-in-out
+                    transform opacity-100
+                    ${open ? 'translate-x-0 opacity-100 will-change-[transform,opacity]' : 'lg:-translate-x-64 -translate-x-full opacity-0 pointer-events-none'}
 
                 `}
             >
                 <div className='flex h-full min-h-0 flex-col'>
-                    <Header appName={APP_NAME} onClose={onClose}/>
-                    <div className="flex flex-1 flex-col overflow-y-auto p-4">
+                    <Header appName={APP_NAME} onClose={onClose} />
+                    <div className="flex flex-1 flex-col overflow-y-auto p-4 space-y-0.5">
                         <ListLink to="/scheduler-health" onClick={handleLinkClick} icon={<IconCalendarCheck size={16} />} label="Scheduler Health" />
                         <ListLink to="/" onClick={handleLinkClick} icon={<IconDeviceMobileCheck size={16} />} label="Device Controller" />
                         <ListLink to="/ar-detection" onClick={handleLinkClick} icon={<IconCamera size={16} />} label="AR Object Detection" />

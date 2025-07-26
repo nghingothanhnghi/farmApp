@@ -121,7 +121,7 @@ const HydroponicSystemPage: React.FC = () => {
       {activeTab === 'overview' && (
         <div className="space-y-6">
           <div className='flex gap-6'>
-            <div className='w-full lg:w-[800px]'>
+            <div className='flex-1'>
               {/* Status Cards */}
               <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">
                 <StatusCard
@@ -154,8 +154,8 @@ const HydroponicSystemPage: React.FC = () => {
                 />
               </div>
             </div>
-            <div className='flex-1'>
-              <LocationPanel/>
+            <div className='lg:w-[350px] space-y-0.5'>
+              <LocationPanel title='Location A' description='A location have 3 sensor devices, as: water pump, temperator sensor...'/>
               {/* Control Panel */}
               <ControlPanel
                 systemStatus={systemStatus}
@@ -164,7 +164,6 @@ const HydroponicSystemPage: React.FC = () => {
                 onStartScheduler={actions.startSystemScheduler}
                 onStopScheduler={actions.stopSystemScheduler}
                 onRestartScheduler={actions.restartSystemScheduler}
-
                 loading={loading}
               />
             </div>
@@ -173,20 +172,6 @@ const HydroponicSystemPage: React.FC = () => {
 
           {/* Main Dashboard Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Control Panel */}
-            <div className="lg:col-span-1 lg:order-1">
-              <ControlPanel
-                systemStatus={systemStatus}
-                onPumpControl={actions.controlPump}
-                onLightControl={actions.controlLight}
-                onStartScheduler={actions.startSystemScheduler}
-                onStopScheduler={actions.stopSystemScheduler}
-                onRestartScheduler={actions.restartSystemScheduler}
-
-                loading={loading}
-              />
-            </div>
-
             {/* Alerts Panel */}
             <div className="lg:col-span-1">
               <AlertsPanel

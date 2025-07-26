@@ -13,7 +13,7 @@ const DesktopSidebarToggleButton: React.FC<DesktopSidebarToggleButtonProps> = ({
 }) => {
     const [hovered, setHovered] = useState(false);
     return (
-        <div className={`hidden lg:flex lg:flex-col absolute top-4 left-4 z-20 bg-transparent h-full min-h-0 ${className}`}>
+        <div className={`hidden lg:flex lg:flex-col fixed top-4 left-4 z-20 bg-transparent h-full min-h-0 ${className}`}>
             <Button
                 variant="secondary"
                 icon={

@@ -8,17 +8,16 @@ interface LocationPanelProps {
 
 const LocationPanel: React.FC<LocationPanelProps> = ({ title, description, imageUrl }) => {
   return (
-    <div className="w-full flex items-stretch gap-4 min-h-[16rem]">
+    <div className="w-full flex flex-row-reverse items-start gap-4 p-4 bg-gray-100 border border-gray-100 rounded-lg min-h-[6rem]">
       <img
         alt={title}
         src={imageUrl}
         className="w-20 rounded object-cover"
       />
-
       <div>
-        <h3 className="font-medium text-gray-900 sm:text-lg">{title}</h3>
+        <h3 className="text-sm font-medium text-gray-700">{title}</h3>
 
-        <p className="mt-0.5 text-gray-700">
+        <p className="text-[0.625rem] mt-0.5 text-gray-700">
           {description}
         </p>
       </div>
