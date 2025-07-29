@@ -1,5 +1,21 @@
 // src/models/interfaces/HydroSystem.ts
 
+// models/interfaces/HydroSystem.ts
+
+export interface HydroDevice {
+  id: number;
+  name: string;
+  device_id: string;
+  location: string;
+  type: string;
+  is_active: boolean;
+  client_id: string;
+  user_id: number;
+  thresholds: Record<string, any>;
+  created_at: string;
+  updated_at: string | null;
+}
+
 export interface SensorReading {
   id: number;
   temperature: number;
