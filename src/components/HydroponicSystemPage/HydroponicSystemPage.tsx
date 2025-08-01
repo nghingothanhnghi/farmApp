@@ -1,8 +1,11 @@
 // src/components/HydroponicSystemPage/HydroponicSystemPage.tsx
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import PageTitle from '../common/PageTitle';
 import LinearProgress from '../common/LinearProgress';
 import DropdownButton from '../common/DropdownButton';
+import WaterLevelBucket from '../common/chartCustom/WaterLevelBucket';
+import { IconPlus } from '@tabler/icons-react';
 import { useHydroSystem } from '../../hooks/useHydroSystem';
 import type { SystemStatusPerDevice } from '../../models/interfaces/HydroSystem';
 
@@ -29,7 +32,7 @@ const HydroponicSystemPage: React.FC = () => {
     error,
     actions
   } = useHydroSystem();
-
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'charts' | 'settings'>('overview');
 
   const [activeDeviceId, setActiveDeviceId] = useState<number | null>(null);
@@ -134,26 +137,32 @@ const HydroponicSystemPage: React.FC = () => {
         title="Hydroponic System Dashboard"
         subtitle="Monitor and control your hydroponic growing system"
         actions={
-          <>
+          <div className='flex space-x-0.5'>
             {/* Device Selector */}
-
-            <div className="mb-4 flex justify-end">
-              <DropdownButton
-                label={
-                  currentDevice
-                    ? `Device: ${currentDevice.device_name || `ID ${currentDevice.device_id}`}`
-                    : 'Select Device'
-                }
-                items={deviceStatusList
-                  .filter((device) => device?.device_id !== undefined)
-                  .map((device) => ({
-                    label: device.device_name || `Device ID ${device.device_id}`,
-                    value: device.device_id.toString(),
-                  }))}
-                onSelect={(item) => setActiveDeviceId(Number(item.value))}
-              />
-            </div>
-          </>
+            <DropdownButton
+              label={
+                currentDevice
+                  ? `Device: ${currentDevice.device_name || `ID ${currentDevice.device_id}`}`
+                  : 'Select Device'
+              }
+              items={deviceStatusList
+                .filter((device) => device?.device_id !== undefined)
+                .map((device) => ({
+                  label: device.device_name || `Device ID ${device.device_id}`,
+                  value: device.device_id.toString(),
+                }))}
+              onSelect={(item) => setActiveDeviceId(Number(item.value))}
+              className='bg-transparent'
+            />
+            <Button
+              variant="secondary"
+              icon={<IconPlus size={18} />}
+              iconOnly
+              label="Close"
+              className='bg-transparent'
+              onClick={() => navigate('/hydro-devices')}
+            />
+          </div>
         }
       />
       {/* Tab Navigation */}
@@ -184,7 +193,7 @@ const HydroponicSystemPage: React.FC = () => {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
-          <div className='flex gap-6'>
+          <div className='flex flex-col lg:flex-row gap-6'>
             <div className='flex-1'>
 
             </div>
@@ -223,10 +232,20 @@ const HydroponicSystemPage: React.FC = () => {
             </div>
           </div>
           {/* Main Dashboard Grid */}
-          <div className='flex gap-6'>
+          <div className='flex flex-col lg:flex-row gap-6'>
             <div className='flex-1'>
               {/* Status Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 lg:grid-rows-2 gap-6">
+                <StatusCard
+                  className='row-span-2'
+                  title="Water Level"
+                  value={currentDevice?.sensors?.water_level?.toFixed(1) || '--'}
+                  unit="%"
+                  status={getWaterLevelStatus()}
+                  icon="🚰">
+                  <WaterLevelBucket level={currentDevice?.sensors?.water_level || 0} />
+                </StatusCard>
+
                 <StatusCard
                   title="Temperature"
                   value={currentDevice?.sensors?.temperature?.toFixed(1) || '--'}
@@ -240,13 +259,6 @@ const HydroponicSystemPage: React.FC = () => {
                   unit="%"
                   status="normal"
                   icon="💧"
-                />
-                <StatusCard
-                  title="Water Level"
-                  value={currentDevice?.sensors?.water_level?.toFixed(1) || '--'}
-                  unit="%"
-                  status={getWaterLevelStatus()}
-                  icon="🚰"
                 />
                 <StatusCard
                   title="Moisture"

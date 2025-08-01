@@ -8,6 +8,8 @@ interface StatusCardProps {
   status?: 'normal' | 'warning' | 'error';
   icon?: React.ReactNode;
   trend?: 'up' | 'down' | 'stable';
+  className?: string;
+  children?: React.ReactNode;
 }
 
 const StatusCard: React.FC<StatusCardProps> = ({
@@ -16,7 +18,9 @@ const StatusCard: React.FC<StatusCardProps> = ({
   unit,
   status = 'normal',
   icon,
-  trend
+  trend,
+  className,
+  children
 }) => {
   const getStatusColor = () => {
     switch (status) {
@@ -43,7 +47,7 @@ const StatusCard: React.FC<StatusCardProps> = ({
   };
 
   return (
-    <div className={`p-4 rounded-lg border-2 ${getStatusColor()} transition-all duration-200 hover:shadow-md`}>
+    <div className={`p-4 rounded-lg border-2 ${getStatusColor()} transition-all duration-200 hover:shadow-md h-full flex flex-col ${className}`}>
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium text-gray-700">{title}</h3>
         {icon && <div className="text-gray-600">{icon}</div>}
@@ -55,6 +59,7 @@ const StatusCard: React.FC<StatusCardProps> = ({
         </div>
         {getTrendIcon()}
       </div>
+      {children}
     </div>
   );
 };
