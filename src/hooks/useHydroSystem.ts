@@ -306,13 +306,12 @@ export const useHydroSystem = () => {
   }, [fetchSystemStatusPerDevice, fetchSensorData]);
 
   return {
-    deviceStatusList,
-    sensorData,
-    thresholds,
-    alerts,
-    controlActions,
-    loading,
-    error,
+    deviceStatusList,     // Devices and their current sensor/control states
+    sensorData,           // Latest readings
+    thresholds,           // Thresholds (global or per device)
+    alerts,               // Active system alerts
+    controlActions,       // Log of control actions
+    loading, error,       // For UI feedback
     actions: {
       controlPump,
       controlLight,

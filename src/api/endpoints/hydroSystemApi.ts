@@ -97,19 +97,32 @@ export const turnWaterPumpOff = async (device_id?: number): Promise<{ status: st
 
 // Scheduler Controls
 export const startScheduler = async (device_id: number): Promise<{ status: string }> => {
-  const response = await apiClient.post<{ status: string }>('/hydro/scheduler/start');
+  const response = await apiClient.post<{ status: string }>(
+    '/hydro/scheduler/start',
+    null,
+    { params: { device_id } }
+  );
   return response.data;
 };
 
 export const stopScheduler = async (device_id: number): Promise<{ status: string }> => {
-  const response = await apiClient.post<{ status: string }>('/hydro/scheduler/stop');
+  const response = await apiClient.post<{ status: string }>(
+    '/hydro/scheduler/stop',
+    null,
+    { params: { device_id } }
+  );
   return response.data;
 };
 
 export const restartScheduler = async (device_id: number): Promise<{ status: string }> => {
-  const response = await apiClient.post<{ status: string }>('/hydro/scheduler/restart');
+  const response = await apiClient.post<{ status: string }>(
+    '/hydro/scheduler/restart',
+    null,
+    { params: { device_id } }
+  );
   return response.data;
 };
+
 
 // Get Latest Sensor Data
 export const getLatestSensorData = async (): Promise<SensorReading[]> => {
