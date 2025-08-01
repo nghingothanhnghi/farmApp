@@ -17,12 +17,12 @@ import type {
   SystemAlert,
   ControlAction,
   SensorReading,
-  SystemStatus,
+  SystemStatusPerDevice,
   SystemThresholds as Thresholds
 } from '../models/interfaces/HydroSystem';
 
 export const useHydroSystem = () => {
-  const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
+  const [deviceStatusList, setDeviceStatusList] = useState<SystemStatusPerDevice[]>([]);
   const [sensorData, setSensorData] = useState<SensorReading[]>([]);
   const [thresholds, setThresholds] = useState<Thresholds | null>(null);
   const [alerts, setAlerts] = useState<SystemAlert[]>([]);
@@ -30,12 +30,18 @@ export const useHydroSystem = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper function to get thresholds for a specific device
+  const getDeviceThresholds = useCallback((device_id: number): Thresholds | null => {
+    const device = deviceStatusList.find(d => d.device_id === device_id);
+    return device?.automation?.thresholds || null;
+  }, [deviceStatusList]);
+
   // Fetch system status
-  const fetchSystemStatus = useCallback(async () => {
+  const fetchSystemStatusPerDevice = useCallback(async () => {
     try {
-      const status = await getSystemStatus();
-      setSystemStatus(status);
-      checkForAlerts(status);
+      const statusList = await getSystemStatus(); // API now returns array
+      setDeviceStatusList(statusList); // Direct assignment
+      checkForAlerts(statusList);      // Direct assignment
     } catch (err) {
       setError('Failed to fetch system status');
       console.error('Error fetching system status:', err);
@@ -53,7 +59,7 @@ export const useHydroSystem = () => {
     }
   }, []);
 
-  // Fetch thresholds
+  // Fetch thresholds - now extracted from device data
   const fetchThresholds = useCallback(async () => {
     try {
       const thresholdData = await getThresholds();
@@ -64,79 +70,80 @@ export const useHydroSystem = () => {
     }
   }, []);
 
-  // Check for alerts based on current status and thresholds
-  const checkForAlerts = useCallback((status: SystemStatus) => {
-    if (!thresholds) return;
-
+  // Check for alerts based on current status and device-specific thresholds
+  const checkForAlerts = useCallback((statuses: SystemStatusPerDevice[]) => {
     const newAlerts: SystemAlert[] = [];
-    const { sensors } = status;
 
-    if (sensors.temperature > thresholds.temperature_max) {
-      newAlerts.push({
-        id: `temp-${Date.now()}`,
-        type: 'warning',
-        message: `Temperature too high: ${status.sensors.temperature}°C (max: ${thresholds.temperature_max}°C)`,
-        timestamp: new Date().toISOString(),
-        resolved: false
-      });
-    }
+    statuses.forEach(status => {
+      const { sensors, device_id, device_name, automation } = status;
+      const deviceThresholds = automation?.thresholds;
+      
+      if (!deviceThresholds) return; // Skip if no thresholds for this device
 
-    if (sensors.moisture < thresholds.moisture_min) {
-      newAlerts.push({
-        id: `moisture-${Date.now()}`,
-        type: 'warning',
-        message: `Soil moisture too low: ${sensors.moisture}% (min: ${thresholds.moisture_min}%)`,
-        timestamp: new Date().toISOString(),
-        resolved: false
-      });
-    }
+      if (sensors.temperature > deviceThresholds.temperature_max) {
+        newAlerts.push({
+          id: `temp-${device_id}-${Date.now()}`,
+          type: 'warning',
+          message: `${device_name}: Temperature too high: ${sensors.temperature}°C (max: ${deviceThresholds.temperature_max}°C)`,
+          timestamp: new Date().toISOString(),
+          resolved: false
+        });
+      }
 
-    if (sensors.light < thresholds.light_min) {
-      newAlerts.push({
-        id: `light-${Date.now()}`,
-        type: 'info',
-        message: `Light intensity low: ${sensors.light} lx (min: ${thresholds.light_min} lx)`,
-        timestamp: new Date().toISOString(),
-        resolved: false
-      });
-    }
+      if (sensors.moisture < deviceThresholds.moisture_min) {
+        newAlerts.push({
+          id: `moisture-${device_id}-${Date.now()}`,
+          type: 'warning',
+          message: `${device_name}: Soil moisture too low: ${sensors.moisture}% (min: ${deviceThresholds.moisture_min}%)`,
+          timestamp: new Date().toISOString(),
+          resolved: false
+        });
+      }
 
-    if (sensors.water_level < thresholds.water_level_critical) {
-      newAlerts.push({
-        id: `water-critical-${Date.now()}`,
-        type: 'error',
-        message: `Critical water level: ${sensors.water_level}% (critical: ${thresholds.water_level_critical}%)`,
-        timestamp: new Date().toISOString(),
-        resolved: false
-      });
-    } else if (sensors.water_level < thresholds.water_level_min) {
-      newAlerts.push({
-        id: `water-low-${Date.now()}`,
-        type: 'warning',
-        message: `Low water level: ${sensors.water_level}% (min: ${thresholds.water_level_min}%)`,
-        timestamp: new Date().toISOString(),
-        resolved: false
-      });
-    }
+      if (sensors.light < deviceThresholds.light_min) {
+        newAlerts.push({
+          id: `light-${device_id}-${Date.now()}`,
+          type: 'info',
+          message: `${device_name}: Light intensity low: ${sensors.light} lx (min: ${deviceThresholds.light_min} lx)`,
+          timestamp: new Date().toISOString(),
+          resolved: false
+        });
+      }
 
+      if (sensors.water_level < deviceThresholds.water_level_critical) {
+        newAlerts.push({
+          id: `water-critical-${device_id}-${Date.now()}`,
+          type: 'error',
+          message: `${device_name}: Critical water level: ${sensors.water_level}% (critical: ${deviceThresholds.water_level_critical}%)`,
+          timestamp: new Date().toISOString(),
+          resolved: false
+        });
+      } else if (sensors.water_level < deviceThresholds.water_level_min) {
+        newAlerts.push({
+          id: `water-low-${device_id}-${Date.now()}`,
+          type: 'warning',
+          message: `${device_name}: Low water level: ${sensors.water_level}% (min: ${deviceThresholds.water_level_min}%)`,
+          timestamp: new Date().toISOString(),
+          resolved: false
+        });
+      }
+    });
 
-
-    // Add more alert conditions as needed
     setAlerts(prev => [...prev.filter(alert => !alert.resolved), ...newAlerts]);
-  }, [thresholds]);
+  }, []);
 
-  // Control actions
-  const controlPump = useCallback(async (turnOn: boolean) => {
+  // Control actions per device
+  const controlPump = useCallback(async (device_id: number, turnOn: boolean) => {
     try {
-      const result = turnOn ? await turnPumpOn() : await turnPumpOff();
+      const result = turnOn ? await turnPumpOn(device_id) : await turnPumpOff(device_id);
       const action: ControlAction = {
         action: `Pump ${turnOn ? 'ON' : 'OFF'}`,
         timestamp: new Date().toISOString(),
         success: true,
         message: result.status
       };
-      setControlActions(prev => [action, ...prev.slice(0, 9)]); // Keep last 10 actions
-      await fetchSystemStatus(); // Refresh status
+      setControlActions(prev => [action, ...prev.slice(0, 9)]);
+      await fetchSystemStatusPerDevice(); // optionally pass device_id if fetch is per-device
     } catch (err) {
       const action: ControlAction = {
         action: `Pump ${turnOn ? 'ON' : 'OFF'}`,
@@ -147,11 +154,12 @@ export const useHydroSystem = () => {
       setControlActions(prev => [action, ...prev.slice(0, 9)]);
       setError('Failed to control pump');
     }
-  }, [fetchSystemStatus]);
+  }, [fetchSystemStatusPerDevice]);
 
-  const controlLight = useCallback(async (turnOn: boolean) => {
+
+  const controlLight = useCallback(async (device_id: number, turnOn: boolean) => {
     try {
-      const result = turnOn ? await turnLightOn() : await turnLightOff();
+      const result = turnOn ? await turnLightOn(device_id) : await turnLightOff(device_id);
       const action: ControlAction = {
         action: `Light ${turnOn ? 'ON' : 'OFF'}`,
         timestamp: new Date().toISOString(),
@@ -159,7 +167,7 @@ export const useHydroSystem = () => {
         message: result.status
       };
       setControlActions(prev => [action, ...prev.slice(0, 9)]); // Keep last 10 actions
-      await fetchSystemStatus(); // Refresh status
+      await fetchSystemStatusPerDevice(); // Refresh status
     } catch (err) {
       const action: ControlAction = {
         action: `Light ${turnOn ? 'ON' : 'OFF'}`,
@@ -170,11 +178,11 @@ export const useHydroSystem = () => {
       setControlActions(prev => [action, ...prev.slice(0, 9)]);
       setError('Failed to control light');
     }
-  }, [fetchSystemStatus]);
+  }, [fetchSystemStatusPerDevice]);
 
-  const startSystemScheduler = useCallback(async () => {
+  const startSystemScheduler = useCallback(async (device_id: number) => {
     try {
-      const result = await startScheduler();
+      const result = await startScheduler(device_id);
       const action: ControlAction = {
         action: 'Start Scheduler',
         timestamp: new Date().toISOString(),
@@ -182,6 +190,7 @@ export const useHydroSystem = () => {
         message: result.status
       };
       setControlActions(prev => [action, ...prev.slice(0, 9)]);
+      await fetchSystemStatusPerDevice();
     } catch (err) {
       const action: ControlAction = {
         action: 'Start Scheduler',
@@ -192,12 +201,12 @@ export const useHydroSystem = () => {
       setControlActions(prev => [action, ...prev.slice(0, 9)]);
       setError('Failed to start scheduler');
     }
-  }, []);
+  }, [fetchSystemStatusPerDevice]);
 
 
-  const stopSystemScheduler = useCallback(async () => {
+  const stopSystemScheduler = useCallback(async (device_id: number) => {
     try {
-      const result = await stopScheduler();
+      const result = await stopScheduler(device_id);
       const action: ControlAction = {
         action: 'Stop Scheduler',
         timestamp: new Date().toISOString(),
@@ -205,6 +214,7 @@ export const useHydroSystem = () => {
         message: result.status
       };
       setControlActions(prev => [action, ...prev.slice(0, 9)]);
+      await fetchSystemStatusPerDevice();
     } catch (err) {
       const action: ControlAction = {
         action: 'Stop Scheduler',
@@ -215,11 +225,11 @@ export const useHydroSystem = () => {
       setControlActions(prev => [action, ...prev.slice(0, 9)]);
       setError('Failed to stop scheduler');
     }
-  }, []);
+  }, [fetchSystemStatusPerDevice]);
 
-  const restartSystemScheduler = useCallback(async () => {
+  const restartSystemScheduler = useCallback(async (device_id: number) => {
     try {
-      const result = await restartScheduler();
+      const result = await restartScheduler(device_id);
       const action: ControlAction = {
         action: 'Restart Scheduler',
         timestamp: new Date().toISOString(),
@@ -227,6 +237,7 @@ export const useHydroSystem = () => {
         message: result.status
       };
       setControlActions(prev => [action, ...prev.slice(0, 9)]);
+      await fetchSystemStatusPerDevice();
     } catch (err) {
       const action: ControlAction = {
         action: 'Restart Scheduler',
@@ -237,24 +248,25 @@ export const useHydroSystem = () => {
       setControlActions(prev => [action, ...prev.slice(0, 9)]);
       setError('Failed to restart scheduler');
     }
-  }, []);
+  }, [fetchSystemStatusPerDevice]);
 
 
-  const updateSystemThresholds = useCallback(async (newThresholds: Partial<Thresholds>) => {
+  const updateSystemThresholds = useCallback(async (device_id: number, newThresholds: Partial<Thresholds>) => {
     try {
-      const result = await updateThresholds(newThresholds);
+      const result = await updateThresholds(device_id, newThresholds);
       setThresholds(result.data);
       const action: ControlAction = {
-        action: 'Update Thresholds',
+        action: `Update Thresholds (Device ${device_id})`,
         timestamp: new Date().toISOString(),
         success: true,
         message: 'Thresholds updated successfully'
       };
       setControlActions(prev => [action, ...prev.slice(0, 9)]);
+      await fetchSystemStatusPerDevice();
     } catch (err) {
       setError('Failed to update thresholds');
     }
-  }, []);
+  }, [fetchSystemStatusPerDevice]);
 
   // Resolve alert
   const resolveAlert = useCallback((alertId: string) => {
@@ -269,7 +281,7 @@ export const useHydroSystem = () => {
       setLoading(true);
       try {
         await Promise.all([
-          fetchSystemStatus(),
+          fetchSystemStatusPerDevice(),
           fetchSensorData(),
           fetchThresholds()
         ]);
@@ -281,20 +293,20 @@ export const useHydroSystem = () => {
     };
 
     fetchInitialData();
-  }, [fetchSystemStatus, fetchSensorData, fetchThresholds]);
+  }, [fetchSystemStatusPerDevice, fetchSensorData, fetchThresholds]);
 
   // Set up polling for real-time updates
   useEffect(() => {
     const interval = setInterval(() => {
-      fetchSystemStatus();
+      fetchSystemStatusPerDevice();
       fetchSensorData();
     }, 5000); // Poll every 5 seconds
 
     return () => clearInterval(interval);
-  }, [fetchSystemStatus, fetchSensorData]);
+  }, [fetchSystemStatusPerDevice, fetchSensorData]);
 
   return {
-    systemStatus,
+    deviceStatusList,
     sensorData,
     thresholds,
     alerts,
@@ -309,8 +321,9 @@ export const useHydroSystem = () => {
       restartSystemScheduler,
       updateSystemThresholds,
       resolveAlert,
+      getDeviceThresholds,
       refreshData: () => {
-        fetchSystemStatus();
+        fetchSystemStatusPerDevice();
         fetchSensorData();
         fetchThresholds();
       }

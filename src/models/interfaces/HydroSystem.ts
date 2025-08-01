@@ -1,7 +1,4 @@
 // src/models/interfaces/HydroSystem.ts
-
-// models/interfaces/HydroSystem.ts
-
 export interface HydroDevice {
   id: number;
   name: string;
@@ -25,52 +22,47 @@ export interface SensorReading {
   water_level: number;
   created_at: string;
 }
-export interface SystemStatus {
-  sensors: {
-    temperature: number;
-    humidity: number;
-    light: number;
-    moisture: number;
-    water_level: number;
-  };
-  devices: {
-    pump_state: boolean;
-    light_state: boolean;
-    fan_state: boolean;
-    water_pump_state: boolean | null;
-  };
-  system: {
-    scheduler_state: boolean;
-  };
-  automation: {
-    rules_result: {
-      actions: {
-        pump: boolean;
-        light: boolean;
-        fan: boolean;
-        water_refill: boolean;
-      };
-      alerts: string[];
-      water_status: {
-        status: string;
-        message: string;
-        priority: 'low' | 'medium' | 'high';
-        current_level: number;
-        min_threshold: number;
-        critical_threshold: number;
-      };
-    };
-    thresholds: {
-      moisture_min: number;
-      light_min: number;
-      temperature_max: number;
-      water_level_min: number;
-      water_level_critical: number;
-    };
-  };
+export interface DeviceActuatorState {
+  pump: boolean;
+  light: boolean;
+  fan: boolean;
+  water_pump: boolean | null;
 }
 
+export interface SchedulerState {
+  scheduler_state: boolean;
+}
+export interface WaterStatus {
+  status: string;
+  message: string;
+  priority: 'low' | 'medium' | 'high';
+  current_level: number;
+  min_threshold: number;
+  critical_threshold: number;
+}
+export interface AutomationRulesResult {
+  actions: {
+    pump: boolean;
+    light: boolean;
+    fan: boolean;
+    water_refill: boolean;
+  };
+  alerts: string[];
+  water_status: WaterStatus;
+}
 
+export interface AutomationConfig {
+  rules_result: AutomationRulesResult;
+  thresholds: SystemThresholds;
+}
+export interface SystemStatusPerDevice {
+  device_id: number;
+  device_name: string;
+  sensors: Omit<SensorReading, 'id' | 'created_at'>;
+  actuators: DeviceActuatorState;
+  system: SchedulerState;
+  automation: AutomationConfig;
+}
 export interface SystemThresholds {
   moisture_min: number;
   light_min: number;

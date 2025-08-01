@@ -1,8 +1,10 @@
 // src/components/HydroponicSystemPage/HydroponicSystemPage.tsx
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import PageTitle from '../common/PageTitle';
 import LinearProgress from '../common/LinearProgress';
+import DropdownButton from '../common/DropdownButton';
 import { useHydroSystem } from '../../hooks/useHydroSystem';
+import type { SystemStatusPerDevice } from '../../models/interfaces/HydroSystem';
 
 // Import dashboard components
 import LocationPanel from './components/LocationPanel';
@@ -18,7 +20,7 @@ import './HydroponicSystemPage.css';
 
 const HydroponicSystemPage: React.FC = () => {
   const {
-    systemStatus,
+    deviceStatusList,
     sensorData,
     thresholds,
     alerts,
@@ -30,32 +32,66 @@ const HydroponicSystemPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'overview' | 'charts' | 'settings'>('overview');
 
+  const [activeDeviceId, setActiveDeviceId] = useState<number | null>(null);
+
+  // Automatically select first device on load
+  useEffect(() => {
+    if (!activeDeviceId && deviceStatusList.length > 0) {
+      setActiveDeviceId(deviceStatusList[0].device_id);
+    }
+  }, [deviceStatusList, activeDeviceId]);
+
+  // Find current device or fallback
+  const currentDevice = useMemo<SystemStatusPerDevice | null>(() => {
+    if (!deviceStatusList.length) return null;
+    return (
+      deviceStatusList.find((d) => d.device_id === activeDeviceId) ??
+      deviceStatusList[0]
+    );
+  }, [deviceStatusList, activeDeviceId]);
+
   const getTemperatureStatus = () => {
-    if (!systemStatus || !thresholds) return 'normal';
-    if (systemStatus.sensors.temperature > thresholds.temperature_max) return 'error';
-    if (systemStatus.sensors.temperature > thresholds.temperature_max * 0.9) return 'warning';
+    if (!currentDevice) return 'normal';
+    const deviceThresholds = currentDevice.automation?.thresholds;
+    const temp = currentDevice.sensors?.temperature;
+    if (temp === undefined || !deviceThresholds) return 'normal';
+    if (temp > deviceThresholds.temperature_max) return 'error';
+    if (temp > deviceThresholds.temperature_max * 0.9) return 'warning';
     return 'normal';
   };
 
   const getMoistureStatus = () => {
-    if (!sensorData.length || !thresholds) return 'normal';
-    const latestMoisture = sensorData[sensorData.length - 1]?.moisture;
-    if (!latestMoisture) return 'normal';
-    if (latestMoisture < thresholds.moisture_min) return 'error';
-    if (latestMoisture < thresholds.moisture_min * 1.1) return 'warning';
+    if (!currentDevice) return 'normal';
+    const deviceThresholds = currentDevice.automation?.thresholds;
+    const moisture = currentDevice.sensors?.moisture;
+    if (moisture === undefined || !deviceThresholds) return 'normal';
+    if (moisture < deviceThresholds.moisture_min) return 'error';
+    if (moisture < deviceThresholds.moisture_min * 1.1) return 'warning';
     return 'normal';
   };
 
   const getLightStatus = () => {
-    if (!sensorData.length || !thresholds) return 'normal';
-    const latestLight = sensorData[sensorData.length - 1]?.light;
-    if (!latestLight) return 'normal';
-    if (latestLight < thresholds.light_min) return 'error';
-    if (latestLight < thresholds.light_min * 1.1) return 'warning';
+    if (!currentDevice) return 'normal';
+    const deviceThresholds = currentDevice.automation?.thresholds;
+    const light = currentDevice.sensors?.light;
+    if (light === undefined || !deviceThresholds) return 'normal';
+    if (light < deviceThresholds.light_min) return 'error';
+    if (light < deviceThresholds.light_min * 1.1) return 'warning';
     return 'normal';
   };
 
-  if (loading && !systemStatus) {
+  const getWaterLevelStatus = () => {
+    if (!currentDevice) return 'normal';
+    const deviceThresholds = currentDevice.automation?.thresholds;
+    const waterLevel = currentDevice.sensors?.water_level;
+    if (waterLevel === undefined || !deviceThresholds) return 'normal';
+    if (waterLevel < deviceThresholds.water_level_critical) return 'error';
+    if (waterLevel < deviceThresholds.water_level_min) return 'warning';
+    return 'normal';
+  };
+
+
+  if (loading && !deviceStatusList) {
     return (
       <div className="hydroponic-system-page min-h-screen">
         <PageTitle title="Hydroponic System Dashboard" />
@@ -71,7 +107,9 @@ const HydroponicSystemPage: React.FC = () => {
   if (error) {
     return (
       <div className="hydroponic-system-page min-h-screen">
-        <PageTitle title="Hydroponic System Dashboard" />
+        <PageTitle
+          title="Hydroponic System Dashboard"
+        />
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <div className="text-red-500 text-4xl mb-4">⚠️</div>
           <h3 className="text-lg font-semibold text-red-800 mb-2">Connection Error</h3>
@@ -86,11 +124,37 @@ const HydroponicSystemPage: React.FC = () => {
     );
   }
 
+  console.log("Device List:", deviceStatusList);
+  console.log("Active Device ID:", activeDeviceId);
+  console.log("Current Device:", currentDevice);
+
   return (
     <div className="hydroponic-system-page min-h-screen">
       <PageTitle
         title="Hydroponic System Dashboard"
         subtitle="Monitor and control your hydroponic growing system"
+        actions={
+          <>
+            {/* Device Selector */}
+
+            <div className="mb-4 flex justify-end">
+              <DropdownButton
+                label={
+                  currentDevice
+                    ? `Device: ${currentDevice.device_name || `ID ${currentDevice.device_id}`}`
+                    : 'Select Device'
+                }
+                items={deviceStatusList
+                  .filter((device) => device?.device_id !== undefined)
+                  .map((device) => ({
+                    label: device.device_name || `Device ID ${device.device_id}`,
+                    value: device.device_id.toString(),
+                  }))}
+                onSelect={(item) => setActiveDeviceId(Number(item.value))}
+              />
+            </div>
+          </>
+        }
       />
       {/* Tab Navigation */}
       <div className="mb-6">
@@ -128,12 +192,32 @@ const HydroponicSystemPage: React.FC = () => {
               <LocationPanel title='Location A' description='A location have 3 sensor devices, as: water pump, temperator sensor...' />
               {/* Control Panel */}
               <ControlPanel
-                systemStatus={systemStatus}
-                onPumpControl={actions.controlPump}
-                onLightControl={actions.controlLight}
-                onStartScheduler={actions.startSystemScheduler}
-                onStopScheduler={actions.stopSystemScheduler}
-                onRestartScheduler={actions.restartSystemScheduler}
+                systemStatus={currentDevice}
+                onPumpControl={(turnOn) => {
+                  if (currentDevice?.device_id) {
+                    actions.controlPump(currentDevice.device_id, turnOn);
+                  }
+                }}
+                onLightControl={(turnOn) => {
+                  if (currentDevice?.device_id) {
+                    actions.controlLight(currentDevice.device_id, turnOn);
+                  }
+                }}
+                onStartScheduler={() => {
+                  if (currentDevice?.device_id) {
+                    actions.startSystemScheduler(currentDevice.device_id);
+                  }
+                }}
+                onStopScheduler={() => {
+                  if (currentDevice?.device_id) {
+                    actions.stopSystemScheduler(currentDevice.device_id);
+                  }
+                }}
+                onRestartScheduler={() => {
+                  if (currentDevice?.device_id) {
+                    actions.restartSystemScheduler(currentDevice.device_id);
+                  }
+                }}
                 loading={loading}
               />
             </div>
@@ -142,31 +226,38 @@ const HydroponicSystemPage: React.FC = () => {
           <div className='flex gap-6'>
             <div className='flex-1'>
               {/* Status Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
                 <StatusCard
                   title="Temperature"
-                  value={systemStatus?.sensors?.temperature?.toFixed(1) || '--'}
+                  value={currentDevice?.sensors?.temperature?.toFixed(1) || '--'}
                   unit="°C"
                   status={getTemperatureStatus()}
                   icon="🌡️"
                 />
                 <StatusCard
                   title="Humidity"
-                  value={systemStatus?.sensors?.humidity?.toFixed(1) || '--'}
+                  value={currentDevice?.sensors?.humidity?.toFixed(1) || '--'}
                   unit="%"
                   status="normal"
                   icon="💧"
                 />
                 <StatusCard
+                  title="Water Level"
+                  value={currentDevice?.sensors?.water_level?.toFixed(1) || '--'}
+                  unit="%"
+                  status={getWaterLevelStatus()}
+                  icon="🚰"
+                />
+                <StatusCard
                   title="Moisture"
-                  value={sensorData[sensorData.length - 1]?.moisture?.toFixed(1) || '--'}
+                  value={currentDevice?.sensors?.moisture?.toFixed(1) || '--'}
                   unit="%"
                   status={getMoistureStatus()}
                   icon="🌱"
                 />
                 <StatusCard
                   title="Light"
-                  value={sensorData[sensorData.length - 1]?.light?.toFixed(0) || '--'}
+                  value={currentDevice?.sensors?.light?.toFixed(0) || '--'}
                   unit="lux"
                   status={getLightStatus()}
                   icon="☀️"
@@ -233,8 +324,11 @@ const HydroponicSystemPage: React.FC = () => {
       {activeTab === 'settings' && (
         <div className="space-y-6">
           <SettingsPanel
-            thresholds={thresholds}
-            onUpdateThresholds={actions.updateSystemThresholds}
+            thresholds={currentDevice?.automation?.thresholds || null}
+            onUpdateThresholds={(newThresholds) => {
+              if (!currentDevice) return;
+              actions.updateSystemThresholds(currentDevice.device_id, newThresholds);
+            }}
             loading={loading}
           />
         </div>
@@ -249,7 +343,6 @@ const HydroponicSystemPage: React.FC = () => {
           disabled={loading}
         />
       </div>
-
     </div>
   );
 };

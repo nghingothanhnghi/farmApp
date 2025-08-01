@@ -10,6 +10,7 @@ import DevicePage from "./components/DevicePage";
 import ARDetectionPage from "./components/ARDetectionPage";
 import ModelTrainingPage from "./components/ModelTraining";
 import HydroponicSystemPage from "./components/HydroponicSystemPage/HydroponicSystemPage";
+import { HydroponicDevicePage } from "./components/HydroponicSystemPage";
 import RoleAssignmentForm from "./components/RoleAssignment";
 import SchedulerPage from "./components/SchedulerPage";
 import { MigrationPage, MigrationWizardPage } from "./components/Migration";
@@ -62,6 +63,7 @@ function App() {
         <Route path="/ar-detection" element={<ARDetectionPage />} />
         <Route path="/model-training" element={<ModelTrainingPage />} />
         <Route path="/hydroponic-system" element={<HydroponicSystemPage />} />
+        <Route path="/hydro-devices" element={<HydroponicDevicePage />} />
         <Route path="/scheduler-health" element={<SchedulerPage />} />
         
         <Route path="*" element={<Outlet />} />

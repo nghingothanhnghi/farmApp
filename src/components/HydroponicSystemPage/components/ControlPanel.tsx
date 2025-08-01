@@ -1,11 +1,11 @@
 // src/components/HydroponicSystemPage/components/ControlPanel.tsx
 import React from 'react';
-import type { SystemStatus } from '../../../models/interfaces/HydroSystem';
+import type { SystemStatusPerDevice } from '../../../models/interfaces/HydroSystem';
 import Button from '../../common/Button';
 import { playSound } from '../../../utils/sound';
 
 interface ControlPanelProps {
-  systemStatus: SystemStatus | null;
+  systemStatus: SystemStatusPerDevice | null;
   onPumpControl: (turnOn: boolean) => void;
   onLightControl: (turnOn: boolean) => void;
   onStartScheduler: () => void;
@@ -60,15 +60,15 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             <h3 className="text-sm font-medium text-gray-700">Water Pump</h3>
             <div className="flex items-center space-x-2">
               <div
-                className={`w-2 h-2 rounded-full ${systemStatus?.devices?.pump_state ? 'bg-green-600' : 'bg-gray-400'
+                className={`w-2 h-2 rounded-full ${systemStatus?.actuators?.pump ? 'bg-green-600' : 'bg-gray-400'
                   }`}
               ></div>
               <span className="text-xs text-gray-600">
                 <span
-                  className={`font-medium ${systemStatus?.devices?.pump_state ? 'text-green-600' : 'text-gray-400'
+                  className={`font-medium ${systemStatus?.actuators?.pump ? 'text-green-600' : 'text-gray-400'
                     }`}
                 >
-                  {systemStatus?.devices?.pump_state ? 'Running' : 'Stopped'}
+                  {systemStatus?.actuators?.pump ? 'Running' : 'Stopped'}
                 </span>
               </span>
             </div>
@@ -81,8 +81,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
               <Button
                 label='Turn On'
                 onClick={() => handlePumpControl(true)}
-                disabled={loading || systemStatus?.devices?.pump_state}
-                className={`flex-1 ${systemStatus?.devices?.pump_state
+                disabled={loading || systemStatus?.actuators?.pump}
+                className={`flex-1 ${systemStatus?.actuators?.pump
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-green-500 hover:bg-green-600 text-white'
                   }`}
@@ -91,8 +91,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
               <Button
                 label='Turn Off'
                 onClick={() => handlePumpControl(false)}
-                disabled={loading || !systemStatus?.devices?.pump_state}
-                className={`flex-1 ${!systemStatus?.devices?.pump_state
+                disabled={loading || !systemStatus?.actuators?.pump}
+                className={`flex-1 ${!systemStatus?.actuators?.pump
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-red-500 hover:bg-red-600 text-white'
                   }`}
@@ -108,14 +108,14 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           <div className='flex items-center justify-between mb-1'>
             <h3 className="text-sm font-medium text-gray-700">Grow Lights</h3>
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${systemStatus?.devices?.light_state ? 'bg-yellow-500' : 'bg-gray-400'
+              <div className={`w-2 h-2 rounded-full ${systemStatus?.actuators?.light ? 'bg-yellow-500' : 'bg-gray-400'
                 }`}></div>
               <span className="text-xs text-gray-600">
                 <span
-                  className={`font-medium ${systemStatus?.devices?.light_state ? 'text-yellow-500' : 'text-gray-400'
+                  className={`font-medium ${systemStatus?.actuators?.light ? 'text-yellow-500' : 'text-gray-400'
                     }`}
                 >
-                  {systemStatus?.devices?.light_state ? 'On' : 'Off'}
+                  {systemStatus?.actuators?.light ? 'On' : 'Off'}
                 </span>
               </span>
             </div>
@@ -128,8 +128,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
               <Button
                 label='Turn On'
                 onClick={() => handleLightControl(true)}
-                disabled={loading || systemStatus?.devices?.light_state}
-                className={`flex-1 ${systemStatus?.devices?.light_state
+                disabled={loading || systemStatus?.actuators?.light}
+                className={`flex-1 ${systemStatus?.actuators?.light
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-yellow-400 hover:bg-yellow-500 text-white'
                   }`}
@@ -138,8 +138,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
               <Button
                 label='Turn Off'
                 onClick={() => handleLightControl(false)}
-                disabled={loading || !systemStatus?.devices?.light_state}
-                className={`flex-1 ${!systemStatus?.devices?.light_state
+                disabled={loading || !systemStatus?.actuators?.light}
+                className={`flex-1 ${!systemStatus?.actuators?.light
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-red-500 hover:bg-red-600 text-white'
                   }`}
@@ -154,14 +154,14 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           <div className='flex items-center justify-between mb-1'>
             <h3 className="text-sm font-medium text-gray-700">Automation</h3>
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${systemStatus?.system.scheduler_state ? 'bg-green-600' : 'bg-gray-400'
+              <div className={`w-2 h-2 rounded-full ${systemStatus?.system?.scheduler_state ? 'bg-green-600' : 'bg-gray-400'
                 }`}></div>
               <span className="text-xs text-gray-600">
                 <span
-                  className={` font-medium ${systemStatus?.system.scheduler_state ? 'text-green-600' : 'text-gray-400'
+                  className={` font-medium ${systemStatus?.system?.scheduler_state ? 'text-green-600' : 'text-gray-400'
                     }`}
                 >
-                  {systemStatus?.system.scheduler_state ? 'Running' : 'Stopped'}
+                  {systemStatus?.system?.scheduler_state ? 'Running' : 'Stopped'}
                 </span>
               </span>
             </div>
