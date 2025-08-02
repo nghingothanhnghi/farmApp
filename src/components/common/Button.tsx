@@ -14,6 +14,7 @@ interface ButtonProps {
   iconPosition?: 'left' | 'right';
   iconOnly?: boolean;
   size?: 'xs' | 'sm' | 'md' | 'lg';
+  rounded?: 'full' | 'md' | 'lg'; 
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -30,9 +31,10 @@ const Button: React.FC<ButtonProps> = ({
   iconPosition = 'left',
   iconOnly = false,
   size = 'md',
+  rounded,
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center rounded-lg font-medium focus:outline-none transition-colors gap-2';
+    'inline-flex items-center justify-center font-medium focus:outline-none transition-colors gap-2';
 
   const sizeStyles = {
     xs: 'text-xs px-2 py-1',
@@ -41,6 +43,14 @@ const Button: React.FC<ButtonProps> = ({
     lg: 'text-lg px-5 py-3',
   };
 
+    const iconOnlySizeStyles = {
+    xs: 'w-6 h-6 text-xs p-1',
+    sm: 'w-8 h-8 text-sm p-1.5',
+    md: 'w-10 h-10 text-base p-2',
+    lg: 'w-12 h-12 text-lg p-3',
+  };
+
+
   const variantStyles = {
     primary: 'bg-blue-600 text-white hover:bg-blue-700',
     secondary: 'bg-gray-100 text-gray-800 hover:bg-gray-300',
@@ -48,16 +58,33 @@ const Button: React.FC<ButtonProps> = ({
     link: 'bg-transparent text-blue-600 hover:underline p-0',
   };
 
+  const roundedStyles = {
+    full: 'rounded-full',
+    md: 'rounded-md',
+    lg: 'rounded-lg',
+  };
+
+    // Shape priority: `rounded` prop > iconOnly default > fallback
+  const shapeClass = rounded
+    ? roundedStyles[rounded]
+    : iconOnly
+    ? 'rounded-full'
+    : 'rounded-lg';
+
   const widthStyles = fullWidth ? 'w-full' : '';
   const disabledStyles = disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer';
-  const iconOnlyStyles = iconOnly ? 'p-2 w-10 h-10 justify-center items-center gap-0 rounded-full' : '';
-  const sizeClass = variant === 'link' ? 'text-sm' : sizeStyles[size];
+  const iconOnlyStyles = iconOnly ? 'justify-center items-center gap-0' : '';
 
+    const sizeClass = iconOnly
+    ? iconOnlySizeStyles[size || 'md']
+    : variant === 'link'
+    ? 'text-sm'
+    : sizeStyles[size || 'md'];
 
   return (
     <button
       type={type}
-      className={`${baseStyles} ${variantStyles[variant]} ${sizeClass} ${widthStyles} ${disabledStyles} ${iconOnlyStyles} ${className}`}
+      className={`${baseStyles} ${shapeClass} ${variantStyles[variant]} ${sizeClass} ${widthStyles} ${disabledStyles} ${iconOnlyStyles} ${className}`}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}

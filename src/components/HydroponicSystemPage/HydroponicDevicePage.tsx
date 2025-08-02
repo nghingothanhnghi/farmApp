@@ -103,11 +103,12 @@ const HydroponicDevicePage: React.FC = () => {
     };
 
     return (
-        <div>
+        <div className='flex flex-col h-full'>
             {!isRootPage && (
                 <PageTitle
                     title={isEdit ? 'Edit Device' : 'Create Device'}
                     actions={
+                        !isCreate && ( // ✅ Only show the Add button when NOT creating
                         <Button
                             variant="secondary"
                             icon={<IconPlus size={18} />}
@@ -116,6 +117,7 @@ const HydroponicDevicePage: React.FC = () => {
                             className='bg-transparent'
                             onClick={() => navigate('/hydro-devices/new-device')}
                         />
+                        )
                     }
                 />
             )}
@@ -136,9 +138,6 @@ const HydroponicDevicePage: React.FC = () => {
                     />
                     <DeviceList onSelect={(device) => navigate(`/hydro-devices/${device.id}`)} />
                 </>
-
-
-
             )}
 
             {(isEdit || isCreate) && (
