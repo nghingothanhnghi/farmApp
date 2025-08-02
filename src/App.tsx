@@ -64,6 +64,8 @@ function App() {
         <Route path="/model-training" element={<ModelTrainingPage />} />
         <Route path="/hydroponic-system" element={<HydroponicSystemPage />} />
         <Route path="/hydro-devices" element={<HydroponicDevicePage />} />
+        <Route path="/hydro-devices/new-device" element={<HydroponicDevicePage />} />
+        <Route path="/hydro-devices/:id" element={<HydroponicDevicePage />} />
         <Route path="/scheduler-health" element={<SchedulerPage />} />
         
         <Route path="*" element={<Outlet />} />
