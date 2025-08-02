@@ -92,6 +92,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                 onClick={toggleDropdown}
                 disabled={disabled}
                 label=""
+                rounded='lg'
                 icon={
                     <div className="flex items-center gap-2">
                         {title}

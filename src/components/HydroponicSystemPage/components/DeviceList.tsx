@@ -58,14 +58,16 @@ const DeviceList: React.FC<Props> = ({ onSelect, showStatus = true }) => {
 
   const columnDefs = useMemo(() => {
     return [
-      { headerName: 'ID', field: 'id', width: 80 },
-      { headerName: 'Name', field: 'name', flex: 1 },
-      { headerName: 'Device ID', field: 'device_id', flex: 1 },
-      { headerName: 'Type', field: 'type', width: 120 },
+      { headerName: 'ID', field: 'id', width: 80, filter: false, cellStyle: { textAlign: "center" } },
+      { headerName: 'Name', field: 'name', flex: 1, filter: false },
+      { headerName: 'Device ID', field: 'device_id', flex: 1, filter: false },
+      { headerName: 'Type', field: 'type',flex: 1, filter: false, resizable: false },
       showStatus && {
         headerName: 'Status',
         field: 'is_active',
-        width: 120,
+        flex: 1,
+        filter: false,
+        resizable: false,
         cellRenderer: ({ value }: any) => (
           <Badge
             label={value ? 'Active' : 'Inactive'}

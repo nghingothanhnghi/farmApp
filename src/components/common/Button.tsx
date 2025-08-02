@@ -65,11 +65,18 @@ const Button: React.FC<ButtonProps> = ({
   };
 
     // Shape priority: `rounded` prop > iconOnly default > fallback
-  const shapeClass = rounded
+  // const shapeClass = rounded
+  //   ? roundedStyles[rounded]
+  //   : iconOnly
+  //   ? 'rounded-full'
+  //   : 'rounded-lg';
+  const shapeClass =
+  rounded !== undefined
     ? roundedStyles[rounded]
     : iconOnly
-    ? 'rounded-full'
-    : 'rounded-lg';
+    ? '' // Let ButtonGroup apply rounded if needed
+    : ''; // Also blank for normal buttons if no rounded specified
+
 
   const widthStyles = fullWidth ? 'w-full' : '';
   const disabledStyles = disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer';

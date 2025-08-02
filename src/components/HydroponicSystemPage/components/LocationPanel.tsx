@@ -1,4 +1,5 @@
 import React from 'react';
+import IconMap from '../../../assets/icons/map-icon.svg'
 
 interface LocationPanelProps {
   title?: string;
@@ -11,7 +12,7 @@ const LocationPanel: React.FC<LocationPanelProps> = ({ title, description, image
     <div className="w-full flex flex-row-reverse items-start gap-4 p-4 bg-gray-100 border border-gray-100 rounded-lg min-h-[6rem]">
       <img
         alt={title}
-        src={imageUrl}
+        src={imageUrl || IconMap}
         className="w-20 rounded object-cover"
       />
       <div className='flex-1'>

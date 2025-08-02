@@ -2,6 +2,7 @@
 import React from 'react';
 import type { SystemStatusPerDevice } from '../../../models/interfaces/HydroSystem';
 import Button from '../../common/Button';
+import ButtonGroup from '../../common/ButtonGroup';
 import { playSound } from '../../../utils/sound';
 
 interface ControlPanelProps {
@@ -77,27 +78,31 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             <div className="flex-1 text-[0.625rem] text-gray-600 line-clamp-2">
 
             </div>
-            <div className="w-[180px] flex space-x-2 items-center justify-between">
-              <Button
-                label='Turn On'
-                onClick={() => handlePumpControl(true)}
-                disabled={loading || systemStatus?.actuators?.pump}
-                className={`flex-1 ${systemStatus?.actuators?.pump
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-green-500 hover:bg-green-600 text-white'
-                  }`}
-                size='xs'
-              />
-              <Button
-                label='Turn Off'
-                onClick={() => handlePumpControl(false)}
-                disabled={loading || !systemStatus?.actuators?.pump}
-                className={`flex-1 ${!systemStatus?.actuators?.pump
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-red-500 hover:bg-red-600 text-white'
-                  }`}
-                size='xs'
-              />
+            <div className="w-[180px] flex space-x-2 items-center justify-end">
+              <ButtonGroup>
+                <Button
+                  label='On'
+                  onClick={() => handlePumpControl(true)}
+                  disabled={loading || systemStatus?.actuators?.pump}
+                  className={`flex-1 ${systemStatus?.actuators?.pump
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-green-500 hover:bg-green-600 text-white'
+                    }`}
+                  size='xs'
+                />
+                <Button
+                  label='Off'
+                  onClick={() => handlePumpControl(false)}
+                  disabled={loading || !systemStatus?.actuators?.pump}
+                  className={`flex-1 ${!systemStatus?.actuators?.pump
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-red-500 hover:bg-red-600 text-white'
+                    }`}
+                  size='xs'
+                />
+
+              </ButtonGroup>
+
             </div>
           </div>
 
@@ -124,27 +129,31 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             <div className="flex-1 text-[0.625rem] text-gray-600 line-clamp-2">
               Start automated watering and lighting schedule
             </div>
-            <div className="w-[180px] flex space-x-2 items-center justify-between">
-              <Button
-                label='Turn On'
-                onClick={() => handleLightControl(true)}
-                disabled={loading || systemStatus?.actuators?.light}
-                className={`flex-1 ${systemStatus?.actuators?.light
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-yellow-400 hover:bg-yellow-500 text-white'
-                  }`}
-                size='xs'
-              />
-              <Button
-                label='Turn Off'
-                onClick={() => handleLightControl(false)}
-                disabled={loading || !systemStatus?.actuators?.light}
-                className={`flex-1 ${!systemStatus?.actuators?.light
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-red-500 hover:bg-red-600 text-white'
-                  }`}
-                size='xs'
-              />
+            <div className="w-[180px] flex space-x-2 items-center justify-end">
+              <ButtonGroup>
+                <Button
+                  label='On'
+                  onClick={() => handleLightControl(true)}
+                  disabled={loading || systemStatus?.actuators?.light}
+                  className={`flex-1 ${systemStatus?.actuators?.light
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-yellow-400 hover:bg-yellow-500 text-white'
+                    }`}
+                  size='xs'
+                />
+                <Button
+                  label='Off'
+                  onClick={() => handleLightControl(false)}
+                  disabled={loading || !systemStatus?.actuators?.light}
+                  className={`flex-1 ${!systemStatus?.actuators?.light
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-red-500 hover:bg-red-600 text-white'
+                    }`}
+                  size='xs'
+                />
+              </ButtonGroup>
+
+
             </div>
           </div>
         </div>
@@ -171,28 +180,30 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             <div className="flex-1 text-[0.625rem] text-gray-600 line-clamp-2">
               Start automated watering and lighting schedule
             </div>
-            <div className="w-[180px] flex items-center justify-between space-x-2">
-              <Button
-                label="Start"
-                onClick={handleStartScheduler}
-                disabled={loading}
-                className="bg-green-500 hover:bg-green-600 text-white flex-1"
-                size='xs'
-              />
-              <Button
-                label="Stop"
-                onClick={handleStopScheduler}
-                disabled={loading}
-                className="bg-red-500 hover:bg-red-600 text-white flex-1"
-                size='xs'
-              />
-              <Button
-                label="Restart"
-                onClick={handleRestartScheduler}
-                disabled={loading}
-                className="bg-yellow-500 hover:bg-yellow-600 text-white flex-1"
-                size='xs'
-              />
+            <div className="w-[180px] flex items-center justify-end space-x-2">
+              <ButtonGroup>
+                <Button
+                  label="Start"
+                  onClick={handleStartScheduler}
+                  disabled={loading}
+                  className="bg-green-500 hover:bg-green-600 text-white flex-1"
+                  size='xs'
+                />
+                <Button
+                  label="Stop"
+                  onClick={handleStopScheduler}
+                  disabled={loading}
+                  className="bg-red-500 hover:bg-red-600 text-white flex-1"
+                  size='xs'
+                />
+                <Button
+                  label="Restart"
+                  onClick={handleRestartScheduler}
+                  disabled={loading}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white flex-1"
+                  size='xs'
+                />
+              </ButtonGroup>
             </div>
           </div>
         </div>

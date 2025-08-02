@@ -53,6 +53,7 @@ const Header: React.FC<HeaderProps> = ({ brandUrl, appName, onClose }) => {
             label="Close"
             className='bg-transparent'
             onClick={handleOpenModal}
+            rounded='full'
           />
           {/* Close button for mobile and desktop screens */}
           <Button
@@ -62,6 +63,7 @@ const Header: React.FC<HeaderProps> = ({ brandUrl, appName, onClose }) => {
             label="Close"
             className='bg-transparent'
             onClick={onClose}
+            rounded='full'
           />
         </div>
       </header>

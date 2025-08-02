@@ -158,6 +158,7 @@ const HydroponicSystemPage: React.FC = () => {
               variant="secondary"
               icon={<IconPlus size={18} />}
               iconOnly
+              rounded='full'
               label="Close"
               className='bg-transparent'
               onClick={() => navigate('/hydro-devices')}

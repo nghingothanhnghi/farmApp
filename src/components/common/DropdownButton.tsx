@@ -102,6 +102,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
                 disabled={disabled}
                 className={className}
                 variant={variant}
+                rounded='lg'
                 label=""
                 icon={
                     <div className="flex items-center gap-2">
