@@ -1,8 +1,9 @@
-// api/deviceApi.ts
-import apiClient from '../client';
-import type { TapResponse, SwipeResponse } from '../../models/interfaces/Device';
+// src/services/deviceFarmService.ts
 
-export const deviceApi = {
+import apiClient from '../api/client';
+import type { TapResponse, SwipeResponse } from '../models/interfaces/Device';
+
+export const deviceFarmService = {
   /**
    * Get all connected devices
    */

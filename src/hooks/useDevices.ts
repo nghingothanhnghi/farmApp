@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { deviceApi } from '../api/endpoints/deviceApi';
+import { deviceFarmService } from '../services/deviceFarmService';
 import type { TapResponse, SwipeResponse } from '../models/interfaces/Device';
 
 export const useDevices = () => {
@@ -11,7 +11,7 @@ export const useDevices = () => {
     setLoading(true);
     setError(null);
     try {
-      const deviceList = await deviceApi.getDevices();
+      const deviceList = await deviceFarmService.getDevices();
       if (Array.isArray(deviceList)) {
         setDevices(deviceList);
       } else {
@@ -30,7 +30,7 @@ export const useDevices = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await deviceApi.tapAll(x, y);
+      const response = await deviceFarmService.tapAll(x, y);
       return response;
     } catch (err) {
       setError('Failed to send tap command');
@@ -51,7 +51,7 @@ export const useDevices = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await deviceApi.swipeAll(start_x, start_y, end_x, end_y, duration_ms);
+      const response = await deviceFarmService.swipeAll(start_x, start_y, end_x, end_y, duration_ms);
       return response;
     } catch (err) {
       setError('Failed to send swipe command');
@@ -73,7 +73,7 @@ export const useDevices = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await deviceApi.swipeDevice(deviceSerial, start_x, start_y, end_x, end_y, duration_ms);
+      const response = await deviceFarmService.swipeDevice(deviceSerial, start_x, start_y, end_x, end_y, duration_ms);
       return response;
     } catch (err) {
       setError(`Failed to send swipe command to device ${deviceSerial}`);

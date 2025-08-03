@@ -1,7 +1,7 @@
 // src/components/ModelTraining/ModelTrainingPage.tsx
 import React, { useState, useRef } from 'react';
 import { useAlert } from '../../contexts/alertContext';
-import { objectDetectionApi } from '../../api/endpoints/objectDetectionApi';
+import { objectDetectionService } from '../../services/objectDetectionService';
 import { IconCheck, IconDownload } from '@tabler/icons-react';
 import List from '../common/List';
 import PageTitle from '../common/PageTitle';
@@ -146,8 +146,8 @@ const ModelTrainingPage: React.FC = () => {
       const valImagesArray = valImages ? Array.from(valImages) : [];
       const valLabelsArray = valLabels ? Array.from(valLabels) : [];
 
-      // Use the objectDetectionApi for training
-      const response = await objectDetectionApi.trainModel(
+      // Use the objectDetectionService for training
+      const response = await objectDetectionService.trainModel(
         modelName,
         epochs,
         imageSize,
@@ -216,7 +216,7 @@ const ModelTrainingPage: React.FC = () => {
       const currentModel = modelName || 'default';
 
       // Call the API to get the training labels
-      const blob = await objectDetectionApi.downloadTrainingLabels(currentModel);
+      const blob = await objectDetectionService.downloadTrainingLabels(currentModel);
 
       // Create a URL for the blob
       const url = URL.createObjectURL(blob);

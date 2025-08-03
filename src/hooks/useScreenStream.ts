@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { createScreenStreamConnection, getScreenshot } from '../api/endpoints/screen';
+import { deviceScreenShotService } from '../services/deviceScreenShotService';
 import type { StreamFrame } from '../models/interfaces/ScreenStream';
 
 export const useScreenStream = (deviceSerial: string) => {
@@ -17,7 +17,7 @@ export const useScreenStream = (deviceSerial: string) => {
     setError(null);
     
     try {
-      const response = await getScreenshot(deviceSerial);
+      const response = await deviceScreenShotService.getScreenshot(deviceSerial);
       if (response && response.status === 'ok') {
         setCurrentFrame(response.image);
         return response.image;
@@ -45,7 +45,7 @@ export const useScreenStream = (deviceSerial: string) => {
       }
       
       // Create new WebSocket connection
-      const ws = createScreenStreamConnection(
+      const ws = deviceScreenShotService.createScreenStreamConnection(
         deviceSerial,
         (data: StreamFrame) => {
           if (data && data.image) {

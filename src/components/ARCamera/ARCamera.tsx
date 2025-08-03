@@ -1,7 +1,7 @@
 // src/components/ARCamera/ARCamera.tsx
 // It provides a React component for augmented reality camera functionality,
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { objectDetectionApi } from '../../api/endpoints/objectDetectionApi';
+import { objectDetectionService } from '../../services/objectDetectionService';
 import { useAlert } from '../../contexts/alertContext';
 import type { Detection, DetectionResult, ARCameraProps } from '../../models/interfaces/Camera';
 import ListLink from '../common/ListLink';
@@ -54,7 +54,7 @@ const ARCamera: React.FC<ARCameraProps> = ({
           setIsStreaming(true);
         }
         // Fetch model list
-        const models = await objectDetectionApi.listAvailableModels();
+        const models = await objectDetectionService.listAvailableModels();
         setAvailableModels(models);
         setAlert(null);
       } catch (err) {
@@ -130,7 +130,7 @@ const ARCamera: React.FC<ARCameraProps> = ({
 
   const initWebSocketStream = () => {
     try {
-      wsRef.current = objectDetectionApi.createWebSocketConnection();
+      wsRef.current = objectDetectionService.createWebSocketConnection();
 
       wsRef.current.onopen = () => {
         console.log('WebSocket connected');
@@ -171,7 +171,7 @@ const ARCamera: React.FC<ARCameraProps> = ({
       try {
         const imageBase64 = captureFrame();
         if (imageBase64) {
-          const results = await objectDetectionApi.detectObjectsBase64(imageBase64, selectedModel);
+          const results = await objectDetectionService.detectObjectsBase64(imageBase64, selectedModel);
           processDetectionResults(results);
         }
       } catch (err) {
@@ -215,10 +215,10 @@ const ARCamera: React.FC<ARCameraProps> = ({
     if (!modelToDelete) return;
 
     try {
-      await objectDetectionApi.deleteModelByName(modelToDelete);
+      await objectDetectionService.deleteModelByName(modelToDelete);
       setAlert({ message: `Model '${modelToDelete}' deleted successfully`, type: 'success' });
 
-      const models = await objectDetectionApi.listAvailableModels();
+      const models = await objectDetectionService.listAvailableModels();
       setAvailableModels(models);
 
       // Reset to default if deleted model was selected

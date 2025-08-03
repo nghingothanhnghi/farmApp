@@ -1,4 +1,4 @@
-// services/authService.ts
+// src/services/authService.ts
 // This file contains functions for user authentication, including login, fetching the current user, and managing user roles.
 // It uses an API client to make requests to the backend authentication endpoints.
 import apiClient from '../api/client';

@@ -1,11 +1,11 @@
-// src/api/endpoints/objectDetectionApi.ts
-import apiClient from '../client';
-import { API_BASE_URL } from '../../config/constants';
+// src/services/objectDetectionService.ts
+import apiClient from '../api/client';
+import { API_BASE_URL } from '../config/constants';
 
 /**
  * API service for object detection functionality
  */
-export const objectDetectionApi = {
+export const objectDetectionService = {
   /**
    * Download YOLO format training labels for a specific model
    * @param modelName - Name of the model to download labels for
@@ -180,5 +180,3 @@ export const objectDetectionApi = {
     }
   },
 };
-
-export default objectDetectionApi;

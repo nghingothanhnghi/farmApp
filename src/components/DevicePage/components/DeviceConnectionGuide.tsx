@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAdbStatus, restartAdb } from '../../../api/endpoints/deviceStatus';
+import { deviceAdbService } from '../../../services/deviceAdbService';
 import Button from '../../common/Button';
 import Spinner from '../../common/Spinner';
 
@@ -23,7 +23,7 @@ const DeviceConnectionGuide: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const status = await getAdbStatus();
+      const status = await deviceAdbService.getAdbStatus();
       setAdbStatus(status);
     } catch (err) {
       setError('Failed to fetch ADB status');
@@ -37,7 +37,7 @@ const DeviceConnectionGuide: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      await restartAdb();
+      await deviceAdbService.restartAdb();
       await fetchAdbStatus();
     } catch (err) {
       setError('Failed to restart ADB server');

@@ -1,6 +1,6 @@
 // src/hooks/useCamera.ts
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { objectDetectionApi } from '../api/endpoints/objectDetectionApi';
+import { objectDetectionService } from '../services/objectDetectionService';
 import type { Detection, DetectionResult, ARCameraProps } from '../models/interfaces/Camera';
 
 
@@ -107,7 +107,7 @@ export const useCamera = ({
 
   const initWebSocketStream = () => {
     try {
-      wsRef.current = objectDetectionApi.createWebSocketConnection();
+      wsRef.current = objectDetectionService.createWebSocketConnection();
 
       wsRef.current.onopen = () => {
         console.log('WebSocket connected');
@@ -148,7 +148,7 @@ export const useCamera = ({
       try {
         const imageBase64 = captureFrame();
         if (imageBase64) {
-          const results = await objectDetectionApi.detectObjectsBase64(imageBase64, modelName);
+          const results = await objectDetectionService.detectObjectsBase64(imageBase64, modelName);
           processDetectionResults(results);
         }
       } catch (err) {

@@ -5,7 +5,7 @@ import PageTitle from '../common/PageTitle';
 import LinearProgress from '../common/LinearProgress';
 import DropdownButton from '../common/DropdownButton';
 import WaterLevelBucket from '../common/chartCustom/WaterLevelBucket';
-import { IconPlus } from '@tabler/icons-react';
+import { IconPlus, IconArtboard } from '@tabler/icons-react';
 import { useHydroSystem } from '../../hooks/useHydroSystem';
 import type { SystemStatusPerDevice } from '../../models/interfaces/HydroSystem';
 
@@ -142,10 +142,19 @@ const HydroponicSystemPage: React.FC = () => {
             {/* Device Selector */}
             <DropdownButton
               label={
-                currentDevice
-                  ? `Device: ${currentDevice.device_name || `ID ${currentDevice.device_id}`}`
-                  : 'Select Device'
+                // currentDevice
+                //   ? `Device: ${currentDevice.device_name || `ID ${currentDevice.device_id}`}`
+                //   : 'Select Device'
+                <div className="flex items-center gap-2">
+                  <IconArtboard size={18} />
+                  <span>
+                    {currentDevice
+                      ? `Device: ${currentDevice.device_name || `ID ${currentDevice.device_id}`}`
+                      : 'Select Device'}
+                  </span>
+                </div>
               }
+
               items={deviceStatusList
                 .filter((device) => device?.device_id !== undefined)
                 .map((device) => ({

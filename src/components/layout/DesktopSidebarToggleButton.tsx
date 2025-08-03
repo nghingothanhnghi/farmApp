@@ -26,11 +26,12 @@ const DesktopSidebarToggleButton: React.FC<DesktopSidebarToggleButtonProps> = ({
                     </span>
                 }
                 iconOnly
+                rounded='full'
                 label="Close"
                 className={`bg-transparent mb-8`}
                 onClick={onClick}
-                     onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
             />
             <div className="flex flex-1 flex-col overflow-y-auto space-y-0.5">
                 <ListLink to="/scheduler-health" icon={<IconCalendarCheck size={16} />} label="Health Schedule" iconOnlyMode={true} />
@@ -38,8 +39,8 @@ const DesktopSidebarToggleButton: React.FC<DesktopSidebarToggleButtonProps> = ({
                 <ListLink to="/ar-detection" icon={<IconCamera size={16} />} label="AR Detection" iconOnlyMode={true} />
                 <ListLink to="/model-training" icon={<IconBrain size={16} />} label="Model Training" iconOnlyMode={true} />
                 <ListLink to="/hydroponic-system" icon={<IconPlant size={16} />} label="Hydroponics" iconOnlyMode={true} />
-                <ListLink to="/users" icon={<IconUserShield size={16} />} label="User Management" iconOnlyMode={true} />  
-                <ListLink to="/migrate" icon={<IconAnalyze size={16} />} label="Data Migration" iconOnlyMode />      
+                <ListLink to="/users" icon={<IconUserShield size={16} />} label="User Management" iconOnlyMode={true} />
+                <ListLink to="/migrate" icon={<IconAnalyze size={16} />} label="Data Migration" iconOnlyMode />
             </div>
         </div>
     );

@@ -13,7 +13,7 @@ const LocationPanel: React.FC<LocationPanelProps> = ({ title, description, image
       <img
         alt={title}
         src={imageUrl || IconMap}
-        className="w-20 rounded object-cover"
+        className="w-20 rounded-lg object-cover p-2 border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
       />
       <div className='flex-1'>
         <h3 className="text-sm font-medium text-gray-700 line-clamp-1">{title}</h3>

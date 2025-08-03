@@ -4,7 +4,9 @@ import { IconDeviceGamepad3, IconSettings, IconUserCog, IconLayoutSidebarLeftCol
 import DropdownButton from '../common/DropdownButton';
 import Button from '../common/Button';
 import Modal from '../common/Modal';
+import AlertDropdown from '../global/AlertDropdown';
 import { GeneralTab, AccountTab } from '../Settings';
+import { useHydroSystem } from '../../hooks/useHydroSystem';
 
 type HeaderProps = {
   appName?: string;
@@ -16,6 +18,11 @@ type HeaderProps = {
 };
 
 const Header: React.FC<HeaderProps> = ({ brandUrl, appName, onClose }) => {
+  const {
+    alerts,
+    controlActions,
+    actions
+  } = useHydroSystem();
   const [isModalOpen, setIsModalOpen] = useState(false); // ✅ Modal state
   const [activeTab, setActiveTab] = useState('general'); // ✅ Add this
 
@@ -46,6 +53,11 @@ const Header: React.FC<HeaderProps> = ({ brandUrl, appName, onClose }) => {
         </div>
         {/* Right: Settings */}
         <div className="flex items-center">
+          <AlertDropdown
+            alerts={alerts}
+            controlActions={controlActions}
+            onResolveAlert={actions.resolveAlert}
+          />
           <Button
             variant="secondary"
             icon={<IconSettings size={18} />}
