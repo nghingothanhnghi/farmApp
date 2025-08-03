@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router'; // Add this at the top of your file
+import { useHydroSystem } from '../../../hooks/useHydroSystem';
+import type { HydroActuator } from '../../../models/interfaces/HydroSystem';
 
 import Form, { FormGroup, FormLabel, FormInput, FormActions } from '../../../components/common/Form';
 import Button from '../../../components/common/Button';
@@ -30,6 +32,14 @@ const DeviceForm: React.FC<Props> = ({
     fieldErrors,
 }) => {
     const navigate = useNavigate();
+    const { actions } = useHydroSystem();
+    const [actuators, setActuators] = useState<HydroActuator[]>([]);
+
+    useEffect(() => {
+        if (isEdit && formData.id) {
+            actions.fetchActuatorsByDevice(formData.id).then(setActuators);
+        }
+    }, [isEdit, formData.id]);
     return (
         <Form onSubmit={onSubmit} className="mx-auto max-w-4xl">
             {fields.map(([name, label, type, required, helper]) => (
@@ -60,6 +70,27 @@ const DeviceForm: React.FC<Props> = ({
 
             <hr className="my-10 w-full border-t border-zinc-950/5 dark:border-white/5" />
 
+            <h3 className="text-lg font-semibold mb-2">Linked Actuators</h3>
+            {actuators.length > 0 ? (
+                <ul className="space-y-2">
+                    {actuators.map((actuator) => (
+                        <li
+                            key={actuator.id}
+                            className="border rounded p-3 flex flex-col md:flex-row md:justify-between md:items-center"
+                        >
+                            <div>
+                                <p className="font-medium">{actuator.name}</p>
+                                <p className="text-sm text-zinc-500">Type: {actuator.type}</p>
+                            </div>
+                            <div className="text-sm text-zinc-400">
+                                Active: {actuator.is_active ? 'Yes' : 'No'}
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p className="text-sm text-zinc-500">No actuators linked to this device.</p>
+            )}
             <FormActions className="lg:static fixed bottom-0 left-0 right-0 p-4 lg:pe-0 bg-white grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Button
                     type="button"

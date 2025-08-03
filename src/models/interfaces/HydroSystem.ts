@@ -1,4 +1,20 @@
 // src/models/interfaces/HydroSystem.ts
+
+// actuator
+export interface HydroActuator {
+  id: number;
+  type: string; // e.g., 'pump', 'light'
+  name?: string;
+  pin?: string;
+  port: number;
+  is_active: boolean;
+  default_state: boolean;
+  device_id: number;
+  created_at: string;
+  updated_at?: string;
+}
+
+// device as (esp32 mainboard, etc....)
 export interface HydroDevice {
   id: number;
   name: string;

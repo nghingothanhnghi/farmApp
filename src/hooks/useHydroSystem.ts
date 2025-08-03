@@ -1,16 +1,19 @@
 // src/hooks/useHydroSystem.ts
 import { useState, useEffect, useCallback } from 'react';
 import { systemService } from '../services/hydroSystemService';
+import { actuatorService } from '../services/hydroActuatorService';
 import type {
   SystemAlert,
   ControlAction,
   SensorReading,
   SystemStatusPerDevice,
-  SystemThresholds as Thresholds
+  SystemThresholds as Thresholds,
+  HydroActuator
 } from '../models/interfaces/HydroSystem';
 
 export const useHydroSystem = () => {
   const [deviceStatusList, setDeviceStatusList] = useState<SystemStatusPerDevice[]>([]);
+  const [actuators, setActuators] = useState<HydroActuator[]>([]);
   const [sensorData, setSensorData] = useState<SensorReading[]>([]);
   const [thresholds, setThresholds] = useState<Thresholds | null>(null);
   const [alerts, setAlerts] = useState<SystemAlert[]>([]);
@@ -57,6 +60,32 @@ export const useHydroSystem = () => {
       console.error('Error fetching thresholds:', err);
     }
   }, []);
+
+  const fetchActuators = useCallback(async () => {
+  try {
+    const data = await actuatorService.getAll();
+    setActuators(data);
+  } catch (err) {
+    setError('Failed to fetch actuators');
+    console.error('Error fetching actuators:', err);
+  }
+}, []);
+
+const fetchActuatorsByDevice = useCallback(
+  async (device_id: number): Promise<HydroActuator[]> => {
+    try {
+      const data = await actuatorService.getByDevice(device_id);
+      return data;
+    } catch (err) {
+      setError(`Failed to fetch actuators for device ${device_id}`);
+      console.error(`Error fetching actuators for device ${device_id}:`, err);
+      return [];
+    }
+  },
+  []
+);
+
+
 
   // Check for alerts based on current status and device-specific thresholds
   const checkForAlerts = useCallback((statuses: SystemStatusPerDevice[]) => {
@@ -263,6 +292,8 @@ export const useHydroSystem = () => {
     ));
   }, []);
 
+
+
   // Initial data fetch
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -271,7 +302,8 @@ export const useHydroSystem = () => {
         await Promise.all([
           fetchSystemStatusPerDevice(),
           fetchSensorData(),
-          fetchThresholds()
+          fetchThresholds(),
+          // fetchActuators(),
         ]);
       } catch (err) {
         setError('Failed to load initial data');
@@ -299,6 +331,7 @@ export const useHydroSystem = () => {
     thresholds,           // Thresholds (global or per device)
     alerts,               // Active system alerts
     controlActions,       // Log of control actions
+    // actuators,
     loading, error,       // For UI feedback
     actions: {
       controlPump,
@@ -309,10 +342,12 @@ export const useHydroSystem = () => {
       updateSystemThresholds,
       resolveAlert,
       getDeviceThresholds,
+      fetchActuatorsByDevice,
       refreshData: () => {
         fetchSystemStatusPerDevice();
         fetchSensorData();
         fetchThresholds();
+        // fetchActuators();
       }
     }
   };

@@ -142,9 +142,6 @@ const HydroponicSystemPage: React.FC = () => {
             {/* Device Selector */}
             <DropdownButton
               label={
-                // currentDevice
-                //   ? `Device: ${currentDevice.device_name || `ID ${currentDevice.device_id}`}`
-                //   : 'Select Device'
                 <div className="flex items-center gap-2">
                   <IconArtboard size={18} />
                   <span>
@@ -154,7 +151,6 @@ const HydroponicSystemPage: React.FC = () => {
                   </span>
                 </div>
               }
-
               items={deviceStatusList
                 .filter((device) => device?.device_id !== undefined)
                 .map((device) => ({
