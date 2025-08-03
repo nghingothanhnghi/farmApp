@@ -116,7 +116,12 @@ const ResetPasswordPage: React.FC = () => {
                         </div>
                     </FormGroup>
                     <FormActions className='lg:static fixed bottom-0 left-0 right-0 p-4 lg:pl-4 lg:pr-0 bg-white grid grid-cols-1 md:grid-cols-2 gap-4'>
-                        <Button type="submit" label={loading ? 'Sending...' : 'Send Code'} className='mx-auto' />
+                        <Button 
+                        type="submit" 
+                        label={loading ? 'Sending...' : 'Send Code'} 
+                        className='mx-auto'
+                        rounded='lg'
+                        />
                     </FormActions>
                 </Form>
             )}
@@ -148,13 +153,19 @@ const ResetPasswordPage: React.FC = () => {
                                         label="Resend Code"
                                         onClick={() => handleResendCode()}
                                         disabled={loading || expirationTime <= 0}
+                                        rounded='lg'
                                     />
                                 </div>
                             </div>
                         </div>
                     </FormGroup>
                     <FormActions className='lg:static fixed bottom-0 left-0 right-0 p-4 lg:pl-4 lg:pr-0 bg-white grid grid-cols-1 md:grid-cols-2 gap-4'>
-                        <Button type="submit" label={loading ? 'Verifying...' : 'Verify Code'} className='mx-auto' />
+                        <Button 
+                        type="submit" 
+                        label={loading ? 'Verifying...' : 'Verify Code'} 
+                        className='mx-auto'
+                        rounded='lg'
+                        />
                     </FormActions>
                 </Form>
             )}
@@ -178,7 +189,12 @@ const ResetPasswordPage: React.FC = () => {
                         </div>
                     </FormGroup>
                     <FormActions className='lg:static fixed bottom-0 left-0 right-0 p-4 lg:pl-4 lg:pr-0 bg-white grid grid-cols-1 md:grid-cols-2 gap-4'>
-                        <Button type="submit" label={loading ? 'Resetting...' : 'Ok'} className='mx-auto' />
+                        <Button 
+                        type="submit" 
+                        label={loading ? 'Resetting...' : 'Ok'} 
+                        className='mx-auto'
+                        rounded='lg'
+                        />
                     </FormActions>
                 </Form>
             )}

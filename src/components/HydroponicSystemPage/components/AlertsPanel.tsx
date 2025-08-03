@@ -45,11 +45,10 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-base font-semibold text-gray-800">System Alerts</h2>
         <div className="flex items-center space-x-2">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            activeAlerts.length > 0 
-              ? 'bg-red-100 text-red-800' 
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${activeAlerts.length > 0
+              ? 'bg-red-100 text-red-800'
               : 'bg-green-100 text-green-800'
-          }`}>
+            }`}>
             {activeAlerts.length} Active
           </span>
         </div>
@@ -81,11 +80,13 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
                   </div>
                 </div>
                 <Button
-                label="Resolve"
+                  label="Resolve"
                   onClick={() => onResolveAlert(alert.id)}
                   className="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white"
+                  rounded='lg'
+                  size='xs'
                 />
-      
+
               </div>
             </div>
           ))

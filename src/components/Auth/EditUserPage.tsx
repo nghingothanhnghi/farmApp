@@ -121,6 +121,7 @@ const EditUserPage: React.FC = () => {
             label={loading ? 'Saving...' : 'Save Changes'}
             disabled={loading}
             variant="primary"
+            rounded='lg'
           />
         </FormActions>
       </Form>

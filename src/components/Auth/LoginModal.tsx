@@ -107,6 +107,8 @@ const LoginModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
                                 icon={showPassword ? <IconEyeOff size={18} /> : <IconEye size={18} />}
                                 iconOnly
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-800"
+                                size='sm'
+                                rounded='full'
                             />
                         </div>
                         {fieldErrors.password && (
@@ -133,6 +135,7 @@ const LoginModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
                         variant="primary"
                         disabled={loading}
                         fullWidth
+                        rounded='lg'
                     />
                     <p className="text-center text-sm text-gray-600 mb-5">
                         Don’t have an account?{' '}

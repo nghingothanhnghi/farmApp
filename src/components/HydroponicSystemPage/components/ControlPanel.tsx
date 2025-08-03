@@ -113,11 +113,11 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           <div className='flex items-center justify-between mb-1'>
             <h3 className="text-sm font-medium text-gray-700">Grow Lights</h3>
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${systemStatus?.actuators?.light ? 'bg-yellow-500' : 'bg-gray-400'
+              <div className={`w-2 h-2 rounded-full ${systemStatus?.actuators?.light ? 'bg-green-600' : 'bg-gray-400'
                 }`}></div>
               <span className="text-xs text-gray-600">
                 <span
-                  className={`font-medium ${systemStatus?.actuators?.light ? 'text-yellow-500' : 'text-gray-400'
+                  className={`font-medium ${systemStatus?.actuators?.light ? 'text-green-600' : 'text-gray-400'
                     }`}
                 >
                   {systemStatus?.actuators?.light ? 'On' : 'Off'}
@@ -137,7 +137,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                   disabled={loading || systemStatus?.actuators?.light}
                   className={`flex-1 ${systemStatus?.actuators?.light
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-yellow-400 hover:bg-yellow-500 text-white'
+                    : 'bg-green-500 hover:bg-green-600 text-white'
                     }`}
                   size='xs'
                 />
@@ -185,22 +185,31 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                 <Button
                   label="Start"
                   onClick={handleStartScheduler}
-                  disabled={loading}
-                  className="bg-green-500 hover:bg-green-600 text-white flex-1"
+                  disabled={loading || systemStatus?.system?.scheduler_state === true}
+                  className={`flex-1 ${systemStatus?.system?.scheduler_state === true
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-green-500 hover:bg-green-600 text-white'
+                    }`}
                   size='xs'
                 />
                 <Button
                   label="Stop"
                   onClick={handleStopScheduler}
-                  disabled={loading}
-                  className="bg-red-500 hover:bg-red-600 text-white flex-1"
+                  disabled={loading || systemStatus?.system?.scheduler_state === false}
+                  className={`flex-1 ${systemStatus?.system?.scheduler_state === false
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-red-500 hover:bg-red-600 text-white'
+                    }`}
                   size='xs'
                 />
                 <Button
                   label="Restart"
                   onClick={handleRestartScheduler}
-                  disabled={loading}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white flex-1"
+                  disabled={loading || systemStatus?.system?.scheduler_state === false}
+                  className={`flex-1 ${systemStatus?.system?.scheduler_state === false
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                    }`}
                   size='xs'
                 />
               </ButtonGroup>

@@ -78,6 +78,7 @@ const Modal: React.FC<ModalProps> = ({
                   label="Close"
                   className='bg-transparent'
                   onClick={onClose}
+                  rounded='full'
                 />
               </div>
               <div className="py-5 space-y-2">
@@ -120,6 +121,7 @@ const Modal: React.FC<ModalProps> = ({
                     label="Close"
                     className='bg-transparent'
                     onClick={onClose}
+                    rounded='full'
                   />
                 )}
               </div>

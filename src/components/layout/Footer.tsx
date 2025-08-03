@@ -52,6 +52,7 @@ const Footer: React.FC = () => {
                     onClick={() => navigate('/sign-up')}
                     variant="secondary"
                     fullWidth
+                    rounded='lg'
                 />
             )}
         </footer>

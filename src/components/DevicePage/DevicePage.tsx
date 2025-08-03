@@ -19,6 +19,7 @@ function DevicePage() {
                     label={isDemoMode ? "Switch to Normal Mode" : "Switch to Demo Mode"}
                     onClick={toggleMode}
                     variant="secondary"
+                    rounded='lg'
                 />
             </div>
             {isDemoMode ? <DeviceListDemoPage /> : <DeviceListNormalPage />}

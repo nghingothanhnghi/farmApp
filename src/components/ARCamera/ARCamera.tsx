@@ -322,6 +322,7 @@ const ARCamera: React.FC<ARCameraProps> = ({
               variant="danger"
               onClick={handleConfirmDelete}
               className="min-w-[150px]"
+              rounded='lg'
             />
             <Button
               label="Cancel"
@@ -331,6 +332,7 @@ const ARCamera: React.FC<ARCameraProps> = ({
                 setModelToDelete(null);
               }}
               className="min-w-[150px]"
+              rounded='lg'
             />
           </div>
         }

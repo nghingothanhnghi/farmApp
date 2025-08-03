@@ -106,12 +106,14 @@ const DeviceConnectionGuide: React.FC = () => {
                     onClick={handleRestartAdb}
                     variant="secondary"
                     disabled={loading}
+                    rounded='lg'
                   />
                   <Button
                     label="Refresh Status"
                     onClick={fetchAdbStatus}
                     variant="primary"
                     disabled={loading}
+                    rounded='lg'
                   />
                 </div>
               </div>

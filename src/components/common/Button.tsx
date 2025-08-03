@@ -5,7 +5,7 @@ interface ButtonProps {
   onClick?: () => void;
   onMouseEnter?: () => void; // ✅ add this
   onMouseLeave?: () => void; // ✅ add this
-  variant?: 'primary' | 'secondary' | 'danger' | 'link';
+  variant?: 'primary' | 'secondary' | 'danger' | 'link' | 'dark';
   disabled?: boolean;
   fullWidth?: boolean;
   type?: 'button' | 'submit' | 'reset';
@@ -56,6 +56,7 @@ const Button: React.FC<ButtonProps> = ({
     secondary: 'bg-gray-100 text-gray-800 hover:bg-gray-300',
     danger: 'bg-red-600 text-white hover:bg-red-700',
     link: 'bg-transparent text-blue-600 hover:underline p-0',
+    dark: 'bg-gray-800 text-white hover:bg-black',
   };
 
   const roundedStyles = {
@@ -64,12 +65,6 @@ const Button: React.FC<ButtonProps> = ({
     lg: 'rounded-lg',
   };
 
-    // Shape priority: `rounded` prop > iconOnly default > fallback
-  // const shapeClass = rounded
-  //   ? roundedStyles[rounded]
-  //   : iconOnly
-  //   ? 'rounded-full'
-  //   : 'rounded-lg';
   const shapeClass =
   rounded !== undefined
     ? roundedStyles[rounded]

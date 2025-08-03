@@ -1,18 +1,6 @@
 // src/hooks/useHydroSystem.ts
 import { useState, useEffect, useCallback } from 'react';
-import {
-  getSystemStatus,
-  getLatestSensorData,
-  getThresholds,
-  updateThresholds,
-  turnPumpOn,
-  turnPumpOff,
-  turnLightOn,
-  turnLightOff,
-  startScheduler,
-  stopScheduler,
-  restartScheduler
-} from '../api/endpoints/hydroSystemApi';
+import { systemService } from '../services/hydroSystemService';
 import type {
   SystemAlert,
   ControlAction,
@@ -39,7 +27,7 @@ export const useHydroSystem = () => {
   // Fetch system status
   const fetchSystemStatusPerDevice = useCallback(async () => {
     try {
-      const statusList = await getSystemStatus(); // API now returns array
+      const statusList = await systemService.getSystemStatus(); // API now returns array
       setDeviceStatusList(statusList); // Direct assignment
       checkForAlerts(statusList);      // Direct assignment
     } catch (err) {
@@ -51,7 +39,7 @@ export const useHydroSystem = () => {
   // Fetch sensor data
   const fetchSensorData = useCallback(async () => {
     try {
-      const data = await getLatestSensorData();
+      const data = await systemService.getLatestSensorData();
       setSensorData(data);
     } catch (err) {
       setError('Failed to fetch sensor data');
@@ -62,7 +50,7 @@ export const useHydroSystem = () => {
   // Fetch thresholds - now extracted from device data
   const fetchThresholds = useCallback(async () => {
     try {
-      const thresholdData = await getThresholds();
+      const thresholdData = await systemService.getThresholds();
       setThresholds(thresholdData);
     } catch (err) {
       setError('Failed to fetch thresholds');
@@ -135,7 +123,7 @@ export const useHydroSystem = () => {
   // Control actions per device
   const controlPump = useCallback(async (device_id: number, turnOn: boolean) => {
     try {
-      const result = turnOn ? await turnPumpOn(device_id) : await turnPumpOff(device_id);
+      const result = turnOn ? await systemService.turnPumpOn(device_id) : await systemService.turnPumpOff(device_id);
       const action: ControlAction = {
         action: `Pump ${turnOn ? 'ON' : 'OFF'}`,
         timestamp: new Date().toISOString(),
@@ -159,7 +147,7 @@ export const useHydroSystem = () => {
 
   const controlLight = useCallback(async (device_id: number, turnOn: boolean) => {
     try {
-      const result = turnOn ? await turnLightOn(device_id) : await turnLightOff(device_id);
+      const result = turnOn ? await systemService.turnLightOn(device_id) : await systemService.turnLightOff(device_id);
       const action: ControlAction = {
         action: `Light ${turnOn ? 'ON' : 'OFF'}`,
         timestamp: new Date().toISOString(),
@@ -182,7 +170,7 @@ export const useHydroSystem = () => {
 
   const startSystemScheduler = useCallback(async (device_id: number) => {
     try {
-      const result = await startScheduler(device_id);
+      const result = await systemService.startScheduler(device_id);
       const action: ControlAction = {
         action: 'Start Scheduler',
         timestamp: new Date().toISOString(),
@@ -206,7 +194,7 @@ export const useHydroSystem = () => {
 
   const stopSystemScheduler = useCallback(async (device_id: number) => {
     try {
-      const result = await stopScheduler(device_id);
+      const result = await systemService.stopScheduler(device_id);
       const action: ControlAction = {
         action: 'Stop Scheduler',
         timestamp: new Date().toISOString(),
@@ -229,7 +217,7 @@ export const useHydroSystem = () => {
 
   const restartSystemScheduler = useCallback(async (device_id: number) => {
     try {
-      const result = await restartScheduler(device_id);
+      const result = await systemService.restartScheduler(device_id);
       const action: ControlAction = {
         action: 'Restart Scheduler',
         timestamp: new Date().toISOString(),
@@ -253,7 +241,7 @@ export const useHydroSystem = () => {
 
   const updateSystemThresholds = useCallback(async (device_id: number, newThresholds: Partial<Thresholds>) => {
     try {
-      const result = await updateThresholds(device_id, newThresholds);
+      const result = await systemService.updateThresholds(device_id, newThresholds);
       setThresholds(result.data);
       const action: ControlAction = {
         action: `Update Thresholds (Device ${device_id})`,

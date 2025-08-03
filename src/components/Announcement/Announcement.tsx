@@ -52,6 +52,7 @@ const Announcement: React.FC<IAnnouncementProps> = ({
             iconOnly
             label="Close"
             className="text-gray-800 hover:text-gray-900 bg-transparent"
+            rounded='full'
           />
         )}
       </div>

@@ -107,6 +107,7 @@ const SignUpPage: React.FC = () => {
                         variant="primary"
                         className="md:w-auto"
                         fullWidth={true}
+                        rounded='lg'
                     />
                 </FormActions>
             </Form>

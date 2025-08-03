@@ -53,6 +53,7 @@ const DeviceListNormalPage: React.FC = () => {
               variant="secondary"
               disabled={loading || devices.length === 0}
               icon={showScreens ? <IconScreenShareOff size={20} /> : <IconUserScreen size={20} />}
+              rounded='lg'
             />
             <Button
               label="Refresh"
@@ -66,6 +67,7 @@ const DeviceListNormalPage: React.FC = () => {
                 />
               }
               iconOnly
+              rounded='full'
             />
           </>
         }
@@ -126,6 +128,7 @@ const DeviceListNormalPage: React.FC = () => {
               onClick={handleTap}
               disabled={loading || devices.length === 0}
               fullWidth
+              rounded='lg'
             />
           </div>
         </>

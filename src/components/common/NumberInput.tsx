@@ -51,6 +51,8 @@ const NumberInput: React.FC<NumberInputProps> = ({
         variant="secondary"
         iconOnly
         label="Decrease"
+        rounded='full'
+        className='bg-transparent'
       />
 
       <FormInput
@@ -72,6 +74,8 @@ const NumberInput: React.FC<NumberInputProps> = ({
         variant="secondary"
         iconOnly
         label="Increase"
+        rounded='full'
+        className='bg-transparent'
       />
     </div>
   );

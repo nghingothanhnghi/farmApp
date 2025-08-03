@@ -71,6 +71,7 @@ const DeviceListDemoPage: React.FC = () => {
                 />
               }
               iconOnly
+              rounded='full'
             />
 
           </>
@@ -94,6 +95,7 @@ const DeviceListDemoPage: React.FC = () => {
                   label="Try Again"
                   onClick={fetchDevices}
                   variant="primary"
+                  rounded='lg'
                 />
               </div>
             </div>

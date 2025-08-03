@@ -19,6 +19,7 @@ const DeviceScreenGrid: React.FC<DeviceScreenGridProps> = ({ devices, loading = 
           label="Back to All Devices"
           onClick={() => setExpandedDevice(null)}
           variant="secondary"
+          rounded='lg'
         />
         <DeviceScreen
           deviceSerial={expandedDevice}

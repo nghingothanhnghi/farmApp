@@ -114,6 +114,7 @@ const LoginPage: React.FC = () => {
                   icon={showPassword ? <IconEyeOff size={18} /> : <IconEye size={18} />}
                   iconOnly
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-800"
+                  rounded='full'
                 />
               </div>
               {fieldErrors.password && (
@@ -138,6 +139,7 @@ const LoginPage: React.FC = () => {
             variant="primary"
             disabled={loading}
             fullWidth
+            rounded='lg'
           />
           <p className="text-center text-sm text-gray-600 mb-5">
             Don’t have an account?{' '}

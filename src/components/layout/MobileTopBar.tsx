@@ -41,8 +41,9 @@ const MobileTopBar: React.FC<MobileTopBarProps> = ({ onMenuClick }) => {
                 onClick={onMenuClick}
                 variant="secondary"
                 icon={<IconMenuDeep size={16} />}
-                iconPosition="left"
+                iconOnly
                 className="bg-transparent"
+                rounded='full'
             />
             {title && (
                 <h1 className="text-base font-semibold text-gray-700 dark:text-white truncate text-center flex-1">

@@ -110,6 +110,7 @@ const DeviceScreen: React.FC<DeviceScreenProps> = ({ deviceSerial, onClose }) =>
             onClick={handleToggleStream}
             variant={isStreaming ? "danger" : "primary"}
             disabled={loading}
+            rounded='lg'
           />
           {!isStreaming && (
             <Button
@@ -117,6 +118,7 @@ const DeviceScreen: React.FC<DeviceScreenProps> = ({ deviceSerial, onClose }) =>
               onClick={handleRefresh}
               variant="secondary"
               disabled={loading}
+              rounded='lg'
             />
           )}
         </div>

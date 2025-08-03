@@ -49,11 +49,13 @@ const ARDetectionPage: React.FC = () => {
               label="Train Custom Model"
               onClick={() => navigate('/model-training')}
               variant="secondary"
+              rounded='lg'
             />
             <Button
               label={showModelSelector ? 'Hide Model Options' : 'Show Model Options'}
               onClick={toggleModelSelector}
               variant="secondary"
+              rounded='lg'
             />
           </>
         }
