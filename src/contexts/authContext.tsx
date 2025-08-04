@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { Role } from '../models/interfaces/Role';
 import type { User } from '../models/interfaces/User';
 import * as authService from '../services/authService';
+import { isJwtExpired } from '../utils/jwt';
 
 interface AuthContextType {
     user: User | null;
@@ -29,13 +30,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [showLoginModal, setShowLoginModal] = useState(false);
 
 
+    // useEffect(() => {
+    //     if (token) {
+    //         getUser();
+    //     } else {
+    //         setLoading(false);
+    //     }
+    // }, [token]);
+
     useEffect(() => {
-        if (token) {
-            getUser();
+    if (token) {
+        if (isJwtExpired(token)) {
+            logout();
+            setShowLoginModal(true); // 🟢 trigger login modal immediately
         } else {
-            setLoading(false);
+            getUser();
         }
-    }, [token]);
+    } else {
+        setLoading(false);
+    }
+}, [token]);
+
 
     const login = async (username: string, password: string) => {
         const accessToken = await authService.login(username, password);
@@ -49,6 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setToken(null);
         setUser(null);
         setRoles([]);
+        setShowLoginModal(true); // 🟢 open login modal on manual or forced logout
     };
 
     const getUser = async () => {

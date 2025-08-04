@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { systemService } from '../services/hydroSystemService';
 import { actuatorService } from '../services/hydroActuatorService';
+import { hardwareDetectionService } from '../services/hardwareDetectionService';
 import type {
   SystemAlert,
   ControlAction,
@@ -14,6 +15,7 @@ import type {
 export const useHydroSystem = () => {
   const [deviceStatusList, setDeviceStatusList] = useState<SystemStatusPerDevice[]>([]);
   const [actuators, setActuators] = useState<HydroActuator[]>([]);
+  const [cameraHardwareDetection, setCameraHardwareDetection] = useState<boolean | null>(null);
   const [sensorData, setSensorData] = useState<SensorReading[]>([]);
   const [thresholds, setThresholds] = useState<Thresholds | null>(null);
   const [alerts, setAlerts] = useState<SystemAlert[]>([]);
@@ -62,28 +64,28 @@ export const useHydroSystem = () => {
   }, []);
 
   const fetchActuators = useCallback(async () => {
-  try {
-    const data = await actuatorService.getAll();
-    setActuators(data);
-  } catch (err) {
-    setError('Failed to fetch actuators');
-    console.error('Error fetching actuators:', err);
-  }
-}, []);
-
-const fetchActuatorsByDevice = useCallback(
-  async (device_id: number): Promise<HydroActuator[]> => {
     try {
-      const data = await actuatorService.getByDevice(device_id);
-      return data;
+      const data = await actuatorService.getAll();
+      setActuators(data);
     } catch (err) {
-      setError(`Failed to fetch actuators for device ${device_id}`);
-      console.error(`Error fetching actuators for device ${device_id}:`, err);
-      return [];
+      setError('Failed to fetch actuators');
+      console.error('Error fetching actuators:', err);
     }
-  },
-  []
-);
+  }, []);
+
+  const fetchActuatorsByDevice = useCallback(
+    async (device_id: number): Promise<HydroActuator[]> => {
+      try {
+        const data = await actuatorService.getByDevice(device_id);
+        return data;
+      } catch (err) {
+        setError(`Failed to fetch actuators for device ${device_id}`);
+        console.error(`Error fetching actuators for device ${device_id}:`, err);
+        return [];
+      }
+    },
+    []
+  );
 
 
 
@@ -94,7 +96,7 @@ const fetchActuatorsByDevice = useCallback(
     statuses.forEach(status => {
       const { sensors, device_id, device_name, automation } = status;
       const deviceThresholds = automation?.thresholds;
-      
+
       if (!deviceThresholds) return; // Skip if no thresholds for this device
 
       if (sensors.temperature > deviceThresholds.temperature_max) {

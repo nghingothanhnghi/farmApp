@@ -58,13 +58,6 @@ const HydroponicDevicePage: React.FC = () => {
         }
     }, [id, isCreate]);
 
-    // const fields: [keyof HydroDevice, string, string, boolean][] = [
-    //     ['name', 'Device Name', 'text', true],
-    //     ['device_id', 'Device ID', 'text', true],
-    //     ['location', 'Location', 'text', false],
-    //     ['type', 'Type', 'text', false],
-    // ];
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -109,15 +102,15 @@ const HydroponicDevicePage: React.FC = () => {
                     title={isEdit ? 'Edit Device' : 'Create Device'}
                     actions={
                         !isCreate && ( // ✅ Only show the Add button when NOT creating
-                        <Button
-                            variant="secondary"
-                            icon={<IconPlus size={18} />}
-                            iconOnly
-                            rounded='full'
-                            label="Close"
-                            className='bg-transparent'
-                            onClick={() => navigate('/hydro-devices/new-device')}
-                        />
+                            <Button
+                                variant="secondary"
+                                icon={<IconPlus size={18} />}
+                                iconOnly
+                                rounded='full'
+                                label="Close"
+                                className='bg-transparent'
+                                onClick={() => navigate('/hydro-devices/new-device')}
+                            />
                         )
                     }
                 />
@@ -126,6 +119,12 @@ const HydroponicDevicePage: React.FC = () => {
                 <>
                     <PageTitle
                         title="Device Managament"
+                        subtitle={
+                            <>
+                                Manage your hydroponic devices like ESP32 boards and microcontrollers. Each device is uniquely
+                                identified by a <code className="text-muted-foreground">device_id</code> and associated with a location.
+                            </>
+                        }
                         actions={
                             <Button
                                 variant="secondary"

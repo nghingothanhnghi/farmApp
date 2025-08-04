@@ -6,7 +6,7 @@ import type { PageTitleProps } from '../../models/interfaces/PageTitle';
 const PageTitle: React.FC<PageTitleProps> = ({ title, subtitle, actions }) => {
   return (
     <div className="hidden lg:flex flex-col sm:flex-row items-start justify-between gap-4 mb-10">
-      <div>
+      <div className='lg:w-[500px]'>
         <h1 className="text-xl font-semibold text-zinc-950 sm:text-xl/8 dark:text-white">
           {title}
         </h1>
@@ -16,7 +16,7 @@ const PageTitle: React.FC<PageTitleProps> = ({ title, subtitle, actions }) => {
           </p>
         )}
       </div>
-      {actions && <div className="flex items-center space-x-2">{actions}</div>}
+      {actions && <div className="flex items-center justify-end space-x-2 flex-1">{actions}</div>}
     </div>
   );
 };
