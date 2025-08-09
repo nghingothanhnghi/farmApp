@@ -97,6 +97,23 @@ export const systemService = {
     return response.data;
   },
 
+  // Individual Actuator Controls
+  async controlActuator(actuatorId: number, turnOn: boolean): Promise<{ status: string }> {
+    const action = turnOn ? 'on' : 'off';
+    const response = await apiClient.post<{ status: string }>(
+      `/hydro/actuator/${actuatorId}/${action}`,
+      null
+    );
+    return response.data;
+  },
+
+  async getActuatorStatus(actuatorId: number): Promise<{ current_state: boolean }> {
+    const response = await apiClient.get<{ current_state: boolean }>(
+      `/hydro/actuator/${actuatorId}/status`
+    );
+    return response.data;
+  },
+
   // Scheduler Controls
   async startScheduler(device_id: number): Promise<{ status: string }> {
     const response = await apiClient.post<{ status: string }>(

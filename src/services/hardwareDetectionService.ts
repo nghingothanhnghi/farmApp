@@ -1,4 +1,5 @@
 import apiClient from "../api/client";
+import { API_BASE_URL } from '../config/constants';
 import type {
   HardwareDetectionCreate,
   HardwareDetectionResponse,
@@ -14,6 +15,8 @@ import type {
   HardwareType,
   ConditionStatus,
 } from "../models/interfaces/HydroSystem";
+
+let hardwareSocket: WebSocket | null = null;
 
 export const hardwareDetectionService = {
   async createDetection(data: HardwareDetectionCreate) {
@@ -128,6 +131,13 @@ export const hardwareDetectionService = {
     return res.data;
   },
 
+  async getCameraSourcesByLocation(location: string): Promise<string[]> {
+    const res = await apiClient.get<string[]>(
+      `/hardware-detection/location/${location}/camera-sources`
+    );
+    return res.data;
+  },
+
   async validateLocationHardware(location: string, hoursBack: number = 24) {
     const res = await apiClient.post(
       `/hardware-detection/hydro-integration/location/${location}/validate`,
@@ -142,6 +152,8 @@ export const hardwareDetectionService = {
     return res.data;
   },
 
+
+
   async setupLocationInventory(location: string) {
     const res = await apiClient.post(`/hardware-detection/hydro-integration/location/${location}/setup-inventory`);
     return res.data;
@@ -153,4 +165,70 @@ export const hardwareDetectionService = {
     });
     return res.data;
   },
+
+  connectWebSocket({
+    locations = [],
+    userId = null,
+    onMessage,
+    onOpen,
+    onError,
+    onClose,
+  }: {
+    locations?: string[];
+    userId?: number | null;
+    onMessage: (msg: any) => void;
+    onOpen?: () => void;
+    onError?: (event: Event) => void;
+    onClose?: () => void;
+  }) {
+    const baseUrl = API_BASE_URL ?? 'http://localhost:8000';
+    const wsBaseUrl = baseUrl.replace(/^http/, 'ws');
+    const params = new URLSearchParams();
+    if (locations.length > 0) params.append('locations', locations.join(','));
+    if (userId !== null) params.append('user_id', String(userId));
+    const wsUrl = `${wsBaseUrl}/ws/hardware-detection?${params.toString()}`;
+
+    hardwareSocket = new WebSocket(wsUrl);
+
+    hardwareSocket.onopen = () => {
+      console.log('[WebSocket] Hardware detection connected');
+      onOpen?.();
+    };
+
+    hardwareSocket.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      console.log('[WebSocket] Received:', msg);
+      onMessage(msg);
+    };
+
+    hardwareSocket.onerror = (event) => {
+      console.error('[WebSocket] Error:', event);
+      onError?.(event);
+    };
+
+    hardwareSocket.onclose = () => {
+      console.warn('[WebSocket] Hardware detection socket closed');
+      onClose?.();
+      hardwareSocket = null;
+    };
+
+    return hardwareSocket;
+  },
+
+  sendWebSocketMessage(message: any) {
+    if (hardwareSocket?.readyState === WebSocket.OPEN) {
+      hardwareSocket.send(JSON.stringify(message));
+    } else {
+      console.warn('[WebSocket] Not connected');
+    }
+  },
+
+  disconnectWebSocket() {
+    if (hardwareSocket) {
+      hardwareSocket.close();
+      hardwareSocket = null;
+    }
+  },
+
+
 };

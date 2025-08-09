@@ -240,4 +240,42 @@ export const FormActions: React.FC<FormActionsProps> = ({ children, className = 
   );
 };
 
+interface FormToggleProps {
+  id: string;
+  checked: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  label?: string;
+  className?: string;
+}
+
+export const FormToggle: React.FC<FormToggleProps> = ({
+  id,
+  checked,
+  onChange,
+  label,
+  className = ''
+}) => {
+  return (
+    <label
+      htmlFor={id}
+      className={`relative block h-4 w-8 rounded-full bg-gray-300 transition-colors [-webkit-tap-highlight-color:_transparent] has-checked:bg-green-500 ${className}`}
+    >
+      <input
+        type="checkbox"
+        id={id}
+        checked={checked}
+        onChange={onChange}
+        className="peer sr-only"
+      />
+      <span className="absolute inset-y-0 start-0 m-0.5 h-3 w-3 rounded-full bg-white transition-[inset-inline-start] peer-checked:start-4" />
+      {label && (
+        <span className="ml-3 text-sm text-gray-700 absolute top-1.5 left-16">
+          {label}
+        </span>
+      )}
+    </label>
+  );
+};
+
+
 export default Form;

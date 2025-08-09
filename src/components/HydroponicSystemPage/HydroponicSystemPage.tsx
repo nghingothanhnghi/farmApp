@@ -10,9 +10,11 @@ import { useHydroSystem } from '../../hooks/useHydroSystem';
 import type { SystemStatusPerDevice } from '../../models/interfaces/HydroSystem';
 
 // Import dashboard components
+import CameraByLocation from './components/CameraByLocation';
 import LocationPanel from './components/LocationPanel';
 import StatusCard from './components/StatusCard';
-import ControlPanel from './components/ControlPanel';
+import MultiActuatorControlPanel from './components/MultiActuatorControlPanel';
+import HardwareDetection from './components/HardwareDetection';
 import SensorChart from './components/SensorChart';
 import AlertsPanel from './components/AlertsPanel';
 import SettingsPanel from './components/SettingsPanel';
@@ -33,8 +35,7 @@ const HydroponicSystemPage: React.FC = () => {
     actions
   } = useHydroSystem();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'charts' | 'settings'>('overview');
-
+  const [activeTab, setActiveTab] = useState<'overview' | 'charts' | 'settings' | 'hardware'>('overview');
   const [activeDeviceId, setActiveDeviceId] = useState<number | null>(null);
 
   // Automatically select first device on load
@@ -179,6 +180,7 @@ const HydroponicSystemPage: React.FC = () => {
             {[
               { id: 'overview', label: 'Overview', icon: '📊' },
               { id: 'charts', label: 'Charts', icon: '📈' },
+              { id: 'hardware', label: 'Hardware Detection', icon: '📷' },
               { id: 'settings', label: 'Settings', icon: '⚙️' }
             ].map((tab) => (
               <button
@@ -200,24 +202,22 @@ const HydroponicSystemPage: React.FC = () => {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
-          <div className='flex flex-col lg:flex-row gap-6'>
-            <div className='flex-1'>
+          <div className='flex flex-col lg:flex-row gap-6 h-[calc(100vh-25rem)]'>
+            <div className='flex-1 overflow-hidden'>
+              {/* Camera View by Location realtime, */}
+
+              <CameraByLocation location={currentDevice?.location} />
 
             </div>
-            <div className='lg:w-[350px] space-y-0.5'>
+            <div className='lg:w-[350px] space-y-0.5 overflow-y-auto max-h-full'>
+              {/* Location Panel */}
               <LocationPanel title='Location A' description='A location have 3 sensor devices, as: water pump, temperator sensor...' />
+
               {/* Control Panel */}
-              <ControlPanel
+              <MultiActuatorControlPanel
                 systemStatus={currentDevice}
-                onPumpControl={(turnOn) => {
-                  if (currentDevice?.device_id) {
-                    actions.controlPump(currentDevice.device_id, turnOn);
-                  }
-                }}
-                onLightControl={(turnOn) => {
-                  if (currentDevice?.device_id) {
-                    actions.controlLight(currentDevice.device_id, turnOn);
-                  }
+                onActuatorControl={(actuatorId, turnOn) => {
+                  actions.controlActuator(actuatorId, turnOn);
                 }}
                 onStartScheduler={() => {
                   if (currentDevice?.device_id) {
@@ -337,6 +337,13 @@ const HydroponicSystemPage: React.FC = () => {
             />
           </div>
         </div>
+      )}
+
+      {/* Hardware Detection Tab */}
+      {activeTab === 'hardware' && currentDevice?.location && (
+        <>
+          <HardwareDetection location={currentDevice.location} />
+        </>
       )}
 
       {/* Settings Tab */}

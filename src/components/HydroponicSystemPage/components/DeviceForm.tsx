@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'; // Add this at the top of your file
 import { useHydroSystem } from '../../../hooks/useHydroSystem';
 import type { HydroActuator } from '../../../models/interfaces/HydroSystem';
 
-import Form, { FormGroup, FormLabel, FormInput, FormActions } from '../../../components/common/Form';
+import Form, { FormGroup, FormLabel, FormInput, FormActions, FormToggle } from '../../../components/common/Form';
 import Button from '../../../components/common/Button';
 import type { HydroDevice } from '../../../models/interfaces/HydroSystem';
 
@@ -82,8 +82,22 @@ const DeviceForm: React.FC<Props> = ({
                                 <p className="font-medium">{actuator.name}</p>
                                 <p className="text-sm text-zinc-500">Type: {actuator.type}</p>
                             </div>
-                            <div className="text-sm text-zinc-400">
-                                Active: {actuator.is_active ? 'Yes' : 'No'}
+                            <div className="flex items-center gap-3 text-sm text-zinc-600">
+                                <span className="text-zinc-400">Active:</span>
+                                <FormToggle
+                                    id={`toggle-${actuator.id}`}
+                                    checked={actuator.is_active}
+                                    onChange={(e) => {
+                                        const newStatus = e.target.checked;
+                                        actions.updateActuator(actuator.id, { is_active: newStatus }).then(() => {
+                                            setActuators((prev) =>
+                                                prev.map((a) =>
+                                                    a.id === actuator.id ? { ...a, is_active: newStatus } : a
+                                                )
+                                            );
+                                        });
+                                    }}
+                                />
                             </div>
                         </li>
                     ))}
