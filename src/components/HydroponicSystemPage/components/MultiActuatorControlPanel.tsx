@@ -1,8 +1,9 @@
 // src/components/HydroponicSystemPage/components/MultiActuatorControlPanel.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { SystemStatusPerDevice, HydroActuator } from '../../../models/interfaces/HydroSystem';
 import Button from '../../common/Button';
 import ButtonGroup from '../../common/ButtonGroup';
+import DropdownButton from '../../common/DropdownButton';
 import { playSound } from '../../../utils/sound';
 
 interface MultiActuatorControlPanelProps {
@@ -79,7 +80,7 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
   // Group actuators by type for better organization
   const groupedActuators = React.useMemo(() => {
     if (!systemStatus?.actuators) return {};
-    
+
     return systemStatus.actuators.reduce((groups, actuator) => {
       const type = actuator.type;
       if (!groups[type]) {
@@ -93,7 +94,7 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
   const renderActuatorControl = (actuator: HydroActuator) => {
     const colors = getActuatorColor(actuator.type);
     const isActive = actuator.current_state;
-    
+
     return (
       <div key={actuator.id} className="bg-gray-100 rounded-lg p-4">
         <div className='flex items-center justify-between mb-1'>
@@ -119,7 +120,7 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
             </span>
           </div>
         </div>
-        
+
         <div className="flex items-center justify-between space-x-5">
           <div className="flex-1 text-[0.625rem] text-gray-600 line-clamp-2">
             {actuator.sensor_key && (
@@ -154,7 +155,7 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
             </ButtonGroup>
           </div>
         </div>
-        
+
         {!actuator.is_active && (
           <div className="mt-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
             ⚠️ Actuator is disabled
@@ -164,24 +165,25 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
     );
   };
 
-  const renderActuatorGroup = (type: string, actuators: HydroActuator[]) => {
-    return (
-      <div key={type} className="space-y-2">
-        <h4 className="text-sm font-semibold text-gray-800 capitalize flex items-center space-x-2">
-          <span>{getActuatorIcon(type)}</span>
-          <span>{type.replace('_', ' ')}s ({actuators.length})</span>
-        </h4>
-        <div className="space-y-2">
-          {actuators.map(renderActuatorControl)}
-        </div>
-      </div>
-    );
-  };
+  // State for currently selected type
+  const [selectedType, setSelectedType] = React.useState<string | null>(null);
+
+  // When groupedActuators changes, set the default
+  useEffect(() => {
+    if (!selectedType && Object.keys(groupedActuators).length > 0) {
+      setSelectedType(Object.keys(groupedActuators)[0]);
+    }
+  }, [groupedActuators, selectedType]);
+
+  const typeDropdownItems = Object.keys(groupedActuators).map((type) => ({
+    label: `${getActuatorIcon(type)} ${type.replace("_", " ")} (${groupedActuators[type].length})`,
+    value: type,
+  }));
 
   return (
     <div>
       <div className="space-y-4">
-           {/* Summary Stats */}
+        {/* Summary Stats */}
         {systemStatus?.actuators && systemStatus.actuators.length > 0 && (
           <div className="bg-gray-100 rounded-lg py-3 px-4">
             <div className="flex items-center justify-between">
@@ -196,13 +198,39 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
                   Enabled: {systemStatus.actuators.filter(a => a.is_active).length}
                 </span>
               </div>
+              <DropdownButton
+                label={
+                  selectedType
+                    ? `${selectedType.replace("_", " ")} (${groupedActuators[selectedType].length})`
+                    : "Select Actuator Type"
+                }
+                items={typeDropdownItems}
+                onSelect={(item) => setSelectedType(item.value)}
+                size='xs'
+                direction='left'
+              />
             </div>
           </div>
         )}
         {/* Actuator Controls by Type */}
-        {Object.entries(groupedActuators).map(([type, actuators]) =>
+        {/* {Object.entries(groupedActuators).map(([type, actuators]) =>
           renderActuatorGroup(type, actuators)
+        )} */}
+
+        {/* Dropdown with default = first group */}
+
+
+        {/* Show only actuators from the selected group */}
+        {selectedType && (
+          <>
+            {groupedActuators[selectedType].map((actuator) => (
+              <div key={actuator.id}>
+                {renderActuatorControl(actuator)}
+              </div>
+            ))}
+          </>
         )}
+
 
         {/* Scheduler Controls */}
         <div className="bg-gray-100 rounded-lg p-4 border-t-2 border-blue-200">

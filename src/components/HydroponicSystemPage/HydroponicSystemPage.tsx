@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import PageTitle from '../common/PageTitle';
 import LinearProgress from '../common/LinearProgress';
 import DropdownButton from '../common/DropdownButton';
+import Tabs from "../common/Tabs";
 import WaterLevelBucket from '../common/chartCustom/WaterLevelBucket';
 import { IconPlus, IconArtboard } from '@tabler/icons-react';
 import { useHydroSystem } from '../../hooks/useHydroSystem';
@@ -35,7 +36,7 @@ const HydroponicSystemPage: React.FC = () => {
     actions
   } = useHydroSystem();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'charts' | 'settings' | 'hardware'>('overview');
+  // const [activeTab, setActiveTab] = useState<'overview' | 'charts' | 'settings' | 'hardware'>('overview');
   const [activeDeviceId, setActiveDeviceId] = useState<number | null>(null);
 
   // Automatically select first device on load
@@ -129,84 +130,21 @@ const HydroponicSystemPage: React.FC = () => {
     );
   }
 
-  console.log("Device List:", deviceStatusList);
-  console.log("Active Device ID:", activeDeviceId);
-  console.log("Current Device:", currentDevice);
 
-  return (
-    <div className="hydroponic-system-page min-h-screen">
-      <PageTitle
-        title="Hydroponic System Dashboard"
-        subtitle="Monitor and control your hydroponic growing system"
-        actions={
-          <div className='flex space-x-0.5'>
-            {/* Device Selector */}
-            <DropdownButton
-              label={
-                <div className="flex items-center gap-2">
-                  <IconArtboard size={18} />
-                  <span>
-                    {currentDevice
-                      ? `Device: ${currentDevice.device_name || `ID ${currentDevice.device_id}`}`
-                      : 'Select Device'}
-                  </span>
-                </div>
-              }
-              items={deviceStatusList
-                .filter((device) => device?.device_id !== undefined)
-                .map((device) => ({
-                  label: device.device_name || `Device ID ${device.device_id}`,
-                  value: device.device_id.toString(),
-                }))}
-              onSelect={(item) => setActiveDeviceId(Number(item.value))}
-              className='bg-transparent'
-            />
-            <Button
-              variant="secondary"
-              icon={<IconPlus size={18} />}
-              iconOnly
-              rounded='full'
-              label="Close"
-              className='bg-transparent'
-              onClick={() => navigate('/hydro-devices')}
-            />
-          </div>
-        }
-      />
-      {/* Tab Navigation */}
-      <div className="mb-6">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            {[
-              { id: 'overview', label: 'Overview', icon: '📊' },
-              { id: 'charts', label: 'Charts', icon: '📈' },
-              { id: 'hardware', label: 'Hardware Detection', icon: '📷' },
-              { id: 'settings', label: 'Settings', icon: '⚙️' }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-              >
-                <span className="mr-2">{tab.icon}</span>
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-      </div>
+  const [activeTab, setActiveTab] = useState("overview");
 
-      {/* Overview Tab */}
-      {activeTab === 'overview' && (
+  const tabs = [
+    {
+      id: "overview",
+      label: "Overview",
+      icon: "📊",
+      content: (
         <div className="space-y-6">
           <div className='flex flex-col lg:flex-row gap-6 h-[calc(100vh-25rem)]'>
             <div className='flex-1 overflow-hidden'>
               {/* Camera View by Location realtime, */}
 
-              <CameraByLocation location={currentDevice?.location} />
+              {/* <CameraByLocation location={currentDevice?.location} /> */}
 
             </div>
             <div className='lg:w-[350px] space-y-0.5 overflow-y-auto max-h-full'>
@@ -294,10 +232,13 @@ const HydroponicSystemPage: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Charts Tab */}
-      {activeTab === 'charts' && (
+      ),
+    },
+    {
+      id: "charts",
+      label: "Charts",
+      icon: "📈",
+      content: (
         <div className="space-y-6">
           <SensorChart
             data={sensorData}
@@ -337,28 +278,84 @@ const HydroponicSystemPage: React.FC = () => {
             />
           </div>
         </div>
-      )}
+      ),
+    },
+    {
+      id: "hardware",
+      label: "Hardware Detection",
+      icon: "📷",
+      content: currentDevice?.location && (
+        <HardwareDetection location={currentDevice.location} />
+      ),
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: "⚙️",
+      content: (
+        <SettingsPanel
+          thresholds={currentDevice?.automation?.thresholds || null}
+          onUpdateThresholds={(newThresholds) => {
+            if (!currentDevice) return;
+            actions.updateSystemThresholds(currentDevice.device_id, newThresholds);
+          }}
+          loading={loading}
+        />
+      ),
+    },
+  ];
 
-      {/* Hardware Detection Tab */}
-      {activeTab === 'hardware' && currentDevice?.location && (
-        <>
-          <HardwareDetection location={currentDevice.location} />
-        </>
-      )}
 
-      {/* Settings Tab */}
-      {activeTab === 'settings' && (
-        <div className="space-y-6">
-          <SettingsPanel
-            thresholds={currentDevice?.automation?.thresholds || null}
-            onUpdateThresholds={(newThresholds) => {
-              if (!currentDevice) return;
-              actions.updateSystemThresholds(currentDevice.device_id, newThresholds);
-            }}
-            loading={loading}
-          />
-        </div>
-      )}
+
+  console.log("Device List:", deviceStatusList);
+  console.log("Active Device ID:", activeDeviceId);
+  console.log("Current Device:", currentDevice);
+
+  return (
+    <div className="hydroponic-system-page min-h-screen">
+      <PageTitle
+        title="Hydroponic System Dashboard"
+        subtitle="Monitor and control your hydroponic growing system"
+        actions={
+          <div className='flex space-x-0.5'>
+            {/* Device Selector */}
+            <DropdownButton
+              label={
+                <div className="flex items-center gap-2">
+                  <IconArtboard size={18} />
+                  <span>
+                    {currentDevice
+                      ? `Device: ${currentDevice.device_name || `ID ${currentDevice.device_id}`}`
+                      : 'Select Device'}
+                  </span>
+                </div>
+              }
+              items={deviceStatusList
+                .filter((device) => device?.device_id !== undefined)
+                .map((device) => ({
+                  label: device.device_name || `Device ID ${device.device_id}`,
+                  value: device.device_id.toString(),
+                }))}
+              onSelect={(item) => setActiveDeviceId(Number(item.value))}
+              className='bg-transparent'
+            />
+            <Button
+              variant="secondary"
+              icon={<IconPlus size={18} />}
+              iconOnly
+              rounded='full'
+              label="Close"
+              className='bg-transparent'
+              onClick={() => navigate('/hydro-devices')}
+            />
+          </div>
+        }
+      />
+      <Tabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
       {/* Refresh Button */}
       <div className="fixed bottom-50 lg:bottom-6 right-6">

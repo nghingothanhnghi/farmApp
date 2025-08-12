@@ -14,7 +14,7 @@ import type {
   HardwareDetectionSummaryResponse,
   HardwareType,
   ConditionStatus,
-} from "../models/interfaces/HydroSystem";
+} from "../models/interfaces/HardwareDetection";
 
 let hardwareSocket: WebSocket | null = null;
 

@@ -14,6 +14,8 @@ interface DropdownButtonProps {
     disabled?: boolean;
     className?: string;
     variant?: 'primary' | 'secondary' | 'danger';
+    size?: 'xs' | 'sm' | 'md' | 'lg';
+    direction?: 'auto' | 'top' | 'bottom' | 'left' | 'right';
 }
 
 const DropdownButton: React.FC<DropdownButtonProps> = ({
@@ -23,10 +25,14 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
     disabled = false,
     className = '',
     variant = 'secondary',
+    size = 'md',
+    direction
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [focusedIndex, setFocusedIndex] = useState<number>(-1);
-    const [position, setPosition] = useState<'bottom' | 'top'>('bottom');
+    // const [position, setPosition] = useState<'bottom' | 'top'>('bottom');
+    const [position, setPosition] = useState<'bottom' | 'top' | 'left' | 'right'>('bottom');
+
     const containerRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLUListElement>(null);
 
@@ -73,16 +79,30 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
     };
 
     // Auto-position logic
-    useEffect(() => {
-        if (isOpen && containerRef.current && dropdownRef.current) {
-            const rect = containerRef.current.getBoundingClientRect();
-            const dropdownHeight = dropdownRef.current.offsetHeight;
-            const spaceBelow = window.innerHeight - rect.bottom;
-            const spaceAbove = rect.top;
+useEffect(() => {
+  if (isOpen && containerRef.current && dropdownRef.current && direction === 'auto') {
+    const rect = containerRef.current.getBoundingClientRect();
+    const dropdownHeight = dropdownRef.current.offsetHeight;
+    const dropdownWidth = dropdownRef.current.offsetWidth;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const spaceRight = window.innerWidth - rect.right;
+    const spaceLeft = rect.left;
 
-            setPosition(spaceBelow < dropdownHeight && spaceAbove > dropdownHeight ? 'top' : 'bottom');
-        }
-    }, [isOpen]);
+    if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
+      setPosition('top');
+    } else if (spaceRight < dropdownWidth && spaceLeft > dropdownWidth) {
+      setPosition('left');
+    } else if (spaceLeft < dropdownWidth && spaceRight > dropdownWidth) {
+      setPosition('right');
+    } else {
+      setPosition('bottom');
+    }
+  } else if (direction && direction !== 'auto') {
+    setPosition(direction);
+  }
+}, [isOpen, direction]);
+
 
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
@@ -102,6 +122,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
                 disabled={disabled}
                 className={className}
                 variant={variant}
+                size={size}
                 rounded='lg'
                 label=""
                 icon={
@@ -128,12 +149,20 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
             {isOpen && (
                 <ul
                     ref={dropdownRef}
-                    className={`absolute z-10 w-full min-w-[200px] bg-white border rounded shadow overflow-hidden
-    transition-all duration-200 ease-out
-    ${position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}
-    ${isOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-95 pointer-events-none'}
-    origin-top
-  `}
+//                     className={`absolute z-10 w-full min-w-[200px] bg-white border rounded shadow overflow-hidden
+//     transition-all duration-200 ease-out
+//     ${position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}
+//     ${isOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-95 pointer-events-none'}
+//     origin-top
+//   `}
+    className={`absolute z-10 min-w-[200px] bg-white border rounded shadow overflow-hidden
+        transition-all duration-200 ease-out
+        ${position === 'top' ? 'bottom-full mb-2' : ''}
+        ${position === 'bottom' ? 'top-full mt-2' : ''}
+        ${position === 'left' ? 'right-full mr-2 top-0' : ''}
+        ${position === 'right' ? 'left-full ml-2 top-0' : ''}
+        ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
+    `}
                 >
                     {items.map((item, index) => (
                         <li

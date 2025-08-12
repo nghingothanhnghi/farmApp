@@ -12,12 +12,16 @@ import type {
   SystemThresholds as Thresholds,
   HydroActuator
 } from '../models/interfaces/HydroSystem';
-import type { 
+import type {
   HardwareDetectionResponse,
   LocationStatusResponse,
   HardwareDetectionSummaryResponse,
   HardwareType,
-  ConditionStatus   
+  ConditionStatus,
+  HardwareDetectionCreate,
+  BulkHardwareDetectionCreate,
+  LocationHardwareInventoryCreate,
+  LocationHardwareInventoryUpdate,
 } from '../models/interfaces/HardwareDetection';
 
 const MAX_ACTIONS = 10;
@@ -96,7 +100,7 @@ export const useHydroSystem = () => {
       const filters: any = {};
       if (location) filters.location = location;
       if (hardwareType) filters.hardware_type = hardwareType;
-      
+
       const data = await hardwareDetectionService.getDetections(filters);
       setHardwareDetections(data);
     } catch (err) {
@@ -293,7 +297,7 @@ export const useHydroSystem = () => {
       );
       setHardwareDetections(prev => [...prev, ...result]);
       appendAction(createControlAction('Process Detection', true, `Processed ${result.length} detections`));
-      
+
       // Refresh location status after processing
       await fetchLocationStatus(location);
     } catch (err) {
@@ -309,14 +313,14 @@ export const useHydroSystem = () => {
         is_validated: isValid,
         validation_notes: notes,
       });
-      
-      setHardwareDetections(prev => 
+
+      setHardwareDetections(prev =>
         prev.map(d => d.id === detectionId ? result : d)
       );
-      
+
       appendAction(createControlAction(
-        'Validate Detection', 
-        true, 
+        'Validate Detection',
+        true,
         `Detection ${isValid ? 'validated' : 'rejected'}`
       ));
     } catch (err) {
@@ -330,7 +334,7 @@ export const useHydroSystem = () => {
     try {
       const result = await hardwareDetectionService.syncLocationInventory(location);
       appendAction(createControlAction('Sync Inventory', true, `Synced ${result.length} items`));
-      
+
       // Refresh location status after sync
       await fetchLocationStatus(location);
     } catch (err) {
@@ -344,7 +348,7 @@ export const useHydroSystem = () => {
     try {
       await hardwareDetectionService.setupLocationInventory(location);
       appendAction(createControlAction('Setup Inventory', true, 'Location inventory setup completed'));
-      
+
       // Refresh location status after setup
       await fetchLocationStatus(location);
     } catch (err) {
@@ -362,27 +366,27 @@ export const useHydroSystem = () => {
         userId,
         onMessage: (message) => {
           console.log('Hardware detection WebSocket message:', message);
-          
+
           // Handle different message types
           switch (message.type) {
             case 'detection_update':
               setHardwareDetections(prev => {
-                const updated = prev.map(d => 
+                const updated = prev.map(d =>
                   d.id === message.data.id ? { ...d, ...message.data } : d
                 );
-                return updated.some(d => d.id === message.data.id) 
-                  ? updated 
+                return updated.some(d => d.id === message.data.id)
+                  ? updated
                   : [...updated, message.data];
               });
               break;
-              
+
             case 'location_status_update':
               setLocationStatus(prev => ({
                 ...prev,
                 [message.data.location]: message.data
               }));
               break;
-              
+
             case 'new_detection':
               setHardwareDetections(prev => [message.data, ...prev]);
               // Create alert for new detection
@@ -394,7 +398,7 @@ export const useHydroSystem = () => {
                 resolved: false,
               }]);
               break;
-              
+
             default:
               console.log('Unknown hardware detection message type:', message.type);
           }
@@ -423,11 +427,138 @@ export const useHydroSystem = () => {
     setIsWebSocketConnected(false);
   }, []);
 
+
+  // --- Extended Hardware Detection Actions ---
+  const createHardwareDetection = useCallback(async (data: HardwareDetectionCreate) => {
+    try {
+      const result = await hardwareDetectionService.createDetection(data);
+      setHardwareDetections(prev => [...prev, result]);
+      appendAction(createControlAction('Create Detection', true, 'Detection created'));
+      return result;
+    } catch (err) {
+      appendAction(createControlAction('Create Detection', false, 'Failed to create detection'));
+      setError('Failed to create detection');
+      console.error(err);
+      return null;
+    }
+  }, []);
+
+  const createBulkHardwareDetections = useCallback(async (data: BulkHardwareDetectionCreate) => {
+    try {
+      const results = await hardwareDetectionService.createBulkDetections(data);
+      setHardwareDetections(prev => [...prev, ...results]);
+      appendAction(createControlAction('Create Bulk Detections', true, `${results.length} detections created`));
+      return results;
+    } catch (err) {
+      appendAction(createControlAction('Create Bulk Detections', false, 'Failed to create bulk detections'));
+      setError('Failed to create bulk detections');
+      console.error(err);
+      return [];
+    }
+  }, []);
+
+  const createLocationInventory = useCallback(async (data: LocationHardwareInventoryCreate) => {
+    try {
+      const result = await hardwareDetectionService.createLocationInventory(data);
+      appendAction(createControlAction('Create Location Inventory', true, 'Location inventory created'));
+      return result;
+    } catch (err) {
+      appendAction(createControlAction('Create Location Inventory', false, 'Failed to create location inventory'));
+      setError('Failed to create location inventory');
+      console.error(err);
+      return null;
+    }
+  }, []);
+
+  const updateLocationInventory = useCallback(async (id: number, data: LocationHardwareInventoryUpdate) => {
+    try {
+      const result = await hardwareDetectionService.updateLocationInventory(id, data);
+      appendAction(createControlAction('Update Location Inventory', true, 'Location inventory updated'));
+      return result;
+    } catch (err) {
+      appendAction(createControlAction('Update Location Inventory', false, 'Failed to update location inventory'));
+      setError('Failed to update location inventory');
+      console.error(err);
+      return null;
+    }
+  }, []);
+
+  const fetchHardwareStats = useCallback(async () => {
+    try {
+      return await hardwareDetectionService.getStats();
+    } catch (err) {
+      setError('Failed to fetch hardware stats');
+      console.error(err);
+      return null;
+    }
+  }, []);
+
+  const fetchHardwareTypeMapping = useCallback(async () => {
+    try {
+      return await hardwareDetectionService.getHardwareTypeMapping();
+    } catch (err) {
+      setError('Failed to fetch hardware type mapping');
+      console.error(err);
+      return {};
+    }
+  }, []);
+
+  const fetchHydroLocations = useCallback(async () => {
+    try {
+      return await hardwareDetectionService.getHydroLocations();
+    } catch (err) {
+      setError('Failed to fetch hydro locations');
+      console.error(err);
+      return [];
+    }
+  }, []);
+
+  const fetchLocationHealthReport = useCallback(async (location: string) => {
+    try {
+      return await hardwareDetectionService.getLocationHealthReport(location);
+    } catch (err) {
+      setError(`Failed to fetch health report for location: ${location}`);
+      console.error(err);
+      return null;
+    }
+  }, []);
+
+  const fetchCameraSourcesByLocation = useCallback(async (location: string) => {
+    try {
+      return await hardwareDetectionService.getCameraSourcesByLocation(location);
+    } catch (err) {
+      setError(`Failed to fetch camera sources for ${location}`);
+      console.error(err);
+      return [];
+    }
+  }, []);
+
+  const validateLocationHardware = useCallback(async (location: string, hoursBack: number = 24) => {
+    try {
+      return await hardwareDetectionService.validateLocationHardware(location, hoursBack);
+    } catch (err) {
+      setError(`Failed to validate hardware for ${location}`);
+      console.error(err);
+      return null;
+    }
+  }, []);
+
+  const fetchCameraPlacementSuggestions = useCallback(async () => {
+    try {
+      return await hardwareDetectionService.getCameraPlacementSuggestions();
+    } catch (err) {
+      setError('Failed to fetch camera placement suggestions');
+      console.error(err);
+      return [];
+    }
+  }, []);
+
+
   const refreshData = useCallback((includeHardwareDetection: boolean = false, location?: string) => {
     fetchSystemStatusPerDevice();
     fetchSensorData();
     fetchThresholds();
-    
+
     if (includeHardwareDetection) {
       fetchHardwareDetections(location);
       fetchDetectionSummaries(location);
@@ -442,8 +573,8 @@ export const useHydroSystem = () => {
       setLoading(true);
       try {
         await Promise.all([
-          fetchSystemStatusPerDevice(), 
-          fetchSensorData(), 
+          fetchSystemStatusPerDevice(),
+          fetchSensorData(),
           fetchThresholds(),
           fetchAvailableLocations(),
           fetchHardwareTypes(),
@@ -479,7 +610,7 @@ export const useHydroSystem = () => {
     controlActions,
     loading,
     error,
-    
+
     // Hardware detection data
     hardwareDetections,
     locationStatus,
@@ -488,7 +619,7 @@ export const useHydroSystem = () => {
     hardwareTypes,
     conditionStatuses,
     isWebSocketConnected,
-    
+
     actions: {
       // Original hydro system actions
       controlPump,
@@ -505,7 +636,7 @@ export const useHydroSystem = () => {
       fetchActuatorsByDevice,
       refreshData,
       updateActuator,
-      
+
       // Hardware detection actions
       fetchHardwareDetections,
       fetchLocationStatus,
@@ -516,6 +647,17 @@ export const useHydroSystem = () => {
       setupLocationInventory,
       connectHardwareWebSocket,
       disconnectHardwareWebSocket,
+      createHardwareDetection,
+      createBulkHardwareDetections,
+      createLocationInventory,
+      updateLocationInventory,
+      fetchHardwareStats,
+      fetchHardwareTypeMapping,
+      fetchHydroLocations,
+      fetchLocationHealthReport,
+      fetchCameraSourcesByLocation,
+      validateLocationHardware,
+      fetchCameraPlacementSuggestions,
     },
   };
 };
