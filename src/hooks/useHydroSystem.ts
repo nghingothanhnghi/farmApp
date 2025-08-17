@@ -361,6 +361,12 @@ export const useHydroSystem = () => {
   // WebSocket Connection Management
   const connectHardwareWebSocket = useCallback((locations: string[] = [], userId?: number) => {
     try {
+      // Prevent duplicate connections
+      if (isWebSocketConnected) {
+        console.log('WebSocket already connected, skipping duplicate connection attempt');
+        return;
+      }
+
       hardwareDetectionService.connectWebSocket({
         locations,
         userId,
@@ -641,6 +647,9 @@ export const useHydroSystem = () => {
       fetchHardwareDetections,
       fetchLocationStatus,
       fetchDetectionSummaries,
+      fetchAvailableLocations,
+      fetchHardwareTypes,
+      fetchConditionStatuses,
       processDetectionResult,
       validateDetection,
       syncLocationInventory,

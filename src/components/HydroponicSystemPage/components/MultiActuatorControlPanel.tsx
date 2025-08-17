@@ -4,6 +4,7 @@ import type { SystemStatusPerDevice, HydroActuator } from '../../../models/inter
 import Button from '../../common/Button';
 import ButtonGroup from '../../common/ButtonGroup';
 import DropdownButton from '../../common/DropdownButton';
+import Badge from '../../common/Badge';
 import { playSound } from '../../../utils/sound';
 
 interface MultiActuatorControlPanelProps {
@@ -96,13 +97,13 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
     const isActive = actuator.current_state;
 
     return (
-      <div key={actuator.id} className="bg-gray-100 rounded-lg p-4">
+      <div key={actuator.id} className="bg-gray-100 rounded-lg px-4 py-2">
         <div className='flex items-center justify-between mb-1'>
           <div className="flex items-center space-x-2">
             <span className="text-lg">{getActuatorIcon(actuator.type)}</span>
             <div>
-              <h3 className="text-sm font-medium text-gray-700">{actuator.name}</h3>
-              <p className="text-xs text-gray-500">
+              <h3 className="text-[0.625rem] font-medium text-gray-700">{actuator.name}</h3>
+              <p className="text-[0.625rem] text-gray-500">
                 {actuator.type.charAt(0).toUpperCase() + actuator.type.slice(1)} • Pin {actuator.pin} • Port {actuator.port}
               </p>
             </div>
@@ -111,7 +112,7 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
             <div
               className={`w-2 h-2 rounded-full ${isActive ? 'bg-green-600' : 'bg-gray-400'}`}
             ></div>
-            <span className="text-xs text-gray-600">
+            <span className="text-[0.625rem] text-gray-600">
               <span
                 className={`font-medium ${isActive ? 'text-green-600' : 'text-gray-400'}`}
               >
@@ -120,7 +121,6 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
             </span>
           </div>
         </div>
-
         <div className="flex items-center justify-between space-x-5">
           <div className="flex-1 text-[0.625rem] text-gray-600 line-clamp-2">
             {actuator.sensor_key && (
@@ -157,7 +157,7 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
         </div>
 
         {!actuator.is_active && (
-          <div className="mt-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+          <div className="mt-2 text-[0.625rem] text-orange-600 bg-orange-50 px-2 py-1 rounded">
             ⚠️ Actuator is disabled
           </div>
         )}
@@ -181,116 +181,105 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
   }));
 
   return (
-    <div>
-      <div className="space-y-4">
-        {/* Summary Stats */}
-        {systemStatus?.actuators && systemStatus.actuators.length > 0 && (
-          <div className="bg-gray-100 rounded-lg py-3 px-4">
-            <div className="flex items-center justify-between">
-              <div className="flex space-x-4 text-xs text-gray-700">
-                <span>
-                  Total: {systemStatus.actuators.length}
-                </span>
-                <span>
-                  Active: {systemStatus.actuators.filter(a => a.current_state).length}
-                </span>
-                <span>
-                  Enabled: {systemStatus.actuators.filter(a => a.is_active).length}
-                </span>
-              </div>
-              <DropdownButton
-                label={
-                  selectedType
-                    ? `${selectedType.replace("_", " ")} (${groupedActuators[selectedType].length})`
-                    : "Select Actuator Type"
-                }
-                items={typeDropdownItems}
-                onSelect={(item) => setSelectedType(item.value)}
-                size='xs'
-                direction='left'
-              />
+    <div className='flex-1 overflow-y-auto space-y-0.5'>
+      {/* Summary Stats */}
+      {systemStatus?.actuators && systemStatus.actuators.length > 0 && (
+        <div className="bg-gray-100 rounded-lg py-2 px-4">
+          <div className="flex items-center justify-between">
+            <div className="flex space-x-4 items-center">
+              <Badge size="xsmall">
+                Total: {systemStatus.actuators.length}
+              </Badge>
+              <Badge size="xsmall">
+                Active: {systemStatus.actuators.filter(a => a.current_state).length}
+              </Badge>
+              <Badge size="xsmall">
+                Enabled: {systemStatus.actuators.filter(a => a.is_active).length}
+              </Badge>
             </div>
+            <DropdownButton
+              label={
+                selectedType
+                  ? `${selectedType.replace("_", " ")} (${groupedActuators[selectedType].length})`
+                  : "Select Actuator Type"
+              }
+              items={typeDropdownItems}
+              onSelect={(item) => setSelectedType(item.value)}
+              size='xs'
+              direction='left'
+            />
           </div>
-        )}
-        {/* Actuator Controls by Type */}
-        {/* {Object.entries(groupedActuators).map(([type, actuators]) =>
-          renderActuatorGroup(type, actuators)
-        )} */}
-
-        {/* Dropdown with default = first group */}
-
-
-        {/* Show only actuators from the selected group */}
-        {selectedType && (
-          <>
-            {groupedActuators[selectedType].map((actuator) => (
-              <div key={actuator.id}>
-                {renderActuatorControl(actuator)}
-              </div>
-            ))}
-          </>
-        )}
-
-
-        {/* Scheduler Controls */}
-        <div className="bg-gray-100 rounded-lg p-4 border-t-2 border-blue-200">
-          <div className='flex items-center justify-between mb-1'>
-            <div className="flex items-center space-x-2">
-              <span className="text-lg">🤖</span>
-              <h3 className="text-sm font-medium text-gray-700">System Automation</h3>
+        </div>
+      )}
+      {/* Show only actuators from the selected group */}
+      {selectedType && (
+        <>
+          {groupedActuators[selectedType].map((actuator) => (
+            <div key={actuator.id}>
+              {renderActuatorControl(actuator)}
             </div>
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${systemStatus?.system?.scheduler_state ? 'bg-green-600' : 'bg-gray-400'
-                }`}></div>
-              <span className="text-xs text-gray-600">
-                <span
-                  className={` font-medium ${systemStatus?.system?.scheduler_state ? 'text-green-600' : 'text-gray-400'
-                    }`}
-                >
-                  {systemStatus?.system?.scheduler_state ? 'Running' : 'Stopped'}
-                </span>
+          ))}
+        </>
+      )}
+
+
+      {/* Scheduler Controls */}
+      <div className="bg-gray-100 rounded-lg p-4 border-t-2 border-blue-200">
+        <div className='flex items-center justify-between mb-1'>
+          <div className="flex items-center space-x-2">
+            <span className="text-lg">🤖</span>
+            <h3 className="text-sm font-medium text-gray-700">System Automation</h3>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className={`w-2 h-2 rounded-full ${systemStatus?.system?.scheduler_state ? 'bg-green-600' : 'bg-gray-400'
+              }`}></div>
+            <span className="text-xs text-gray-600">
+              <span
+                className={` font-medium ${systemStatus?.system?.scheduler_state ? 'text-green-600' : 'text-gray-400'
+                  }`}
+              >
+                {systemStatus?.system?.scheduler_state ? 'Running' : 'Stopped'}
               </span>
-            </div>
+            </span>
           </div>
-
-          <div className="flex items-center justify-between space-x-5">
-            <div className="flex-1 text-[0.625rem] text-gray-600 line-clamp-2">
-              Automated control based on sensor readings and thresholds
-            </div>
-            <div className="w-[180px] flex items-center justify-end space-x-2">
-              <ButtonGroup>
-                <Button
-                  label="Start"
-                  onClick={handleStartScheduler}
-                  disabled={loading || systemStatus?.system?.scheduler_state === true}
-                  className={`flex-1 ${systemStatus?.system?.scheduler_state === true
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-green-500 hover:bg-green-600 text-white'
-                    }`}
-                  size='xs'
-                />
-                <Button
-                  label="Stop"
-                  onClick={handleStopScheduler}
-                  disabled={loading || systemStatus?.system?.scheduler_state === false}
-                  className={`flex-1 ${systemStatus?.system?.scheduler_state === false
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-red-500 hover:bg-red-600 text-white'
-                    }`}
-                  size='xs'
-                />
-                <Button
-                  label="Restart"
-                  onClick={handleRestartScheduler}
-                  disabled={loading || systemStatus?.system?.scheduler_state === false}
-                  className={`flex-1 ${systemStatus?.system?.scheduler_state === false
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                    }`}
-                  size='xs'
-                />
-              </ButtonGroup>
-            </div>
+        </div>
+        <div className="flex items-center justify-between space-x-5">
+          <div className="flex-1 text-[0.625rem] text-gray-600 line-clamp-2">
+            Automated control based on sensor readings and thresholds
+          </div>
+          <div className="w-[180px] flex items-center justify-end space-x-2">
+            <ButtonGroup>
+              <Button
+                label="Start"
+                onClick={handleStartScheduler}
+                disabled={loading || systemStatus?.system?.scheduler_state === true}
+                className={`flex-1 ${systemStatus?.system?.scheduler_state === true
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-green-500 hover:bg-green-600 text-white'
+                  }`}
+                size='xs'
+              />
+              <Button
+                label="Stop"
+                onClick={handleStopScheduler}
+                disabled={loading || systemStatus?.system?.scheduler_state === false}
+                className={`flex-1 ${systemStatus?.system?.scheduler_state === false
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-red-500 hover:bg-red-600 text-white'
+                  }`}
+                size='xs'
+              />
+              <Button
+                label="Restart"
+                onClick={handleRestartScheduler}
+                disabled={loading || systemStatus?.system?.scheduler_state === false}
+                className={`flex-1 ${systemStatus?.system?.scheduler_state === false
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                  }`}
+                size='xs'
+              />
+            </ButtonGroup>
           </div>
         </div>
       </div>

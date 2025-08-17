@@ -3,7 +3,7 @@ import React from 'react';
 type BadgeProps = {
   label?: string;
   variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'gray';
-  size?: 'small' | 'medium' | 'large';
+  size?: 'xsmall' | 'small' | 'medium' | 'large';
   className?: string;
   children?: React.ReactNode;
 };
@@ -19,6 +19,7 @@ const variantClasses = {
 };
 
 const sizeClasses = {
+  xsmall: 'text-[10px] px-1.5 py-[1px]',
   small: 'text-xs px-2 py-0.5',
   medium: 'text-sm px-3 py-1',
   large: 'text-base px-4 py-1.5',

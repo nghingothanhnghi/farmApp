@@ -1,102 +1,135 @@
-// // src/components/HydroponicSystemPage/components/CameraByLocation.tsx
+// src/components/HydroponicSystemPage/components/CameraByLocation.tsx
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
+import { useCamera } from '../../../hooks/useCamera';
+import { useStreaming } from '../../../hooks/useStreaming';
 import { useHydroSystem } from '../../../hooks/useHydroSystem';
-
+import type { DetectionResult } from '../../../models/interfaces/Camera';
+import type { HardwareType, HardwareDetectionCreate } from '../../../models/interfaces/HardwareDetection';
+import Spinner from '../../common/Spinner';
 interface CameraByLocationProps {
   location?: string;
 }
+const classToHardwareType: Record<string, HardwareType> = {
+  pump: 'pump',
+  water_pump: 'water_pump',
+  light: 'light',
+  fan: 'fan',
+  valve: 'valve',
+  sensor: 'sensor',
+  relay: 'relay',
+  controller: 'controller',
+  tank: 'tank',
+  pipe: 'pipe',
+  cable: 'cable',
+  other: 'other',
+};
+
 
 const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const { hardwareDetections, actions } = useHydroSystem();
-  const [isStreaming, setIsStreaming] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [alert, setAlert] = useState<{ message: string; type: string } | null>(null);
 
-  useEffect(() => {
-    if (!location) return;
+  const { isStreaming } = useCamera({
+    videoRef,
+    location,
+    facingMode: 'environment'
+  });
 
-    // Connect to WebSocket for this location
-    actions.connectHardwareWebSocket([location]);
+  const { actions, hardwareDetections, loading, error } = useHydroSystem();
 
-    // Optional: simulate detections every 5s (for testing)
-    const detectionResultId = 1;
-    const interval = setInterval(() => {
-      const simulatedDetection = {
-        detection_result_id: detectionResultId,
-        location,
-        hardware_type: 'pump' as const,
-        hardware_name: 'Main Pump',
-        confidence: 0.95,
-        detected_class: 'pump',
-        is_expected: true,
-        condition_status: 'good' as const,
-        bbox_x1: 100,
-        bbox_y1: 150,
-        bbox_x2: 150,
-        bbox_y2: 200,
-        detection_metadata: {
-          source: 'ARCamera',
-          note: 'Simulated detection'
+  // Capture current frame
+  const captureFrame = useCallback(() => {
+    if (!videoRef.current) return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg', 0.8);
+  }, []);
+
+  // When detection results come in from the streaming service
+  const processDetectionResults = useCallback(
+    (result: DetectionResult) => {
+      if (!result?.detections) return;
+
+      result.detections.forEach((det) => {
+        const hardwareType = classToHardwareType[det.class];
+        if (!hardwareType) {
+          console.warn(`Unknown hardware type: ${det.class}`);
+          return;
         }
-      };
 
-      actions.createHardwareDetection(simulatedDetection)
-        .then(res => console.log('Detection sent:', res))
-        .catch(err => console.error('Error sending detection:', err));
-    }, 5000);
+        const payload: HardwareDetectionCreate = {
+          location: location || 'unknown',
+          hardware_type: hardwareType,
+          hardware_name: undefined,
+          confidence: det.confidence,
+          detected_class: det.class,
+          is_expected: false,
+          bbox_x1: det.bbox[0],
+          bbox_y1: det.bbox[1],
+          bbox_x2: det.bbox[2],
+          bbox_y2: det.bbox[3],
+          detection_metadata: {
+            source: 'streaming',
+            annotated_image: result.annotated_image // put it here instead
+          },
+          detection_result_id: Date.now(),
+        };
 
-    return () => {
-      clearInterval(interval);
-      actions.disconnectHardwareWebSocket();
-    };
-  }, [location, actions]);
+        actions.createHardwareDetection(payload);
+      });
+    },
+    [actions, location]
+  );
 
-  useEffect(() => {
-    // Example: start playing a live stream
-    if (videoRef.current) {
-      // Replace this URL with your WebRTC or HLS camera stream URL
-      videoRef.current.src = `/stream/${location}.m3u8`;
-      setIsStreaming(true);
-    }
-  }, [location]);
+  // Start streaming video frames for detection
+  useStreaming({
+    streamMode: 'websocket',
+    captureInterval: 1000,
+    selectedModel: 'hardware-detection-model',
+    captureFrame,
+    isStreaming,
+    processDetectionResults,
+    setAlert
+  });
+
+  // Note: WebSocket connection is handled by HardwareDetection component
+  // to avoid duplicate connections
 
   return (
-    <div className="relative">
-      {isStreaming ? (
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          playsInline
-          style={{ width: '100%', height: 'auto' }}
-        />
-      ) : (
-        <p>Loading camera...</p>
+    <div className="camera-by-location relative">
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10 rounded-lg">
+          <Spinner size={48} colorClass="border-white" borderClass="border-4" />
+        </div>
       )}
-
-      {/* Detection Overlays */}
-      {hardwareDetections
-        .filter(det => det.location === location)
-        .map(det => (
-          <div
-            key={det.id}
-            style={{
-              position: 'absolute',
-              left: det.bbox_x1,
-              top: det.bbox_y1,
-              width: det.bbox_x2 - det.bbox_x1,
-              height: det.bbox_y2 - det.bbox_y1,
-              border: '2px solid red',
-              color: 'white',
-              fontSize: '12px',
-              background: 'rgba(0,0,0,0.3)',
-            }}
-          >
-            {det.hardware_type} ({Math.round(det.confidence * 100)}%)
-          </div>
-        ))}
+      {alert && (
+        <div className={`alert alert-${alert.type}`}>{alert.message}</div>
+      )}
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        style={{ width: '100%', borderRadius: '8px' }}
+      />
+      <div className="detections-list mt-2">
+        {hardwareDetections
+          .filter((d) => !location || d.location === location)
+          .map((det) => (
+            <div key={det.id} className="detection-item">
+              {det.hardware_type} ({Math.round(det.confidence * 100)}%)
+            </div>
+          ))}
+      </div>
     </div>
   );
 };
 
 export default CameraByLocation;
+
+

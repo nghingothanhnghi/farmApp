@@ -11,6 +11,13 @@ The hardware detection system has been integrated into the `useHydroSystem` hook
 - Manage location-based hardware inventory
 - Track hardware condition and status
 
+# Core hook idea
+- useCamera → get a live <video> feed and a boolean isStreaming
+
+- useStreaming → periodically capture frames from that <video> and send them (HTTP or WebSocket)
+
+- useHydroSystem → manage WebSocket messages or manual detection processing for hardwareDetections
+
 ## Integration Components
 
 ### 1. Enhanced useHydroSystem Hook

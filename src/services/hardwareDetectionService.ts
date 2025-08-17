@@ -181,6 +181,13 @@ export const hardwareDetectionService = {
     onError?: (event: Event) => void;
     onClose?: () => void;
   }) {
+    // Close existing connection if any
+    if (hardwareSocket) {
+      console.log('[WebSocket] Closing existing connection before creating new one');
+      hardwareSocket.close();
+      hardwareSocket = null;
+    }
+
     const baseUrl = API_BASE_URL ?? 'http://localhost:8000';
     const wsBaseUrl = baseUrl.replace(/^http/, 'ws');
     const params = new URLSearchParams();
@@ -188,6 +195,7 @@ export const hardwareDetectionService = {
     if (userId !== null) params.append('user_id', String(userId));
     const wsUrl = `${wsBaseUrl}/ws/hardware-detection?${params.toString()}`;
 
+    console.log('[WebSocket] Creating new connection to:', wsUrl);
     hardwareSocket = new WebSocket(wsUrl);
 
     hardwareSocket.onopen = () => {

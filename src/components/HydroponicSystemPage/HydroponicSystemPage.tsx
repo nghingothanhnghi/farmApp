@@ -130,6 +130,29 @@ const HydroponicSystemPage: React.FC = () => {
     );
   }
 
+  // If no devices exist
+if (!loading && deviceStatusList.length === 0) {
+  return (
+    <div className="hydroponic-system-page min-h-screen">
+      <PageTitle title="Hydroponic System Dashboard" />
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+        <div className="text-gray-400 text-4xl mb-4">📦</div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">No Devices Found</h3>
+        <p className="text-gray-600 mb-4">
+          You don’t have any devices connected yet.  
+          Please add a hydroponic device to get started.
+        </p>
+        <Button
+          label="➕ Add Device"
+          onClick={() => navigate('/hydro-devices')}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2"
+          rounded="lg"
+        />
+      </div>
+    </div>
+  );
+}
+
 
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -142,15 +165,11 @@ const HydroponicSystemPage: React.FC = () => {
         <div className="space-y-6">
           <div className='flex flex-col lg:flex-row gap-6 h-[calc(100vh-25rem)]'>
             <div className='flex-1 overflow-hidden'>
-              {/* Camera View by Location realtime, */}
-
-              {/* <CameraByLocation location={currentDevice?.location} /> */}
-
+              <CameraByLocation location={currentDevice?.location} />
             </div>
-            <div className='lg:w-[350px] space-y-0.5 overflow-y-auto max-h-full'>
+            <div className='lg:w-[350px] space-y-0.5 flex flex-col max-h-full'>
               {/* Location Panel */}
               <LocationPanel title='Location A' description='A location have 3 sensor devices, as: water pump, temperator sensor...' />
-
               {/* Control Panel */}
               <MultiActuatorControlPanel
                 systemStatus={currentDevice}
@@ -310,6 +329,7 @@ const HydroponicSystemPage: React.FC = () => {
   console.log("Device List:", deviceStatusList);
   console.log("Active Device ID:", activeDeviceId);
   console.log("Current Device:", currentDevice);
+  console.log("Current Device Location:", currentDevice?.location);
 
   return (
     <div className="hydroponic-system-page min-h-screen">
