@@ -52,21 +52,23 @@ const Header: React.FC<HeaderProps> = ({ brandUrl, appName, onClose }) => {
           />
         </div>
         {/* Right: Settings */}
-        <div className="flex items-center">
-          <AlertDropdown
-            alerts={alerts}
-            controlActions={controlActions}
-            onResolveAlert={actions.resolveAlert}
-          />
-          <Button
-            variant="secondary"
-            icon={<IconSettings size={18} />}
-            iconOnly
-            label="Close"
-            className='bg-transparent'
-            onClick={handleOpenModal}
-            rounded='full'
-          />
+        <div className="flex items-center space-x-2">
+          <div className='flex items-center space-x-0.5'>
+            <AlertDropdown
+              alerts={alerts}
+              controlActions={controlActions}
+              onResolveAlert={actions.resolveAlert}
+            />
+            <Button
+              variant="secondary"
+              icon={<IconSettings size={18} />}
+              iconOnly
+              label="Close"
+              className='bg-transparent'
+              onClick={handleOpenModal}
+              rounded='full'
+            />
+          </div>
           {/* Close button for mobile and desktop screens */}
           <Button
             variant="secondary"

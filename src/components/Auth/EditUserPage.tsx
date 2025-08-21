@@ -6,7 +6,8 @@ import PageTitle from '../common/PageTitle';
 import { useAlert } from '../../contexts/alertContext';
 import { useAuth } from '../../contexts/authContext';
 import * as Yup from 'yup';
-import { updateUser } from '../../services/userService';
+import { updateUser, uploadUserImage } from '../../services/userService';
+import { getUserImageUrl } from '../../utils/getUserImageUrl';
 
 const EditUserPage: React.FC = () => {
   const { user, getUser, setShowLoginModal } = useAuth();
@@ -23,6 +24,10 @@ const EditUserPage: React.FC = () => {
 
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
+
+  // image state
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const fields: [keyof typeof formData, string, string, boolean][] = [
     ['username', 'Username', 'text', true],
@@ -45,6 +50,9 @@ const EditUserPage: React.FC = () => {
       first_name: user.firstName || '',
       last_name: user.lastName || '',
     });
+    if (user.image_url) {
+      setPreviewUrl(getUserImageUrl(user.image_url)); // ✅ normalize here
+    }
   }, [user, id]);
 
   const validationSchema = Yup.object().shape({
@@ -60,6 +68,14 @@ const EditUserPage: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -69,6 +85,18 @@ const EditUserPage: React.FC = () => {
       if (!user) throw new Error('No user context');
 
       await updateUser(user.id, formData);
+
+    // upload image if selected
+    if (selectedImage) {
+      const uploadResp = await uploadUserImage(user.id, selectedImage);
+
+      // if backend returns image filename/url, update preview immediately
+      if (uploadResp?.image_url) {
+        setPreviewUrl(getUserImageUrl(uploadResp.image_url));
+      }
+    }
+
+
       await getUser(); // refresh AuthContext with new data
 
       setAlert({ type: 'success', message: 'Profile updated successfully!' });
@@ -94,6 +122,25 @@ const EditUserPage: React.FC = () => {
     <div>
       <PageTitle title="Edit Profile" />
       <Form onSubmit={handleSubmit} className="max-w-xl mx-auto">
+        {/* Profile Image */}
+        <div className="flex flex-col items-center mb-6">
+          {previewUrl ? (
+            <img
+              src={previewUrl}
+              alt="Profile"
+              className="w-32 h-32 rounded-full object-cover mb-2"
+            />
+          ) : (
+            <div className="w-32 h-32 rounded-full bg-gray-200 mb-2 flex items-center justify-center">
+              <span className="text-gray-500">No image</span>
+            </div>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+        </div>
         {fields.map(([name, label, type, required]) => (
           <FormGroup key={name} className="grid gap-x-8 gap-y-1 sm:gap-y-6 sm:grid-cols-2">
             <div className="space-y-1">

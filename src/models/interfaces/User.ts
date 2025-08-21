@@ -10,6 +10,7 @@ export interface User {
     firstName: string;
     lastName: string;
     roles: Role[];
+    image_url?: string;
     // Add any other fields returned by your backend for the user
 }
 

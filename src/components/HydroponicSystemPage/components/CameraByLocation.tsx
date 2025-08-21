@@ -4,8 +4,8 @@ import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { useCamera } from '../../../hooks/useCamera';
 import { useStreaming } from '../../../hooks/useStreaming';
 import { useHydroSystem } from '../../../hooks/useHydroSystem';
-import type { DetectionResult } from '../../../models/interfaces/Camera';
-import type { HardwareType, HardwareDetectionCreate } from '../../../models/interfaces/HardwareDetection';
+import type { DetectionResult, Detection } from '../../../models/interfaces/Camera';
+import type { HardwareType } from '../../../models/interfaces/HardwareDetection';
 import Spinner from '../../common/Spinner';
 interface CameraByLocationProps {
   location?: string;
@@ -28,7 +28,9 @@ const classToHardwareType: Record<string, HardwareType> = {
 
 const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [alert, setAlert] = useState<{ message: string; type: string } | null>(null);
+  const [currentDetections, setCurrentDetections] = useState<Detection[]>([]);
 
   const { isStreaming } = useCamera({
     videoRef,
@@ -50,40 +52,105 @@ const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
     return canvas.toDataURL('image/jpeg', 0.8);
   }, []);
 
+  // Draw bounding boxes on canvas overlay
+  const drawBoundingBoxes = useCallback((detections: Detection[]) => {
+    if (!canvasRef.current || !videoRef.current) return;
+
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas size to match video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Clear previous drawings
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw bounding boxes
+    detections.forEach((det) => {
+      const [x1, y1, x2, y2] = det.bbox;
+      const width = x2 - x1;
+      const height = y2 - y1;
+
+      // Set box style based on hardware type
+      const hardwareType = classToHardwareType[det.class];
+      const colors = {
+        pump: '#3B82F6',      // blue
+        light: '#F59E0B',     // amber
+        sensor: '#10B981',    // emerald
+        fan: '#8B5CF6',       // violet
+        valve: '#EF4444',     // red
+        other: '#6B7280'      // gray
+      };
+      const color = colors[hardwareType as keyof typeof colors] || colors.other;
+
+      // Draw bounding box
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x1, y1, width, height);
+
+      // Draw label background
+      const label = `${det.class} (${Math.round(det.confidence * 100)}%)`;
+      ctx.font = '14px Arial';
+      const textMetrics = ctx.measureText(label);
+      const textWidth = textMetrics.width;
+      const textHeight = 20;
+
+      ctx.fillStyle = color;
+      ctx.fillRect(x1, y1 - textHeight - 4, textWidth + 8, textHeight + 4);
+
+      // Draw label text
+      ctx.fillStyle = 'white';
+      ctx.fillText(label, x1 + 4, y1 - 8);
+    });
+  }, []);
+
+  // Normalize backend payload -> { class, confidence, bbox: [x1,y1,x2,y2] }
+  const normalizeDetections = (res: DetectionResult) => {
+    const raw = (res as any)?.detections || [];
+    return raw.map((d: any) => {
+      const cls = d.class ?? d.class_name ?? d.original_class ?? 'unknown';
+      let bbox = d.bbox;
+      if (Array.isArray(bbox) && bbox.length === 4) {
+        // Backend sends [x, y, width, height] → convert to [x1, y1, x2, y2]
+        const [x, y, w, h] = bbox.map(Number);
+        bbox = [x, y, x + w, y + h];
+      } else if (
+        d.bbox_x1 !== undefined && d.bbox_y1 !== undefined &&
+        d.bbox_x2 !== undefined && d.bbox_y2 !== undefined
+      ) {
+        bbox = [Number(d.bbox_x1), Number(d.bbox_y1), Number(d.bbox_x2), Number(d.bbox_y2)];
+      }
+      return { class: String(cls), confidence: Number(d.confidence ?? d.score ?? 0), bbox } as Detection;
+    });
+  };
+
   // When detection results come in from the streaming service
   const processDetectionResults = useCallback(
     (result: DetectionResult) => {
-      if (!result?.detections) return;
+      if (!result) return;
 
-      result.detections.forEach((det) => {
-        const hardwareType = classToHardwareType[det.class];
-        if (!hardwareType) {
-          console.warn(`Unknown hardware type: ${det.class}`);
-          return;
-        }
+      // Normalize for UI drawing and chips
+      const detections = normalizeDetections(result);
+      setCurrentDetections(detections);
 
-        const payload: HardwareDetectionCreate = {
-          location: location || 'unknown',
-          hardware_type: hardwareType,
-          hardware_name: undefined,
-          confidence: det.confidence,
-          detected_class: det.class,
-          is_expected: false,
-          bbox_x1: det.bbox[0],
-          bbox_y1: det.bbox[1],
-          bbox_x2: det.bbox[2],
-          bbox_y2: det.bbox[3],
-          detection_metadata: {
-            source: 'streaming',
-            annotated_image: result.annotated_image // put it here instead
-          },
-          detection_result_id: Date.now(),
-        };
+      // Draw bounding boxes
+      drawBoundingBoxes(detections);
 
-        actions.createHardwareDetection(payload);
-      });
+      // If backend provided a detection_result_id (HTTP mode), process on server
+      const detectionId = (result as any).detection_id;
+      if (detectionId && location) {
+        actions.processDetectionResult(detectionId, location, 'camera_by_location', 0.6);
+      }
+
+      // Note: Do NOT call createHardwareDetection here.
+      // Streaming WS responses don't include a valid detection_result_id, and
+      // posting random IDs causes backend FK errors. Use processDetectionResult
+      // when detection_id is available (HTTP detect-base64 flow).
     },
-    [actions, location]
+    [actions, location, drawBoundingBoxes]
   );
 
   // Start streaming video frames for detection
@@ -97,34 +164,130 @@ const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
     setAlert
   });
 
+  // Handle video resize to update canvas dimensions
+  useEffect(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    if (!video || !canvas) return;
+
+    const handleVideoResize = () => {
+      if (video.videoWidth && video.videoHeight) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        // Redraw current detections if any
+        if (currentDetections.length > 0) {
+          drawBoundingBoxes(currentDetections);
+        }
+      }
+    };
+
+    video.addEventListener('loadedmetadata', handleVideoResize);
+    video.addEventListener('resize', handleVideoResize);
+
+    return () => {
+      video.removeEventListener('loadedmetadata', handleVideoResize);
+      video.removeEventListener('resize', handleVideoResize);
+    };
+  }, [currentDetections, drawBoundingBoxes]);
+
   // Note: WebSocket connection is handled by HardwareDetection component
   // to avoid duplicate connections
 
   return (
-    <div className="camera-by-location relative">
-      {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10 rounded-lg">
-          <Spinner size={48} colorClass="border-white" borderClass="border-4" />
-        </div>
-      )}
-      {alert && (
-        <div className={`alert alert-${alert.type}`}>{alert.message}</div>
-      )}
-      <video
-        ref={videoRef}
-        autoPlay
-        playsInline
-        muted
-        style={{ width: '100%', borderRadius: '8px' }}
-      />
-      <div className="detections-list mt-2">
-        {hardwareDetections
-          .filter((d) => !location || d.location === location)
-          .map((det) => (
-            <div key={det.id} className="detection-item">
-              {det.hardware_type} ({Math.round(det.confidence * 100)}%)
+    <div className="camera-by-location relative h-full">
+      <div className='grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-6 h-full'>
+        {/* Video and Canvas Container */}
+        <div className="relative h-full flex flex-col row-span-2 col-span-2 rounded-lg overflow-hidden">
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10 rounded-lg">
+              <Spinner size={48} colorClass="border-white" borderClass="border-4" />
             </div>
-          ))}
+          )}
+          {alert && (
+            <div className={`alert alert-${alert.type} mb-2 p-2 rounded bg-red-900 text-white font-bold text-sm absolute`}>
+              {alert.message}
+            </div>
+          )}
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            style={{ 
+              width: '100%', 
+              height: '100%',
+              objectFit: 'cover', 
+              borderRadius: '8px', 
+              display: 'block' 
+            }}
+          />
+          {/* Canvas overlay for bounding boxes */}
+          <canvas
+            ref={canvasRef}
+            className="absolute top-0 left-0 pointer-events-none"
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '8px',
+              objectFit: 'cover'
+            }}
+          />
+          {/* 🔹 Real-time detections overlay (top) */}
+          <div className="absolute top-0 left-0 right-0 bg-black/20 text-white text-[0.625rem] p-2">
+            {currentDetections.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {currentDetections.map((det, index) => {
+                  const hardwareType = classToHardwareType[det.class];
+                  const colors = {
+                    pump: 'bg-blue-100 text-blue-800',
+                    light: 'bg-amber-100 text-amber-800',
+                    sensor: 'bg-emerald-100 text-emerald-800',
+                    fan: 'bg-violet-100 text-violet-800',
+                    valve: 'bg-red-100 text-red-800',
+                    other: 'bg-gray-100 text-gray-800'
+                  };
+                  const colorClass = colors[hardwareType as keyof typeof colors] || colors.other;
+
+                  return (
+                    <div key={index} className={`px-2 py-1 rounded ${colorClass}`}>
+                      <div className="font-medium">{det.class}</div>
+                      <div>{Math.round(det.confidence * 100)}% confidence</div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="absolute top-0 left-0 text-[0.625rem] text-gray-500 italic p-2">
+                <div className='text-center'>No hardware detected in current frame</div>
+              </div>
+            )}
+          </div>
+
+          {/* 🔹 Stored detections overlay (bottom) */}
+          <div className="absolute bottom-0 left-0 right-0 bg-black/20 text-white text-xs p-2 max-h-24 overflow-y-auto">
+            {hardwareDetections
+              .filter((d) => !location || d.location === location)
+              .slice(0, 5) // show recent 5
+              .map((det) => (
+                <div key={det.id} className="flex justify-between">
+                  <span>{det.hardware_type}</span>
+                  <span>{Math.round(det.confidence * 100)}% • {det.is_validated ? '✓' : '○'}</span>
+                </div>
+              ))}
+          </div>
+        </div>
+
+        {/* Panel */}
+        <div className="mt-3">
+
+        </div>
+
+        {/* Panel */}
+        <div className="mt-4">
+
+
+        </div>
       </div>
     </div>
   );

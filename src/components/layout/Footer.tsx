@@ -40,7 +40,7 @@ const Footer: React.FC = () => {
                         if (item.value === 'Logout') {
                             logout();
                         } else if (item.value === 'edit-profile' && user?.id) {
-                            navigate(`/edit-user/${user.id}`);
+                            navigate(`/users/${user.id}/edit`);
                         }
                     }}
                 />

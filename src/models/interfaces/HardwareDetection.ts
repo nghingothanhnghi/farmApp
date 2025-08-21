@@ -1,3 +1,4 @@
+// src/models/interfaces/HardwareDetection.ts
 // Camera detection model for Hydro System //
 
 export type ConditionStatus = "good" | "damaged" | "missing" | "unknown";

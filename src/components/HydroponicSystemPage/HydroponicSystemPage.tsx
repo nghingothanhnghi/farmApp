@@ -15,6 +15,7 @@ import CameraByLocation from './components/CameraByLocation';
 import LocationPanel from './components/LocationPanel';
 import StatusCard from './components/StatusCard';
 import MultiActuatorControlPanel from './components/MultiActuatorControlPanel';
+import SchedulerControlPanel from './components/SchedulerControlPanel';
 import HardwareDetection from './components/HardwareDetection';
 import SensorChart from './components/SensorChart';
 import AlertsPanel from './components/AlertsPanel';
@@ -131,27 +132,27 @@ const HydroponicSystemPage: React.FC = () => {
   }
 
   // If no devices exist
-if (!loading && deviceStatusList.length === 0) {
-  return (
-    <div className="hydroponic-system-page min-h-screen">
-      <PageTitle title="Hydroponic System Dashboard" />
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-        <div className="text-gray-400 text-4xl mb-4">📦</div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">No Devices Found</h3>
-        <p className="text-gray-600 mb-4">
-          You don’t have any devices connected yet.  
-          Please add a hydroponic device to get started.
-        </p>
-        <Button
-          label="➕ Add Device"
-          onClick={() => navigate('/hydro-devices')}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2"
-          rounded="lg"
-        />
+  if (!loading && deviceStatusList.length === 0) {
+    return (
+      <div className="hydroponic-system-page min-h-screen">
+        <PageTitle title="Hydroponic System Dashboard" />
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+          <div className="text-gray-400 text-4xl mb-4">📦</div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">No Devices Found</h3>
+          <p className="text-gray-600 mb-4">
+            You don’t have any devices connected yet.
+            Please add a hydroponic device to get started.
+          </p>
+          <Button
+            label="➕ Add Device"
+            onClick={() => navigate('/hydro-devices')}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2"
+            rounded="lg"
+          />
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
 
   const [activeTab, setActiveTab] = useState("overview");
@@ -163,8 +164,8 @@ if (!loading && deviceStatusList.length === 0) {
       icon: "📊",
       content: (
         <div className="space-y-6">
-          <div className='flex flex-col lg:flex-row gap-6 h-[calc(100vh-25rem)]'>
-            <div className='flex-1 overflow-hidden'>
+          <div className='flex flex-col lg:flex-row gap-6'>
+            <div className='flex-1'>
               <CameraByLocation location={currentDevice?.location} />
             </div>
             <div className='lg:w-[350px] space-y-0.5 flex flex-col max-h-full'>
@@ -176,80 +177,68 @@ if (!loading && deviceStatusList.length === 0) {
                 onActuatorControl={(actuatorId, turnOn) => {
                   actions.controlActuator(actuatorId, turnOn);
                 }}
-                onStartScheduler={() => {
-                  if (currentDevice?.device_id) {
-                    actions.startSystemScheduler(currentDevice.device_id);
-                  }
-                }}
-                onStopScheduler={() => {
-                  if (currentDevice?.device_id) {
-                    actions.stopSystemScheduler(currentDevice.device_id);
-                  }
-                }}
-                onRestartScheduler={() => {
-                  if (currentDevice?.device_id) {
-                    actions.restartSystemScheduler(currentDevice.device_id);
-                  }
-                }}
                 loading={loading}
+              />
+              <SchedulerControlPanel
+                schedulerState={currentDevice?.system?.scheduler_state ?? false}
+                onStart={() => { if (currentDevice?.device_id) actions.startSystemScheduler(currentDevice.device_id); }}
+                onStop={() => { if (currentDevice?.device_id) actions.stopSystemScheduler(currentDevice.device_id); }}
+                onRestart={() => { if (currentDevice?.device_id) actions.restartSystemScheduler(currentDevice.device_id); }}
+                loading={loading}
+                title="System Scheduler"
+                summary="Start/stop/restart the automation scheduler for this device"
               />
             </div>
           </div>
           {/* Main Dashboard Grid */}
-          <div className='flex flex-col lg:flex-row gap-6'>
-            <div className='flex-1'>
-              {/* Status Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 lg:grid-rows-2 gap-6">
-                <StatusCard
-                  className='row-span-2'
-                  title="Water Level"
-                  value={currentDevice?.sensors?.water_level?.toFixed(1) || '--'}
-                  unit="%"
-                  status={getWaterLevelStatus()}
-                  icon="🚰">
-                  <WaterLevelBucket level={currentDevice?.sensors?.water_level || 0} />
-                </StatusCard>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-[1fr_1fr_1fr_350px] grid-rows-2 auto-rows-fr gap-6">
+            <StatusCard
+              className='row-span-2'
+              title="Water Level"
+              value={currentDevice?.sensors?.water_level?.toFixed(1) || '--'}
+              unit="%"
+              status={getWaterLevelStatus()}
+              icon="🚰">
+              <WaterLevelBucket level={currentDevice?.sensors?.water_level || 0} />
+            </StatusCard>
 
-                <StatusCard
-                  title="Temperature"
-                  value={currentDevice?.sensors?.temperature?.toFixed(1) || '--'}
-                  unit="°C"
-                  status={getTemperatureStatus()}
-                  icon="🌡️"
-                />
-                <StatusCard
-                  title="Humidity"
-                  value={currentDevice?.sensors?.humidity?.toFixed(1) || '--'}
-                  unit="%"
-                  status="normal"
-                  icon="💧"
-                />
-                <StatusCard
-                  title="Moisture"
-                  value={currentDevice?.sensors?.moisture?.toFixed(1) || '--'}
-                  unit="%"
-                  status={getMoistureStatus()}
-                  icon="🌱"
-                />
-                <StatusCard
-                  title="Light"
-                  value={currentDevice?.sensors?.light?.toFixed(0) || '--'}
-                  unit="lux"
-                  status={getLightStatus()}
-                  icon="☀️"
-                />
-              </div>
-            </div>
-            <div className='lg:w-[350px] space-y-4'>
-              {/* Activity Log */}
-              <ActivityLog actions={controlActions} />
-              {/* Alerts Panel */}
-              <AlertsPanel
-                alerts={alerts}
-                onResolveAlert={actions.resolveAlert}
-              />
-            </div>
+            <StatusCard
+              title="Temperature"
+              value={currentDevice?.sensors?.temperature?.toFixed(1) || '--'}
+              unit="°C"
+              status={getTemperatureStatus()}
+              icon="🌡️"
+            />
+            <StatusCard
+              title="Humidity"
+              value={currentDevice?.sensors?.humidity?.toFixed(1) || '--'}
+              unit="%"
+              status="normal"
+              icon="💧"
+            />
+            {/* Activity Log, Right side, tall block */}
+            <ActivityLog className='row-span-2' actions={controlActions} />
+            <StatusCard
+              title="Moisture"
+              value={currentDevice?.sensors?.moisture?.toFixed(1) || '--'}
+              unit="%"
+              status={getMoistureStatus()}
+              icon="🌱"
+            />
+            <StatusCard
+              title="Light"
+              value={currentDevice?.sensors?.light?.toFixed(0) || '--'}
+              unit="lux"
+              status={getLightStatus()}
+              icon="☀️"
+            />
+
           </div>
+          {/* Alerts Panel */}
+          <AlertsPanel
+            alerts={alerts}
+            onResolveAlert={actions.resolveAlert}
+          />
         </div>
       ),
     },
@@ -323,8 +312,6 @@ if (!loading && deviceStatusList.length === 0) {
       ),
     },
   ];
-
-
 
   console.log("Device List:", deviceStatusList);
   console.log("Active Device ID:", activeDeviceId);

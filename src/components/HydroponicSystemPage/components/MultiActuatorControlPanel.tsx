@@ -10,18 +10,12 @@ import { playSound } from '../../../utils/sound';
 interface MultiActuatorControlPanelProps {
   systemStatus: SystemStatusPerDevice | null;
   onActuatorControl: (actuatorId: number, turnOn: boolean) => void;
-  onStartScheduler: () => void;
-  onStopScheduler: () => void;
-  onRestartScheduler: () => void;
   loading?: boolean;
 }
 
 const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
   systemStatus,
   onActuatorControl,
-  onStartScheduler,
-  onStopScheduler,
-  onRestartScheduler,
   loading = false
 }) => {
   console.log('MultiActuatorControlPanel - systemStatus:', systemStatus);
@@ -31,20 +25,6 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
     onActuatorControl(actuatorId, turnOn);
   };
 
-  const handleStartScheduler = () => {
-    playSound('success');
-    onStartScheduler();
-  };
-
-  const handleStopScheduler = () => {
-    playSound('off');
-    onStopScheduler();
-  };
-
-  const handleRestartScheduler = () => {
-    playSound('on');
-    onRestartScheduler();
-  };
 
   const getActuatorIcon = (type: string): string => {
     switch (type.toLowerCase()) {
@@ -181,7 +161,7 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
   }));
 
   return (
-    <div className='flex-1 overflow-y-auto space-y-0.5'>
+    <div className='flex-1 bg-gray-100 rounded-lg overflow-y-auto space-y-0.5'>
       {/* Summary Stats */}
       {systemStatus?.actuators && systemStatus.actuators.length > 0 && (
         <div className="bg-gray-100 rounded-lg py-2 px-4">
@@ -221,68 +201,6 @@ const MultiActuatorControlPanel: React.FC<MultiActuatorControlPanelProps> = ({
           ))}
         </>
       )}
-
-
-      {/* Scheduler Controls */}
-      <div className="bg-gray-100 rounded-lg p-4 border-t-2 border-blue-200">
-        <div className='flex items-center justify-between mb-1'>
-          <div className="flex items-center space-x-2">
-            <span className="text-lg">🤖</span>
-            <h3 className="text-sm font-medium text-gray-700">System Automation</h3>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${systemStatus?.system?.scheduler_state ? 'bg-green-600' : 'bg-gray-400'
-              }`}></div>
-            <span className="text-xs text-gray-600">
-              <span
-                className={` font-medium ${systemStatus?.system?.scheduler_state ? 'text-green-600' : 'text-gray-400'
-                  }`}
-              >
-                {systemStatus?.system?.scheduler_state ? 'Running' : 'Stopped'}
-              </span>
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center justify-between space-x-5">
-          <div className="flex-1 text-[0.625rem] text-gray-600 line-clamp-2">
-            Automated control based on sensor readings and thresholds
-          </div>
-          <div className="w-[180px] flex items-center justify-end space-x-2">
-            <ButtonGroup>
-              <Button
-                label="Start"
-                onClick={handleStartScheduler}
-                disabled={loading || systemStatus?.system?.scheduler_state === true}
-                className={`flex-1 ${systemStatus?.system?.scheduler_state === true
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-green-500 hover:bg-green-600 text-white'
-                  }`}
-                size='xs'
-              />
-              <Button
-                label="Stop"
-                onClick={handleStopScheduler}
-                disabled={loading || systemStatus?.system?.scheduler_state === false}
-                className={`flex-1 ${systemStatus?.system?.scheduler_state === false
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-red-500 hover:bg-red-600 text-white'
-                  }`}
-                size='xs'
-              />
-              <Button
-                label="Restart"
-                onClick={handleRestartScheduler}
-                disabled={loading || systemStatus?.system?.scheduler_state === false}
-                className={`flex-1 ${systemStatus?.system?.scheduler_state === false
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                  }`}
-                size='xs'
-              />
-            </ButtonGroup>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
