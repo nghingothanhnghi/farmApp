@@ -33,12 +33,22 @@ export const useCamera = ({
         console.log(`Setting up camera for location: ${location ?? 'unknown'}`);
 
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+        console.log("Got stream:", stream);
+        console.log("Tracks:", stream.getVideoTracks());
         if (targetRef.current) {
           targetRef.current.srcObject = stream;
-          setIsStreaming(true);
+          targetRef.current.onloadedmetadata = async () => {
+            try {
+              await targetRef.current?.play();
+              setIsStreaming(true);
+            } catch (err) {
+              console.error("Video play failed:", err);
+            }
+          };
         }
       } catch (err) {
-        console.error(`Camera setup failed${location ? ` for ${location}` : ''}:`, err);
+        console.error("Camera setup failed:", err);
         setIsStreaming(false);
       }
     };

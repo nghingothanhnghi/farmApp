@@ -31,6 +31,7 @@ const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [alert, setAlert] = useState<{ message: string; type: string } | null>(null);
   const [currentDetections, setCurrentDetections] = useState<Detection[]>([]);
+  const lastSyncRef = useRef<number>(0); // 🔹 track last backend sync
 
   const { isStreaming } = useCamera({
     videoRef,
@@ -127,24 +128,38 @@ const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
     });
   };
 
-  // When detection results come in from the streaming service
+  // ✅ Refactored: non-blocking UI + throttled backend sync
   const processDetectionResults = useCallback(
     (result: DetectionResult) => {
       if (!result) return;
 
-      // Normalize for UI drawing and chips
+      // 1. Fast UI update
       const detections = normalizeDetections(result);
       setCurrentDetections(detections);
-
-      // Draw bounding boxes
       drawBoundingBoxes(detections);
 
-      // If backend provided a detection_result_id (HTTP mode), process on server
+      // 2. Optional backend processing
       const detectionId = (result as any).detection_id;
       if (detectionId && location) {
-        actions.processDetectionResult(detectionId, location, 'camera_by_location', 0.6);
-      }
+        // actions.processDetectionResult(detectionId, location, 'camera_by_location', 0.6);
+        (async () => {
+          try {
+            await actions.processDetectionResult(detectionId, location, 'camera_by_location', 0.6);
 
+            const now = Date.now();
+            if (now - lastSyncRef.current > 10000) { // throttle 10s
+              lastSyncRef.current = now;
+              await actions.syncLocationInventory(location);
+              await Promise.all([
+                actions.fetchLocationStatus(location),
+                actions.fetchHardwareDetections(location)
+              ]);
+            }
+          } catch (e) {
+            console.warn('Post-process sync failed:', e);
+          }
+        })();
+      }
       // Note: Do NOT call createHardwareDetection here.
       // Streaming WS responses don't include a valid detection_result_id, and
       // posting random IDs causes backend FK errors. Use processDetectionResult
@@ -191,6 +206,26 @@ const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
     };
   }, [currentDetections, drawBoundingBoxes]);
 
+  // Auto-sync inventory once per location on mount
+  const hasSyncedRef = React.useRef<string | null>(null);
+  useEffect(() => {
+    if (!location) return;
+    if (hasSyncedRef.current === location) return; // prevent duplicate sync for same location in this session
+    (async () => {
+      try {
+        await actions.syncLocationInventory(location);
+        await Promise.all([
+          actions.fetchLocationStatus(location),
+          actions.fetchHardwareDetections(location)
+        ]);
+      } catch (e) {
+        console.warn('Initial sync failed:', e);
+      } finally {
+        hasSyncedRef.current = location;
+      }
+    })();
+  }, [location, actions]);
+
   // Note: WebSocket connection is handled by HardwareDetection component
   // to avoid duplicate connections
 
@@ -214,12 +249,12 @@ const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
             autoPlay
             playsInline
             muted
-            style={{ 
-              width: '100%', 
+            style={{
+              width: '100%',
               height: '100%',
-              objectFit: 'cover', 
-              borderRadius: '8px', 
-              display: 'block' 
+              objectFit: 'cover',
+              borderRadius: '8px',
+              display: 'block'
             }}
           />
           {/* Canvas overlay for bounding boxes */}
