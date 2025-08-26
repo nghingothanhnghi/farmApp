@@ -14,6 +14,7 @@ import ActionButtons from '../common/dataGrid/actionButton';
 import Button from '../common/Button';
 import Modal from '../common/Modal';
 import Badge from '../common/Badge';
+import Avatar from '../common/Avatar';
 import UserPermissionList from './components/UserPermissionList';
 import { IconMinus, IconAlertCircle } from '@tabler/icons-react';
 
@@ -147,7 +148,23 @@ const UserManagementPage: React.FC = () => {
 
   const columnDefs = useMemo(() => [
     { headerName: 'ID', field: 'id', width: 80, resizable: false, filter: false },
-    { headerName: 'Username', field: 'username', width: 150, resizable: false, filter: false },
+    {
+      headerName: '',
+      field: 'image_url',
+      width: 30,
+      resizable: false,
+      filter: false,
+      cellStyle: { display: "flex", justifyContent: "center", alignItems: "center", padding: 0 },
+      cellRenderer: ({ data }: any) => (
+          <Avatar
+            imageUrl={data?.image_url}   // ✅ assuming your User model has `imageUrl` (adjust if different)
+            alt={data?.username}
+            size={24}                   // slightly smaller for table display
+            rounded="full"
+          />
+      ),
+    },    
+    { headerName: 'Username', field: 'username', width: 150, resizable: false, filter: false,},
     { headerName: 'Email', field: 'email', flex: 1, resizable: false, filter: false },
     {
       headerName: 'Roles',
@@ -159,7 +176,7 @@ const UserManagementPage: React.FC = () => {
       cellRenderer: ({ data }: any) => {
         if (!data?.roles?.length) return <Badge label="No roles" variant="secondary" />;
         return data.roles.map((role: Role) => (
-          <div key={role.id} className="flex items-center gap-2">        
+          <div key={role.id} className="flex items-center gap-2">
             <ModeToggle
               isActive={role.is_active ?? false}
               onToggle={() => handleToggle(role.id)}

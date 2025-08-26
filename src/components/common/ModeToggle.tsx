@@ -14,7 +14,7 @@ const sizeClasses = {
     container: 'text-xs px-2 py-1 gap-2 text-xs',
     toggle: 'w-8 h-4',
     knob: 'w-3 h-3',
-    knobOffset: 'top-[2px] left-[2px]',
+    knobOffset: 'top-[2px] left-[5px]',
   },
   medium: {
     container: 'text-sm px-3 py-2 gap-3 text-sm',

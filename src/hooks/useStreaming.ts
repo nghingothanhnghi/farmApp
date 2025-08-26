@@ -65,5 +65,5 @@ export const useStreaming = ({
       if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
       if (wsRef.current) wsRef.current.close();
     };
-  }, [isStreaming, streamMode, selectedModel]);
+  }, [isStreaming, streamMode, selectedModel, captureInterval, captureFrame, processDetectionResults, setAlert]);
 };

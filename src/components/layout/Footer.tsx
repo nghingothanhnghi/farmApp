@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { IconLogout, IconUserEdit } from '@tabler/icons-react';
 import { DEFAULT_AVATAR } from '../../constants/constants';
 import { useAuth } from '../../contexts/authContext';
+import Avatar from '../common/Avatar';
 import DropdownButton from '../common/DropdownButton';
 import Button from '../common/Button';
 
@@ -17,10 +18,11 @@ const Footer: React.FC = () => {
                     className='w-full text-left bg-transparent'
                     label={
                         <>
-                            <img
-                                src={DEFAULT_AVATAR}
-                                alt="Avatar"
-                                className="h-8 w-8 rounded-full object-cover overflow-hidden"
+                            <Avatar
+                                imageUrl={user.image_url}
+                                size={32}
+                                rounded="full"
+                                className="mr-2"
                             />
                             <div className="w-32 overflow-hidden">
                                 <span className="font-medium block truncate text-sm/5 text-zinc-950 dark:text-white">
