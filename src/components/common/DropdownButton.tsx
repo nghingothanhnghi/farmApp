@@ -24,8 +24,10 @@ interface DropdownButtonProps {
     disabled?: boolean;
     className?: string;
     variant?: 'primary' | 'secondary' | 'danger';
-    size?: 'xs' | 'sm' | 'md' | 'lg';
+    size?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
     direction?: DropdownDirection;
+    iconOnly?: boolean;
+    showArrow?: boolean;
 }
 
 const DropdownButton: React.FC<DropdownButtonProps> = ({
@@ -36,7 +38,9 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
     className = '',
     variant = 'secondary',
     size = 'md',
-    direction = 'auto'
+    direction = 'auto',
+    iconOnly = false,
+    showArrow = true,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [focusedIndex, setFocusedIndex] = useState<number>(-1);
@@ -142,7 +146,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
     return (
         <div
             ref={containerRef}
-            className={`relative ${className}`}
+            className={`relative ${className} flex`}
             onKeyDown={handleKeyDown}
             tabIndex={0}
         >
@@ -154,12 +158,13 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
                 variant={variant}
                 size={size}
                 rounded='lg'
-                label=""
+                label={iconOnly ? (typeof label === "string" ? label : "") : ""} // ✅ tooltip if string
+                iconOnly={iconOnly}
                 icon={
                     <div className="flex items-center gap-2">
-                        {label}
+                        {/* {!iconOnly && label}
                         <svg
-                            className={`w-4 h-4 ml-1 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'
+                            className={`w-4 h-4 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'
                                 }`}
                             fill="none"
                             stroke="currentColor"
@@ -171,7 +176,31 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
                                 strokeWidth={2}
                                 d="M19 9l-7 7-7-7"
                             />
-                        </svg>
+                        </svg> */}
+                        {/* If iconOnly → just render the label (Avatar/Icon/etc.) */}
+                        {iconOnly ? (
+                            label
+                        ) : (
+                            <>
+                                {label}
+                                {showArrow && (
+                                    <svg
+                                        className={`w-4 h-4 ml-1 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'
+                                            }`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M19 9l-7 7-7-7"
+                                        />
+                                    </svg>
+                                )}
+                            </>
+                        )}
                     </div>
                 }
 
@@ -179,20 +208,6 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
             {isOpen && (
                 <ul
                     ref={dropdownRef}
-                    //                     className={`absolute z-10 w-full min-w-[200px] bg-white border rounded shadow overflow-hidden
-                    //     transition-all duration-200 ease-out
-                    //     ${position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}
-                    //     ${isOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-95 pointer-events-none'}
-                    //     origin-top
-                    //   `}
-                    // className={`absolute z-10 min-w-[200px] bg-white border rounded shadow overflow-hidden
-                    //     transition-all duration-200 ease-out
-                    //     ${position === 'top' ? 'bottom-full mb-2' : ''}
-                    //     ${position === 'bottom' ? 'top-full mt-2' : ''}
-                    //     ${position === 'left' ? 'right-full mr-2 top-0' : ''}
-                    //     ${position === 'right' ? 'left-full ml-2 top-0' : ''}
-                    //     ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
-                    // `}
                     className={`absolute z-10 min-w-[200px] bg-white border rounded shadow overflow-hidden
                         transition-all duration-200 ease-out
                         ${position === 'top' ? 'bottom-full mb-2 left-1/2 -translate-x-1/2' : ''}

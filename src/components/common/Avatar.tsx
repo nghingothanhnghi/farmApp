@@ -1,6 +1,7 @@
 // components/common/Avatar.tsx
 import React from "react";
 import { getUserImageUrl } from "../../utils/getUserImageUrl";
+import { DEFAULT_AVATAR, ERROR_AVATAR } from "../../constants/constants";
 
 interface AvatarProps {
   imageUrl?: string | null;
@@ -17,16 +18,17 @@ const Avatar: React.FC<AvatarProps> = ({
   rounded = "full",
   className = "",
 }) => {
-  const url = getUserImageUrl(imageUrl);
+    // If imageUrl is missing, fall back to DEFAULT_AVATAR immediately
+  const url = imageUrl ? getUserImageUrl(imageUrl) : DEFAULT_AVATAR;
 
   const roundedClass =
     rounded === "full"
       ? "rounded-full"
       : rounded === "lg"
-      ? "rounded-lg"
-      : rounded === "md"
-      ? "rounded-md"
-      : "rounded-none";
+        ? "rounded-lg"
+        : rounded === "md"
+          ? "rounded-md"
+          : "rounded-none";
 
   return (
     <img
@@ -34,10 +36,16 @@ const Avatar: React.FC<AvatarProps> = ({
       alt={alt}
       width={size}
       height={size}
-      className={`object-cover ${roundedClass} ${className}`}
+      className={`p-1 object-cover ${roundedClass} ${className} bg-gradient-to-b from-white/90 to-black/20 shadow shadow-black/40`}
       style={{ width: size, height: size }}
+      // onError={(e) => {
+      //   (e.currentTarget as HTMLImageElement).src = "/default-avatar.png";
+      // }}
       onError={(e) => {
-        (e.currentTarget as HTMLImageElement).src = "/default-avatar.png";
+        const img = e.currentTarget as HTMLImageElement;
+        if (img.src !== ERROR_AVATAR) {
+          img.src = ERROR_AVATAR;
+        }
       }}
     />
   );

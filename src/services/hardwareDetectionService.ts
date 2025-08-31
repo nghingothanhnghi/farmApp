@@ -189,13 +189,21 @@ export const hardwareDetectionService = {
     }
 
     const baseUrl = API_BASE_URL ?? 'http://localhost:8000';
-    const wsBaseUrl = baseUrl.replace(/^http/, 'ws');
+    let wsBaseUrl: string;
+    if (baseUrl.startsWith('https')) {
+      wsBaseUrl = baseUrl.replace('https', 'wss');
+    } else {
+      wsBaseUrl = baseUrl.replace('http', 'ws');
+    }
     const params = new URLSearchParams();
-    if (locations.length > 0) params.append('locations', locations.join(','));
-    if (userId !== null) params.append('user_id', String(userId));
-    const wsUrl = `${wsBaseUrl}/ws/hardware-detection?${params.toString()}`;
+    // Append each location separately -> ?locations=A&locations=B
+    locations.forEach(loc => params.append('locations', loc));
 
+    if (userId !== null) params.append('user_id', String(userId));
+
+    const wsUrl = `${wsBaseUrl}/ws/hardware-detection?${params.toString()}`;
     console.log('[WebSocket] Creating new connection to:', wsUrl);
+
     hardwareSocket = new WebSocket(wsUrl);
 
     hardwareSocket.onopen = () => {

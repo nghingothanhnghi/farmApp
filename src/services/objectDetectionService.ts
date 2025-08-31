@@ -108,9 +108,12 @@ export const objectDetectionService = {
    * @returns WebSocket instance
    */
   createWebSocketConnection() {
-    // Convert HTTP URL to WebSocket URL
-    const wsBaseUrl = API_BASE_URL.replace('http', 'ws');
+    // Convert HTTP(S) URL to WS(S) URL and normalize trailing slash
+    const wsBaseUrl = (API_BASE_URL || 'http://localhost:8000')
+      .replace(/^http/, 'ws')
+      .replace(/\/$/, '');
     const wsUrl = `${wsBaseUrl}/object-detection/ws`;
+    console.log('[ObjectDetection WS] Connecting to', wsUrl);
     return new WebSocket(wsUrl);
   },
 

@@ -13,7 +13,7 @@ interface ButtonProps {
   icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
   iconOnly?: boolean;
-  size?: 'xs' | 'sm' | 'md' | 'lg';
+  size?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
   rounded?: 'full' | 'md' | 'lg'; 
 }
 
@@ -37,6 +37,7 @@ const Button: React.FC<ButtonProps> = ({
     'inline-flex items-center justify-center font-medium focus:outline-none transition-colors gap-2';
 
   const sizeStyles = {
+    xxs: 'text-[10px] py-1 px-2',
     xs: 'text-xs px-2 py-1',
     sm: 'text-sm px-3 py-1.5',
     md: 'text-base px-4 py-2',     // default
@@ -44,6 +45,7 @@ const Button: React.FC<ButtonProps> = ({
   };
 
     const iconOnlySizeStyles = {
+    xxs: 'w-5 h-5 text-[10px] px-1',
     xs: 'w-6 h-6 text-xs p-1',
     sm: 'w-8 h-8 text-sm p-1.5',
     md: 'w-10 h-10 text-base p-2',

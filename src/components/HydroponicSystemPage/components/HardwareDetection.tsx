@@ -41,11 +41,10 @@ const HardwareDetection: React.FC<HardwareDetectionProps> = ({ location }) => {
     }
 
     return () => {
-      if (isWebSocketConnected) {
-        actions.disconnectHardwareWebSocket();
-      }
+      // Always disconnect to avoid duplicate connections when location changes or on unmount
+      actions.disconnectHardwareWebSocket();
     };
-  }, [location, actions]); // Added location and actions to dependencies
+  }, [location]);
 
   // Handle processing a detection result (simulated)
   const handleProcessDetection = async (detectionResultId: number) => {

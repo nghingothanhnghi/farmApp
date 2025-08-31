@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { IconLogout, IconUserEdit } from '@tabler/icons-react';
-import { DEFAULT_AVATAR } from '../../constants/constants';
 import { useAuth } from '../../contexts/authContext';
 import Avatar from '../common/Avatar';
 import DropdownButton from '../common/DropdownButton';

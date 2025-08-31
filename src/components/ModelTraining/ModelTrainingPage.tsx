@@ -264,6 +264,7 @@ const ModelTrainingPage: React.FC = () => {
             disabled={isDownloading}
             icon={<IconDownload size={16} className="text-gray-500" />}
             iconPosition='left'
+            rounded='lg'
           />
         }
       />
@@ -625,6 +626,7 @@ const ModelTrainingPage: React.FC = () => {
             variant="primary"
             className="train-button md:w-auto"
             fullWidth={true}
+            rounded='lg'
           />
           <Button
             type="button"
@@ -634,6 +636,7 @@ const ModelTrainingPage: React.FC = () => {
             variant="secondary"
             className="clear-button md:w-auto"
             fullWidth={true}
+            rounded='lg'
           />
         </FormActions>
       </Form>

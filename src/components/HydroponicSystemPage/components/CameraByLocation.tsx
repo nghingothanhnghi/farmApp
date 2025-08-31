@@ -2,6 +2,8 @@
 
 import React from 'react';
 import Spinner from '../../common/Spinner';
+import Button from '../../common/Button';
+import { IconCamera, IconCameraCancel } from '@tabler/icons-react';
 import RealtimeDetections from './RealtimeDetections';
 import StoredDetections from './StoredDetections';
 import { useHydroCameraDetection } from '../../../hooks/useHydroCameraDetection';
@@ -11,11 +13,21 @@ interface CameraByLocationProps {
 }
 
 const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
-  const { videoRef, canvasRef, currentDetections, storedDetections, loading, alert } = useHydroCameraDetection(location);
+  const {
+    videoRef,
+    canvasRef,
+    currentDetections,
+    storedDetections,
+    loading,
+    alert,
+    isCameraEnabled,
+    initializeCamera,
+    stopCamera,
+  } = useHydroCameraDetection(location);
 
   return (
     <div className="camera-by-location relative h-full">
-      <div className='grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-6 h-full'>
+      <div className='grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-3 h-full'>
         {/* Video and Canvas Container */}
         <div className="relative h-full flex flex-col row-span-2 col-span-2 rounded-lg overflow-hidden">
           {loading && (
@@ -24,7 +36,7 @@ const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
             </div>
           )}
           {alert && (
-            <div className={`alert alert-${alert.type} mb-2 p-2 rounded bg-red-900 text-white font-bold text-sm absolute`}>
+            <div className={`alert alert-${alert.type} w-full text-center bottom-0 left-0 p-2 rounded bg-red-900 text-white font-bold text-sm absolute`}>
               {alert.message}
             </div>
           )}
@@ -54,14 +66,41 @@ const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
           />
           {/* 🔹 Real-time detections overlay (top) */}
           <RealtimeDetections currentDetections={currentDetections} />
-
           {/* 🔹 Stored detections overlay (bottom) */}
           <StoredDetections hardwareDetections={storedDetections} location={location} />
         </div>
 
         {/* Panel placeholders */}
-        <div className="mt-3"></div>
-        <div className="mt-4"></div>
+        <div className="border border-gray-100 p-4 rounded-lg bg-white h-full">
+          <div className="flex items-center gap-2 mb-3">
+            {!isCameraEnabled ? (
+              <Button
+                type="button"
+                label="Enable Camera"
+                onClick={initializeCamera}
+                variant="secondary"
+                className="download-button"
+                icon={<IconCamera size={16} className="text-gray-500" />}
+                iconPosition='left'
+                rounded='lg'
+                size='sm'
+              />
+            ) : (
+              <Button
+                type="button"
+                label="Disable Camera"
+                onClick={stopCamera}
+                variant="secondary"
+                className="download-button"
+                icon={<IconCameraCancel size={16} className="text-gray-500" />}
+                iconPosition='left'
+                rounded='lg'
+                size='sm'
+              />
+            )}
+          </div>
+        </div>
+        <div className="border border-gray-100 p-4 rounded-lg bg-white h-full"></div>
       </div>
     </div>
   );
