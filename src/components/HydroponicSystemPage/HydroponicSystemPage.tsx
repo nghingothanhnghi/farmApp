@@ -56,6 +56,14 @@ const HydroponicSystemPage: React.FC = () => {
     );
   }, [deviceStatusList, activeDeviceId]);
 
+  const getSensorCount = (sensors: Record<string, any> | undefined): number => {
+    if (!sensors) return 0;
+    // ignore meta keys
+    const ignoredKeys = ["device_id", "device_name"];
+    return Object.keys(sensors).filter((key) => !ignoredKeys.includes(key)).length;
+  };
+
+
   const getTemperatureStatus = () => {
     if (!currentDevice) return 'normal';
     const deviceThresholds = currentDevice.automation?.thresholds;
@@ -170,7 +178,16 @@ const HydroponicSystemPage: React.FC = () => {
             </div>
             <div className='lg:w-[350px] space-y-0.5 flex flex-col max-h-full'>
               {/* Location Panel */}
-              <LocationPanel title='Location A' description='A location have 3 sensor devices, as: water pump, temperator sensor...' />
+              <LocationPanel
+                title={currentDevice?.location || "Unknown Location"}
+                description={
+                  currentDevice
+                    ? `Device: ${currentDevice.device_name || `ID ${currentDevice.device_id}`} · 
+         Sensors: ${getSensorCount(currentDevice.sensors)} · 
+         Actuators: ${currentDevice.actuators?.length || 0}`
+                    : "No device data available."
+                }
+              />
               {/* Control Panel */}
               <MultiActuatorControlPanel
                 systemStatus={currentDevice}

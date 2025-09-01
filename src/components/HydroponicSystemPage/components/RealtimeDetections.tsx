@@ -28,9 +28,7 @@ const RealtimeDetections: React.FC<RealtimeDetectionsProps> = ({ currentDetectio
           })}
         </div>
       ) : (
-        <div className="absolute top-0 left-0 text-[0.625rem] text-gray-500 italic p-2">
-          <div className="text-center">No hardware detected in current frame</div>
-        </div>
+        <div className="text-center text-[0.625rem] text-gray-500 italic p-2">No hardware detected in current frame</div>
       )}
     </div>
   );

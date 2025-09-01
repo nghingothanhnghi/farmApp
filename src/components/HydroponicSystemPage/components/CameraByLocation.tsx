@@ -3,9 +3,11 @@
 import React from 'react';
 import Spinner from '../../common/Spinner';
 import Button from '../../common/Button';
-import { IconCamera, IconCameraCancel } from '@tabler/icons-react';
+import Badge from '../../common/Badge';
+import { IconCameraCancel, IconPlayerPlay } from '@tabler/icons-react';
 import RealtimeDetections from './RealtimeDetections';
 import StoredDetections from './StoredDetections';
+import LocationStatusOverview from './LocationStatusOverview';
 import { useHydroCameraDetection } from '../../../hooks/useHydroCameraDetection';
 
 interface CameraByLocationProps {
@@ -13,10 +15,12 @@ interface CameraByLocationProps {
 }
 
 const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
+
   const {
     videoRef,
     canvasRef,
     currentDetections,
+    currentLocationStatus,
     storedDetections,
     loading,
     alert,
@@ -25,11 +29,12 @@ const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
     stopCamera,
   } = useHydroCameraDetection(location);
 
+
   return (
     <div className="camera-by-location relative h-full">
-      <div className='grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-3 h-full'>
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-3 h-full'>
         {/* Video and Canvas Container */}
-        <div className="relative h-full flex flex-col row-span-2 col-span-2 rounded-lg overflow-hidden">
+        <div className="relative h-full flex flex-col row-span-2 col-span-2 rounded-lg overflow-hidden bg-gray-900">
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10 rounded-lg">
               <Spinner size={48} colorClass="border-white" borderClass="border-4" />
@@ -72,32 +77,49 @@ const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
 
         {/* Panel placeholders */}
         <div className="border border-gray-100 p-4 rounded-lg bg-white h-full">
-          <div className="flex items-center gap-2 mb-3">
-            {!isCameraEnabled ? (
-              <Button
-                type="button"
-                label="Enable Camera"
-                onClick={initializeCamera}
-                variant="secondary"
-                className="download-button"
-                icon={<IconCamera size={16} className="text-gray-500" />}
-                iconPosition='left'
-                rounded='lg'
-                size='sm'
-              />
-            ) : (
-              <Button
-                type="button"
-                label="Disable Camera"
-                onClick={stopCamera}
-                variant="secondary"
-                className="download-button"
-                icon={<IconCameraCancel size={16} className="text-gray-500" />}
-                iconPosition='left'
-                rounded='lg'
-                size='sm'
-              />
-            )}
+          <div className="flex flex-col items-center gap-2 mb-3">
+            <div className="flex space-x-1 w-full">
+              {!isCameraEnabled ? (
+                <Button
+                  type="button"
+                  label="Start"
+                  onClick={initializeCamera}
+                  variant="secondary"
+                  className="download-button"
+                  icon={<IconPlayerPlay size={16} className="text-gray-500" />}
+                  iconPosition='left'
+                  rounded='lg'
+                  size='sm'
+                  fullWidth={true}
+                />
+              ) : (
+                <Button
+                  type="button"
+                  label="Stop"
+                  onClick={stopCamera}
+                  variant="secondary"
+                  className="download-button"
+                  icon={<IconCameraCancel size={16} className="text-gray-500" />}
+                  iconPosition='left'
+                  rounded='lg'
+                  size='sm'
+                  fullWidth={true}
+                />
+              )}
+              <div>
+                <Badge
+                  label={isCameraEnabled ? "Active" : "Stopped"}
+                  variant={isCameraEnabled ? "success" : "gray"} // depends on your Badge variants
+                  size="xsmall"
+                />
+              </div>
+            </div>
+            <hr className="my-2 w-full border-t border-zinc-950/5 dark:border-white/5" />
+            <LocationStatusOverview
+              status={currentLocationStatus}
+              loading={loading}
+              displayOptions={["total_expected", "total_detected"]}
+            />
           </div>
         </div>
         <div className="border border-gray-100 p-4 rounded-lg bg-white h-full"></div>

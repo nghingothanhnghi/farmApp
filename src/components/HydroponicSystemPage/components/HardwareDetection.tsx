@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useHydroSystem } from '../../../hooks/useHydroSystem';
 import Button from '../../common/Button';
 import HardwareAlert from './HardwareAlerts';
+import LocationStatusOverview from './LocationStatusOverview';
 
 interface HardwareDetectionProps {
   location: string;
@@ -123,37 +124,7 @@ const HardwareDetection: React.FC<HardwareDetectionProps> = ({ location }) => {
         {/* Location Status Overview */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-4">Location Status Overview</h3>
-          {currentLocationStatus ? (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium text-blue-900">Total Expected</h4>
-                <p className="text-2xl font-bold text-blue-600">{currentLocationStatus.total_expected}</p>
-              </div>
-              <div className="bg-green-50 p-4 rounded-lg">
-                <h4 className="font-medium text-green-900">Total Detected</h4>
-                <p className="text-2xl font-bold text-green-600">{currentLocationStatus.total_detected}</p>
-              </div>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <h4 className="font-medium text-purple-900">Validated</h4>
-                <p className="text-2xl font-bold text-purple-600">{currentLocationStatus.validated_count}</p>
-              </div>
-              <div className="bg-yellow-50 p-4 rounded-lg">
-                <h4 className="font-medium text-yellow-900">Avg Confidence</h4>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {currentLocationStatus.detection_confidence_avg
-                    ? `${(currentLocationStatus.detection_confidence_avg * 100).toFixed(1)}%`
-                    : 'N/A'
-                  }
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-gray-600">
-                {loading ? 'Loading location status...' : 'No location status data available. Click "Refresh Data" to load.'}
-              </p>
-            </div>
-          )}
+          <LocationStatusOverview status={currentLocationStatus} loading={loading} />
         </div>
 
         {/* Action Buttons */}

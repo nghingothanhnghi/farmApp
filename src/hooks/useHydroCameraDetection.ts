@@ -15,7 +15,10 @@ export const useHydroCameraDetection = (location?: string) => {
   const hasSyncedRef = useRef<string | null>(null);
 
   const { isStreaming, startCamera, stopCamera } = useCamera({ videoRef, location, facingMode: 'environment',  autoStart: false });
-  const { actions, hardwareDetections, loading, error } = useHydroSystem();
+  const { actions, hardwareDetections, locationStatus, loading, error } = useHydroSystem();
+
+    // derive the current location status (or undefined if not yet loaded)
+  const currentLocationStatus = location ? locationStatus[location] : undefined;
 
   const captureFrame = useCallback(() => {
     if (!videoRef.current) return null;
@@ -158,6 +161,7 @@ export const useHydroCameraDetection = (location?: string) => {
     error,
     currentDetections,
     storedDetections: hardwareDetections,
+    currentLocationStatus,
     // 👇 controls
     isCameraEnabled: isStreaming,
     initializeCamera: startCamera,
