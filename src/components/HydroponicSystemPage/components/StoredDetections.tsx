@@ -14,7 +14,7 @@ const StoredDetections: React.FC<StoredDetectionsProps> = ({ hardwareDetections,
     .filter((d) => !location || d.location === location)
     .sort((a, b) => new Date(b.detected_at).getTime() - new Date(a.detected_at).getTime())
     .slice(0, 5); // show recent 5 only
-
+  if (filteredDetections.length === 0) return null;
   return (
     <div className="absolute bottom-0 left-0 right-0 bg-black/20 text-white text-xs p-2 max-h-24 overflow-y-auto">
       {filteredDetections.map((det) => (

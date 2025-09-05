@@ -1,8 +1,11 @@
 import React from 'react';
+import type { ReactNode } from 'react';
 import type { HydroActuator } from '../../../models/interfaces/HydroSystem';
 import Button from '../../common/Button';
 import ButtonGroup from '../../common/ButtonGroup';
+import Badge from '../../common/Badge';
 import { FormToggle } from '../../../components/common/Form';
+import { IconBulb, IconDroplet, IconWindmill, IconRipple, IconEngine } from '@tabler/icons-react';
 
 interface ActuatorCardProps {
     actuator: HydroActuator;
@@ -12,17 +15,18 @@ interface ActuatorCardProps {
     onControl?: (id: number, turnOn: boolean) => void;
 }
 
-const getActuatorIcon = (type: string): string => {
+const getActuatorIcon = (type: string): ReactNode => {
     switch (type.toLowerCase()) {
         case 'pump':
+            return <IconRipple size={16} className="text-blue-500" />;
         case 'water_pump':
-            return '💧';
+            return <IconDroplet size={16} className="text-blue-500" />;
         case 'light':
-            return '💡';
+            return <IconBulb size={16} className="text-yellow-500" />;
         case 'fan':
-            return '🌀';
+            return <IconWindmill size={16} className="text-cyan-500" />;
         case 'valve':
-            return '🚰';
+            return <IconEngine size={16} className="text-green-500" />;
         default:
             return '⚙️';
     }
@@ -51,8 +55,19 @@ const ActuatorCard: React.FC<ActuatorCardProps> = ({
     onToggle,
     onControl,
 }) => {
-    const isActive = actuator.current_state;
+    // Use different state depending on variant
+    // const isActive = variant === "control"
+    //     ? actuator.current_state // real-time ON/OFF state
+    //     : actuator.is_active;    // enabled/disabled state when linked
+    const isActive = actuator.current_state; // real-time ON/OFF state
     const colors = getActuatorColor(actuator.type);
+
+    console.log('Rendering ActuatorCard State:', {
+        variant,
+        current_state: actuator.current_state,
+        is_active: actuator.is_active,
+        isActive
+    });
 
     return (
         <div className="bg-gray-100 rounded-lg px-4 py-2">
@@ -60,20 +75,23 @@ const ActuatorCard: React.FC<ActuatorCardProps> = ({
                 <div className="flex items-center space-x-2">
                     <span className="text-lg">{getActuatorIcon(actuator.type)}</span>
                     <div className='flex-1'>
-                        <div className="flex space-x-2">
+                        <div className="flex items-center space-x-2">
                             <h3 className="text-[0.625rem] font-medium text-gray-700">{actuator.name}</h3>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-1">
                                 <div
-                                    className={`w-2 h-2 rounded-full ${isActive ? 'bg-green-600' : 'bg-gray-400'}`}
-                                ></div>
+                                    className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-green-600' : 'bg-gray-400'}`}
+                                />
                                 <span className="text-[0.625rem] text-gray-600">
                                     <span
-                                        className={`font-medium ${isActive ? 'text-green-600' : 'text-gray-400'}`}
+                                        className={` ${isActive ? 'text-green-600' : 'text-gray-400'}`}
                                     >
-                                        {isActive ? 'Active' : 'Inactive'}
+                                        {isActive ? 'Opened' : 'Off'}
                                     </span>
                                 </span>
                             </div>
+                            {!actuator.is_active && (
+                                <Badge label='Interrupted' variant='warning' size='xsmall' />
+                            )}
                         </div>
                         <p className="text-[0.625rem] text-gray-500">
                             {actuator.type} • Pin {actuator.pin} • Port {actuator.port}
@@ -120,12 +138,6 @@ const ActuatorCard: React.FC<ActuatorCardProps> = ({
                     {actuator.linked_sensor_value !== null && (
                         <> (Value: {actuator.linked_sensor_value})</>
                     )}
-                </p>
-            )}
-
-            {!actuator.is_active && (
-                <p className="mt-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
-                    ⚠️ Actuator is disabled
                 </p>
             )}
         </div>

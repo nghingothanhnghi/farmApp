@@ -1,7 +1,9 @@
 // src/components/HardwareDetection/HardwareDetection.tsx
 import React, { useEffect, useState } from 'react';
 import { useHydroSystem } from '../../../hooks/useHydroSystem';
+import { IconRefresh } from '@tabler/icons-react';
 import Button from '../../common/Button';
+import Badge from '../../common/Badge';
 import HardwareAlert from './HardwareAlerts';
 import LocationStatusOverview from './LocationStatusOverview';
 
@@ -107,199 +109,215 @@ const HardwareDetection: React.FC<HardwareDetectionProps> = ({ location }) => {
   });
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Hardware Detection for {location}</h2>
-
-        {/* Connection Status */}
-        <div className="mb-4">
-          <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${isWebSocketConnected
-            ? 'bg-green-100 text-green-800'
-            : 'bg-red-100 text-red-800'
-            }`}>
+    <div className="space-y-10 mx-auto max-w-4xl">
+      <div className='flex justify-between mt-10 mb-6'>
+        <div className='space-y-0.5'>
+          <h3 className="text-base font-medium text-gray-700">{location}</h3>
+          {/* Connection Status */}
+          <Badge
+            variant={isWebSocketConnected ? 'success' : 'danger'}
+            size="xsmall"
+          >
             {isWebSocketConnected ? '🟢 WebSocket Connected' : '🔴 WebSocket Disconnected'}
+          </Badge>
+        </div>
+        <div className='flex-1 flex items-center justify-end space-x-2'>
+          {/* Action Buttons */}
+          <div className="flex space-x-2 mb-6">
+            <Button
+              label="Refresh Data"
+              onClick={() => {
+                actions.fetchHardwareDetections(location);
+                actions.fetchLocationStatus(location);
+              }}
+              variant="secondary"
+              disabled={loading}
+              icon={
+                <IconRefresh
+                  size={20}
+                  className={loading ? 'animate-spin transition-transform' : ''}
+                />
+              }
+              iconOnly
+              rounded='full'
+              size='sm'
+            />
+
+            <Button
+              label="Sync Inventory"
+              onClick={handleSyncInventory}
+              disabled={loading}
+              variant="secondary"
+              rounded='lg'
+              size='sm'
+            />
+
+            <Button
+              label="Setup Inventory"
+              onClick={() => actions.setupLocationInventory(location)}
+              disabled={loading}
+              variant="secondary"
+              rounded='lg'
+              size='sm'
+            />
+
+            <Button
+              label="Process Sample Detection"
+              onClick={() => handleProcessDetection(1)} // Sample detection result ID
+              disabled={loading}
+              variant="primary"
+              rounded='lg'
+              size='sm'
+            />
           </div>
         </div>
+      </div>
 
-        {/* Location Status Overview */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-4">Location Status Overview</h3>
-          <LocationStatusOverview status={currentLocationStatus} loading={loading} />
+      {/* Location Status Overview */}
+      <div className="mb-6">
+        <h3 className="text-base font-medium text-gray-700 mb-4">Location Status Overview</h3>
+        <LocationStatusOverview status={currentLocationStatus} loading={loading} columns={4} />
+      </div>
+
+
+      {/* Hardware Detections List */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-base font-medium text-gray-700 mb-4">Recent Detections</h3>
+          <span className="text-sm text-gray-500">
+            {locationDetections.length} detection{locationDetections.length !== 1 ? 's' : ''} found
+          </span>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex space-x-2 mb-6">
-          <Button
-            label="Refresh Data"
-            onClick={() => {
-              actions.fetchHardwareDetections(location);
-              actions.fetchLocationStatus(location);
-            }}
-            disabled={loading}
-            variant="secondary"
-          />
+        {locationDetections.length > 0 ? (
+          <div className="space-y-3">
+            {locationDetections.map((detection) => (
+              <div
+                key={detection.id}
+                className={`border rounded-lg p-4 cursor-pointer transition-colors ${selectedDetectionId === detection.id
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                onClick={() => setSelectedDetectionId(
+                  selectedDetectionId === detection.id ? null : detection.id
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    {/* Status Indicator */}
+                    <div className={`w-3 h-3 rounded-full ${detection.is_validated
+                      ? 'bg-green-500'
+                      : detection.is_expected
+                        ? 'bg-blue-500'
+                        : 'bg-yellow-500'
+                      }`}></div>
 
-          <Button
-            label="Sync Inventory"
-            onClick={handleSyncInventory}
-            disabled={loading}
-            variant="secondary"
-          />
-
-          <Button
-            label="Setup Inventory"
-            onClick={() => actions.setupLocationInventory(location)}
-            disabled={loading}
-            variant="secondary"
-          />
-
-          <Button
-            label="Process Sample Detection"
-            onClick={() => handleProcessDetection(1)} // Sample detection result ID
-            disabled={loading}
-            variant="primary"
-          />
-        </div>
-
-        {/* Hardware Detections List */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Recent Detections</h3>
-            <span className="text-sm text-gray-500">
-              {locationDetections.length} detection{locationDetections.length !== 1 ? 's' : ''} found
-            </span>
-          </div>
-
-          {locationDetections.length > 0 ? (
-            <div className="space-y-3">
-              {locationDetections.map((detection) => (
-                <div
-                  key={detection.id}
-                  className={`border rounded-lg p-4 cursor-pointer transition-colors ${selectedDetectionId === detection.id
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  onClick={() => setSelectedDetectionId(
-                    selectedDetectionId === detection.id ? null : detection.id
-                  )}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      {/* Status Indicator */}
-                      <div className={`w-3 h-3 rounded-full ${detection.is_validated
-                        ? 'bg-green-500'
-                        : detection.is_expected
-                          ? 'bg-blue-500'
-                          : 'bg-yellow-500'
-                        }`}></div>
-
-                      <div>
-                        <h4 className="font-medium">
-                          {detection.hardware_name || detection.detected_class}
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          Type: {detection.hardware_type} |
-                          Confidence: {(detection.confidence * 100).toFixed(1)}%
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex space-x-2">
-                      {!detection.is_validated && (
-                        <>
-                          <Button
-                            label="✓ Validate"
-                            onClick={() => {
-                              handleValidateDetection(detection.id, true);
-                            }}
-                            className="text-green-600 hover:bg-green-50"
-                            variant="secondary"
-                            size="sm"
-                          />
-                          <Button
-                            label="✗ Reject"
-                            onClick={() => {
-                              handleValidateDetection(detection.id, false);
-                            }}
-                            className="text-red-600 hover:bg-red-50"
-                            variant="secondary"
-                            size="sm"
-                          />
-                        </>
-                      )}
+                    <div>
+                      <h4 className="font-medium">
+                        {detection.hardware_name || detection.detected_class}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        Type: {detection.hardware_type} |
+                        Confidence: {(detection.confidence * 100).toFixed(1)}%
+                      </p>
                     </div>
                   </div>
 
-                  {/* Expanded Details */}
-                  {selectedDetectionId === detection.id && (
-                    <div className="mt-4 pt-4 border-t border-gray-200">
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p><strong>Detection ID:</strong> {detection.id}</p>
-                          <p><strong>Expected:</strong> {detection.is_expected ? 'Yes' : 'No'}</p>
-                          <p><strong>Validated:</strong> {detection.is_validated ? 'Yes' : 'No'}</p>
-                        </div>
-                        <div>
-                          <p><strong>Camera Source:</strong> {detection.camera_source || 'N/A'}</p>
-                          <p><strong>Detected At:</strong> {new Date(detection.detected_at).toLocaleString()}</p>
-                          <p><strong>Condition:</strong> {detection.condition_status || 'Unknown'}</p>
-                        </div>
-                      </div>
-
-                      {detection.condition_notes && (
-                        <div className="mt-2">
-                          <p className="text-sm"><strong>Notes:</strong> {detection.condition_notes}</p>
-                        </div>
-                      )}
-
-                      {detection.validation_notes && (
-                        <div className="mt-2">
-                          <p className="text-sm"><strong>Validation Notes:</strong> {detection.validation_notes}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  {/* Action Buttons */}
+                  <div className="flex space-x-2">
+                    {!detection.is_validated && (
+                      <>
+                        <Button
+                          label="✓ Validate"
+                          onClick={() => {
+                            handleValidateDetection(detection.id, true);
+                          }}
+                          className="text-green-600 hover:bg-green-50"
+                          variant="secondary"
+                          size="sm"
+                        />
+                        <Button
+                          label="✗ Reject"
+                          onClick={() => {
+                            handleValidateDetection(detection.id, false);
+                          }}
+                          className="text-red-600 hover:bg-red-50"
+                          variant="secondary"
+                          size="sm"
+                        />
+                      </>
+                    )}
+                  </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-              <div className="text-gray-400 mb-4">
-                <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-medium text-gray-900 mb-2">No Hardware Detections Found</h4>
-              <p className="text-gray-500 mb-4">
-                No hardware detections found for location: <strong>{location}</strong>
-              </p>
-              <div className="text-sm text-gray-400 space-y-1">
-                <p>• Make sure the camera detection system is running</p>
-                <p>• Verify the location parameter is correct</p>
-                <p>• Try clicking "Process Sample Detection" to test</p>
-                <p>• Check WebSocket connection status above</p>
-              </div>
-              <div className="mt-4">
-                <Button
-                  label="Refresh Detections"
-                  onClick={() => actions.fetchHardwareDetections(location)}
-                  variant="secondary"
-                  size="sm"
-                />
-              </div>
-            </div>
-          )}
-        </div>
 
-        {/* Missing/Unexpected Hardware Alerts */}
-        {currentLocationStatus && (
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <HardwareAlert title="Missing Hardware" items={currentLocationStatus.missing_hardware} color="red" />
-            <HardwareAlert title="Unexpected Hardware" items={currentLocationStatus.unexpected_hardware} color="yellow" />
+                {/* Expanded Details */}
+                {selectedDetectionId === detection.id && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p><strong>Detection ID:</strong> {detection.id}</p>
+                        <p><strong>Expected:</strong> {detection.is_expected ? 'Yes' : 'No'}</p>
+                        <p><strong>Validated:</strong> {detection.is_validated ? 'Yes' : 'No'}</p>
+                      </div>
+                      <div>
+                        <p><strong>Camera Source:</strong> {detection.camera_source || 'N/A'}</p>
+                        <p><strong>Detected At:</strong> {new Date(detection.detected_at).toLocaleString()}</p>
+                        <p><strong>Condition:</strong> {detection.condition_status || 'Unknown'}</p>
+                      </div>
+                    </div>
+
+                    {detection.condition_notes && (
+                      <div className="mt-2">
+                        <p className="text-sm"><strong>Notes:</strong> {detection.condition_notes}</p>
+                      </div>
+                    )}
+
+                    {detection.validation_notes && (
+                      <div className="mt-2">
+                        <p className="text-sm"><strong>Validation Notes:</strong> {detection.validation_notes}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+            <div className="text-gray-400 mb-4">
+              <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+              </svg>
+            </div>
+            <h4 className="text-lg font-medium text-gray-900 mb-2">No Hardware Detections Found</h4>
+            <p className="text-gray-500 mb-4">
+              No hardware detections found for location: <strong>{location}</strong>
+            </p>
+            <div className="text-sm text-gray-400 space-y-1">
+              <p>• Make sure the camera detection system is running</p>
+              <p>• Verify the location parameter is correct</p>
+              <p>• Try clicking "Process Sample Detection" to test</p>
+              <p>• Check WebSocket connection status above</p>
+            </div>
+            <div className="mt-4">
+              <Button
+                label="Refresh Detections"
+                onClick={() => actions.fetchHardwareDetections(location)}
+                variant="secondary"
+                size="sm"
+              />
+            </div>
           </div>
         )}
       </div>
+
+      {/* Missing/Unexpected Hardware Alerts */}
+      {currentLocationStatus && (
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <HardwareAlert title="Missing Hardware" items={currentLocationStatus.missing_hardware} color="red" />
+          <HardwareAlert title="Unexpected Hardware" items={currentLocationStatus.unexpected_hardware} color="yellow" />
+        </div>
+      )}
 
       {/* Detection Results Summary */}
       <div className="bg-white rounded-lg shadow p-6 mb-6">
@@ -421,17 +439,16 @@ const HardwareDetection: React.FC<HardwareDetectionProps> = ({ location }) => {
                   {conditionStatuses.map(status => (
                     <li key={status} className="flex items-center">
                       <span
-                        className={`w-2 h-2 rounded-full mr-2 ${
-                          status === "good"
-                            ? "bg-green-500"
-                            : status === "damaged"
-                              ? "bg-red-500"
-                              : status === "missing"
-                                ? "bg-yellow-500"
-                                : status === "unknown"
-                                  ? "bg-gray-500"
-                                  : "bg-gray-400"
-                        }`}
+                        className={`w-2 h-2 rounded-full mr-2 ${status === "good"
+                          ? "bg-green-500"
+                          : status === "damaged"
+                            ? "bg-red-500"
+                            : status === "missing"
+                              ? "bg-yellow-500"
+                              : status === "unknown"
+                                ? "bg-gray-500"
+                                : "bg-gray-400"
+                          }`}
                       />
 
                       {status.charAt(0).toUpperCase() + status.slice(1)}

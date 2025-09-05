@@ -9,6 +9,10 @@ import RealtimeDetections from './RealtimeDetections';
 import StoredDetections from './StoredDetections';
 import LocationStatusOverview from './LocationStatusOverview';
 import { useHydroCameraDetection } from '../../../hooks/useHydroCameraDetection';
+import CameraControls from '../../common/CameraControls';
+import type { Direction } from '../../../models/interfaces/Camera';
+import { useHoverSlide } from '../../../hooks/useHoverSlide';
+import { HoverSlideIn } from "../../common/HoverSlideIn";
 
 interface CameraByLocationProps {
   location?: string;
@@ -29,12 +33,27 @@ const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
     stopCamera,
   } = useHydroCameraDetection(location);
 
+  const { isHovered, bind } = useHoverSlide();
+  // TODO: Replace with actual service call to move camera by direction/step
+  const handleMove = React.useCallback(
+    async (direction: Direction, step: number) => {
+      // Example: call a PTZ endpoint or device service
+      // await deviceService.moveCamera({ location, direction, step });
+      console.log('Move camera:', { location, direction, step });
+    },
+    [location]
+  );
+
+
 
   return (
     <div className="camera-by-location relative h-full">
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-3 h-full'>
         {/* Video and Canvas Container */}
-        <div className="relative h-full flex flex-col row-span-2 col-span-2 rounded-lg overflow-hidden bg-gray-900">
+        <div
+          className="relative h-full flex flex-col row-span-2 col-span-2 rounded-lg overflow-hidden bg-gray-900"
+          {...bind}
+        >
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10 rounded-lg">
               <Spinner size={48} colorClass="border-white" borderClass="border-4" />
@@ -73,10 +92,20 @@ const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
           <RealtimeDetections currentDetections={currentDetections} />
           {/* 🔹 Stored detections overlay (bottom) */}
           <StoredDetections hardwareDetections={storedDetections} location={location} />
+          {/* 🔹 Controls camera turn left, right, etc... */}
+          <HoverSlideIn isHovered={isHovered} from="right" className="absolute bottom-2 right-2 z-10">
+            <CameraControls
+              powered={isCameraEnabled}
+              onMove={handleMove}
+              step={10}                 // default nudge step
+              stepRange={{ min: 1, max: 45 }}
+              disabled={!location || loading}
+              className="absolute bottom-2 right-2 z-10 w-[200px] height-[100px]"
+            />
+          </HoverSlideIn>
         </div>
-
         {/* Panel placeholders */}
-        <div className="border border-gray-100 p-4 rounded-lg bg-white h-full">
+        <div className="border border-gray-100 p-4 rounded-lg shadow bg-white h-full">
           <div className="flex flex-col items-center gap-2 mb-3">
             <div className="flex space-x-1 w-full">
               {!isCameraEnabled ? (
@@ -115,14 +144,14 @@ const CameraByLocation: React.FC<CameraByLocationProps> = ({ location }) => {
               </div>
             </div>
             <hr className="my-2 w-full border-t border-zinc-950/5 dark:border-white/5" />
-            <LocationStatusOverview
-              status={currentLocationStatus}
-              loading={loading}
-              displayOptions={["total_expected", "total_detected"]}
-            />
           </div>
         </div>
-        <div className="border border-gray-100 p-4 rounded-lg bg-white h-full"></div>
+
+        <LocationStatusOverview
+          status={currentLocationStatus}
+          loading={loading}
+        />
+
       </div>
     </div>
   );

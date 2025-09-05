@@ -7,12 +7,14 @@ interface LocationStatusOverviewProps {
   displayOptions?: Array<
     "total_expected" | "total_detected" | "validated_count" | "avg_confidence"
   >;
+  columns?: 1 | 2 | 3 | 4;
 }
 
 const LocationStatusOverview: React.FC<LocationStatusOverviewProps> = ({
   status,
   loading,
   displayOptions = ["total_expected", "total_detected", "validated_count", "avg_confidence"], // default: show all
+   columns = 2,
 }) => {
   if (!status) {
     return (
@@ -66,14 +68,14 @@ const LocationStatusOverview: React.FC<LocationStatusOverviewProps> = ({
 
   // Dynamic responsive grid classes
   const gridCols = {
-    1: "sm:grid-cols-1",
-    2: "sm:grid-cols-2",
-    3: "sm:grid-cols-2 md:grid-cols-3",
-    4: "sm:grid-cols-2 md:grid-cols-4",
-  }[visibleCards.length] || "sm:grid-cols-1";
+    1: "grid-cols-1",
+    2: "grid-cols-1 sm:grid-cols-2",
+    3: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3",
+    4: "grid-cols-1 sm:grid-cols-2 md:grid-cols-4",
+  }[columns];
 
   return (
-    <div className={`grid grid-cols-1 ${gridCols} gap-4`}>
+    <div className={`grid ${gridCols} gap-4`}>
       {visibleCards.map((card) => (
         <div key={card.key} className={`${card.bg} p-4 rounded-lg`}>
           <h3 className={`text-sm font-medium ${card.text.replace("600", "900")}`}>

@@ -206,6 +206,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           variant="primary"
           className='md:w-auto'
           fullWidth={true}
+          rounded='lg'
         />
         <Button
           type="button"
@@ -215,6 +216,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           variant="secondary"
           className='md:w-auto'
           fullWidth={true}
+          rounded='lg'
         />
       </FormActions>
     </Form>

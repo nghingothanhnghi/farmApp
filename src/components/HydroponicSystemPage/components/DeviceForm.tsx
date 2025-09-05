@@ -70,7 +70,7 @@ const DeviceForm: React.FC<Props> = ({
                         </FormGroup>
                     ))}
                 </div>
-                <div className='flex flex-col bg-gray-100 rounded-lg space-y-0.5'>
+                <div className='flex flex-col border border-gray-100 rounded-lg space-y-0.5'>
                     <div className='p-4'>
                         <h3 className="text-sm font-medium text-gray-700 line-clamp-1">Linked Actuators</h3>
                     </div>
@@ -83,7 +83,7 @@ const DeviceForm: React.FC<Props> = ({
                                     actuator={actuator}
                                     variant="linked"
                                     onToggle={(id, active) => {
-                                        actions.updateActuator(id, { is_active: active }).then(() => {
+                                        actions.patchActuator(id, { is_active: active }).then(() => {
                                             setActuators((prev) =>
                                                 prev.map((a) =>
                                                     a.id === id ? { ...a, is_active: active } : a

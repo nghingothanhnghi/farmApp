@@ -5,6 +5,7 @@ import { useStreaming } from './useStreaming';
 import { useHydroSystem } from './useHydroSystem';
 import type { DetectionResult, Detection } from '../models/interfaces/Camera';
 import { classToHardwareType, hardwareColors } from '../utils/hardwareMappings';
+import { OBJECT_DETECTION_STREAM_MODE, OBJECT_DETECTION_CAPTURE_INTERVAL, OBJECT_DETECTION_MODEL_NAME } from '../config/constants';
 
 export const useHydroCameraDetection = (location?: string) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -107,9 +108,9 @@ export const useHydroCameraDetection = (location?: string) => {
   }, [actions, location, drawBoundingBoxes]);
 
   useStreaming({
-    streamMode: 'websocket',
-    captureInterval: 1000,
-    selectedModel: 'hardware-detection-model',
+    streamMode: OBJECT_DETECTION_STREAM_MODE,
+    captureInterval: OBJECT_DETECTION_CAPTURE_INTERVAL,
+    selectedModel: OBJECT_DETECTION_MODEL_NAME,
     captureFrame,
     isStreaming,
     processDetectionResults,

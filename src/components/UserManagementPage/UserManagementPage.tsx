@@ -12,6 +12,7 @@ import LinearProgress from '../common/LinearProgress';
 import DataGrid from '../common/dataGrid/dataGrid';
 import ActionButtons from '../common/dataGrid/actionButton';
 import Button from '../common/Button';
+import DropdownButton from '../common/DropdownButton';
 import Modal from '../common/Modal';
 import Badge from '../common/Badge';
 import Avatar from '../common/Avatar';
@@ -156,15 +157,15 @@ const UserManagementPage: React.FC = () => {
       filter: false,
       cellStyle: { display: "flex", justifyContent: "center", alignItems: "center", padding: 0 },
       cellRenderer: ({ data }: any) => (
-          <Avatar
-            imageUrl={data?.image_url}   // ✅ assuming your User model has `imageUrl` (adjust if different)
-            alt={data?.username}
-            size={24}                   // slightly smaller for table display
-            rounded="full"
-          />
+        <Avatar
+          imageUrl={data?.image_url}   // ✅ assuming your User model has `imageUrl` (adjust if different)
+          alt={data?.username}
+          size={24}                   // slightly smaller for table display
+          rounded="full"
+        />
       ),
-    },    
-    { headerName: 'Username', field: 'username', width: 150, resizable: false, filter: false,},
+    },
+    { headerName: 'Username', field: 'username', width: 150, resizable: false, filter: false, },
     { headerName: 'Email', field: 'email', flex: 1, resizable: false, filter: false },
     {
       headerName: 'Roles',
@@ -235,19 +236,24 @@ const UserManagementPage: React.FC = () => {
       resizable: false,
       pinned: "right",
       width: 200,
-      cellRenderer: ({ data }: any) => (
-        <select
-          className="border border-gray-300 rounded p-1"
-          disabled={!isRoles}
-          onChange={(e) => handleAssignRole(data.id, parseInt(e.target.value))}
-          defaultValue=""
-        >
-          <option value="" disabled>Select role</option>
-          {roles.map((role) => (
-            <option key={role.id} value={role.id}>{role.display_name}</option>
-          ))}
-        </select>
-      )
+      cellStyle: { display: "flex", justifyContent: "center", alignItems: "center", padding: 0 },
+      cellRenderer: ({ data }: any) => {
+        const dropdownItems = roles.map((role) => ({
+          label: role.display_name,
+          value: String(role.id),
+        }));
+
+        return (
+          <DropdownButton
+            label="Assign Role"
+            items={dropdownItems}
+            disabled={!isRoles}
+            onSelect={(item) => handleAssignRole(data.id, parseInt(item.value))}
+            variant="secondary"
+            size="xs"
+          />
+        );
+      },
     },
     {
       headerName: '',
@@ -356,12 +362,14 @@ const UserManagementPage: React.FC = () => {
               variant="danger"
               onClick={handleConfirmRemove}
               className='min-w-[150px]'
+              rounded='lg'
             />
             <Button
               label="Cancel"
               variant="secondary"
               onClick={() => setConfirmModalOpen(false)}
               className='min-w-[150px]'
+              rounded='lg'
             />
           </div>
         }

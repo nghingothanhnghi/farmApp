@@ -1,4 +1,4 @@
-import React, { useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { IconX, IconExclamationCircle, IconCheck, IconAlertCircle, IconInfoCircle } from '@tabler/icons-react';
 import Button from '../common/Button';
 import { useAlert } from '../../contexts/alertContext';
@@ -6,22 +6,20 @@ import { playSound } from '../../utils/sound';
 
 const Alert: React.FC = () => {
     const { alert, setAlert } = useAlert();
+    useEffect(() => {
+        if (alert) {
+            // ✅ Use your centralized sound util
+            if (alert.type === 'error') playSound('error');
+            else if (alert.type === 'warning' || alert.type === 'info') playSound('alert');
+            else if (alert.type === 'success') playSound('success');
 
+            const timeout = setTimeout(() => {
+                setAlert(null);
+            }, 5000);
 
-  useEffect(() => {
-    if (alert) {
-      // ✅ Use your centralized sound util
-      if (alert.type === 'error') playSound('error');
-      else if (alert.type === 'warning' || alert.type === 'info') playSound('alert');
-      else if (alert.type === 'success') playSound('success');
-
-      const timeout = setTimeout(() => {
-        setAlert(null);
-      }, 5000);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [alert, setAlert]);
+            return () => clearTimeout(timeout);
+        }
+    }, [alert, setAlert]);
 
 
     if (!alert) return null;
@@ -39,16 +37,16 @@ const Alert: React.FC = () => {
 
     const alertIcons = {
         success: (
-            <IconCheck className="h-6 w-6 text-green-500"/>
+            <IconCheck className="h-6 w-6 text-green-500" />
         ),
         error: (
-            <IconExclamationCircle className='h-6 w-6 text-red-500'/>
+            <IconExclamationCircle className='h-6 w-6 text-red-500' />
         ),
         info: (
-            <IconInfoCircle className="h-6 w-6 text-blue-500"/>
+            <IconInfoCircle className="h-6 w-6 text-blue-500" />
         ),
         warning: (
-            <IconAlertCircle className="h-6 w-6 text-yellow-500"/>
+            <IconAlertCircle className="h-6 w-6 text-yellow-500" />
         ),
     };
 
@@ -68,6 +66,7 @@ const Alert: React.FC = () => {
                     iconOnly
                     label="Close"
                     className="text-gray-800 hover:text-gray-900 bg-transparent"
+                    rounded='full'
                 />
             </div>
         </div>

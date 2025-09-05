@@ -29,6 +29,11 @@ export const actuatorService = {
     return res.data;
   },
 
+  async patch(id: number, data: Partial<HydroActuator>): Promise<HydroActuator> {
+    const res = await apiClient.patch(`/actuators/${id}`, data);
+    return res.data;
+  },
+
   async delete(id: number): Promise<void> {
     await apiClient.delete(`/actuators/${id}`);
   },

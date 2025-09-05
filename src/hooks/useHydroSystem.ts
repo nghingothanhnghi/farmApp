@@ -173,6 +173,11 @@ export const useHydroSystem = () => {
     return actuatorService.update(id, updates);
   };
 
+  const patchActuator = async (id: number, updates: Partial<HydroActuator>) => {
+    return actuatorService.patch(id, updates);
+  };
+
+
   const checkForAlerts = useCallback((statuses: SystemStatusPerDevice[]) => {
     const newAlerts: SystemAlert[] = [];
 
@@ -642,6 +647,7 @@ export const useHydroSystem = () => {
       fetchActuatorsByDevice,
       refreshData,
       updateActuator,
+      patchActuator,
 
       // Hardware detection actions
       fetchHardwareDetections,

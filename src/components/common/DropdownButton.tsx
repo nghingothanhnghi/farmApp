@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Button from './Button';
 
 interface DropdownItem {
@@ -44,14 +45,32 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [focusedIndex, setFocusedIndex] = useState<number>(-1);
-    // const [position, setPosition] = useState<'bottom' | 'top'>('bottom');
     const [position, setPosition] = useState<DropdownDirection>('bottom');
+    const [coords, setCoords] = useState<{ top: number; left: number; width: number }>({
+        top: 0,
+        left: 0,
+        width: 0,
+    });
 
     const containerRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLUListElement>(null);
 
+    const updateCoords = () => {
+        if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            setCoords({
+                top: rect.bottom + window.scrollY,
+                left: rect.left + window.scrollX,
+                width: rect.width,
+            });
+        }
+    };
+
     const handleToggle = () => {
         if (!disabled) {
+            if (!isOpen) {
+                updateCoords();
+            }
             setIsOpen((prev) => !prev);
             setFocusedIndex(-1);
         }
@@ -66,7 +85,9 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
     const handleClickOutside = (e: MouseEvent) => {
         if (
             containerRef.current &&
-            !containerRef.current.contains(e.target as Node)
+            !containerRef.current.contains(e.target as Node) &&
+            dropdownRef.current &&
+            !dropdownRef.current.contains(e.target as Node)
         ) {
             setIsOpen(false);
             setFocusedIndex(-1);
@@ -105,9 +126,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
                 const spaceRight = window.innerWidth - rect.right;
                 const spaceLeft = rect.left;
 
-                // Pick vertical direction first
                 if (spaceBelow >= dropdownHeight) {
-                    // Enough space below → align left/right based on available space
                     if (spaceRight >= dropdownWidth / 2 && spaceLeft >= dropdownWidth / 2) {
                         setPosition('bottom');
                     } else if (spaceRight >= dropdownWidth) {
@@ -116,7 +135,6 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
                         setPosition('bottom-right');
                     }
                 } else if (spaceAbove >= dropdownHeight) {
-                    // Enough space above
                     if (spaceRight >= dropdownWidth / 2 && spaceLeft >= dropdownWidth / 2) {
                         setPosition('top');
                     } else if (spaceRight >= dropdownWidth) {
@@ -129,7 +147,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
                 } else if (spaceLeft >= dropdownWidth) {
                     setPosition('left');
                 } else {
-                    setPosition('bottom'); // fallback
+                    setPosition('bottom');
                 }
             } else {
                 setPosition(direction);
@@ -137,7 +155,19 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
         }
     }, [isOpen, direction]);
 
+    // Recalculate coords on scroll/resize
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleResizeScroll = () => updateCoords();
+        window.addEventListener('resize', handleResizeScroll);
+        window.addEventListener('scroll', handleResizeScroll, true);
+        return () => {
+            window.removeEventListener('resize', handleResizeScroll);
+            window.removeEventListener('scroll', handleResizeScroll, true);
+        };
+    }, [isOpen]);
 
+    // Close when clicking outside
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -157,27 +187,11 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
                 className={className}
                 variant={variant}
                 size={size}
-                rounded='lg'
-                label={iconOnly ? (typeof label === "string" ? label : "") : ""} // ✅ tooltip if string
+                rounded="lg"
+                label={iconOnly ? (typeof label === 'string' ? label : '') : ''}
                 iconOnly={iconOnly}
                 icon={
                     <div className="flex items-center gap-2">
-                        {/* {!iconOnly && label}
-                        <svg
-                            className={`w-4 h-4 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'
-                                }`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 9l-7 7-7-7"
-                            />
-                        </svg> */}
-                        {/* If iconOnly → just render the label (Avatar/Icon/etc.) */}
                         {iconOnly ? (
                             label
                         ) : (
@@ -203,40 +217,41 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({
                         )}
                     </div>
                 }
-
             />
-            {isOpen && (
-                <ul
-                    ref={dropdownRef}
-                    className={`absolute z-10 min-w-[200px] bg-white border rounded shadow overflow-hidden
-                        transition-all duration-200 ease-out
-                        ${position === 'top' ? 'bottom-full mb-2 left-1/2 -translate-x-1/2' : ''}
-                        ${position === 'top-left' ? 'bottom-full mb-2 left-0' : ''}
-                        ${position === 'top-right' ? 'bottom-full mb-2 right-0' : ''}
-                        ${position === 'bottom' ? 'top-full mt-2 left-1/2 -translate-x-1/2' : ''}
-                        ${position === 'bottom-left' ? 'top-full mt-2 left-0' : ''}
-                        ${position === 'bottom-right' ? 'top-full mt-2 right-0' : ''}
-                        ${position === 'left' ? 'right-full mr-2 top-0' : ''}
-                        ${position === 'right' ? 'left-full ml-2 top-0' : ''}
-                        ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
-                    `}
-                >
-                    {items.map((item, index) => (
-                        <li
-                            key={index}
-                            className={`flex items-center px-4 py-2 cursor-pointer text-sm ${index === focusedIndex ? 'bg-gray-100' : 'hover:bg-gray-50'
-                                }`}
-                            onClick={() => handleSelect(item)}
-                            onMouseEnter={() => setFocusedIndex(index)}
-                            role="option"
-                            aria-selected={focusedIndex === index}
-                        >
-                            {item.icon && <span className="flex-shrink-0 pr-3">{item.icon}</span>}
-                            {item.label}
-                        </li>
-                    ))}
-                </ul>
-            )}
+            {isOpen &&
+                createPortal(
+                    <ul
+                        ref={dropdownRef}
+                        className="z-[9999] min-w-[200px] bg-white border rounded shadow absolute"
+                        style={{
+                            top:
+                                position.startsWith('top')
+                                    ? coords.top - (dropdownRef.current?.offsetHeight ?? 0) - 4
+                                    : coords.top,
+                            left:
+                                position.endsWith('right')
+                                    ? coords.left + coords.width - (dropdownRef.current?.offsetWidth ?? 0)
+                                    : position.endsWith('left')
+                                        ? coords.left
+                                        : coords.left + coords.width / 2 - (dropdownRef.current?.offsetWidth ?? 0) / 2,
+                            width: coords.width,
+                        }}
+                    >
+                        {items.map((item, index) => (
+                            <li
+                                key={index}
+                                className={`flex items-center px-4 py-2 cursor-pointer text-sm ${index === focusedIndex ? 'bg-gray-100' : 'hover:bg-gray-50'
+                                    }`}
+                                onClick={() => handleSelect(item)}
+                                onMouseEnter={() => setFocusedIndex(index)}
+                            >
+                                {item.icon && <span className="flex-shrink-0 pr-3">{item.icon}</span>}
+                                {item.label}
+                            </li>
+                        ))}
+                    </ul>,
+                    document.body
+                )}
         </div>
     );
 };

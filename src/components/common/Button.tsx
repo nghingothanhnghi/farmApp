@@ -14,7 +14,7 @@ interface ButtonProps {
   iconPosition?: 'left' | 'right';
   iconOnly?: boolean;
   size?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
-  rounded?: 'full' | 'md' | 'lg'; 
+  rounded?: 'full' | 'sm' | 'md' | 'lg'; 
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -63,6 +63,7 @@ const Button: React.FC<ButtonProps> = ({
 
   const roundedStyles = {
     full: 'rounded-full',
+    sm: 'rounded-sm',
     md: 'rounded-md',
     lg: 'rounded-lg',
   };
